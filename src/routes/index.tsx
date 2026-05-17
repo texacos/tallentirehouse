@@ -7,9 +7,9 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Tallentire House — Sustainable luxury homewares" },
-      { name: "description", content: "Hand-blocked cushions, handwoven fabrics and slow-craft ceramics, commissioned from small workshops and made to last." },
+      { name: "description", content: "Hand-blocked cushions, hand-loomed silk and slow-craft textiles from our Sri Lankan workshop. Made to last." },
       { property: "og:title", content: "Tallentire House — Sustainable luxury homewares" },
-      { property: "og:description", content: "Slow-craft homewares from the workshops we love." },
+      { property: "og:description", content: "Slow-craft homewares from our Sri Lankan workshop." },
       { property: "og:image", content: heroInterior },
       { name: "twitter:image", content: heroInterior },
     ],
@@ -18,7 +18,10 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const featured = PRODUCTS.slice(0, 4);
+  const featured = PRODUCTS.slice(0, 8);
+  const topCategories = CATEGORIES.slice(0, 8);
+  const ceramicsPick = PRODUCTS.find((p) => p.categories.includes("cups") || p.categories.includes("bowls")) ?? PRODUCTS[1];
+  const loungingPick = PRODUCTS.find((p) => p.categories.includes("dressing-gowns") || p.categories.includes("camisole-tops")) ?? PRODUCTS[2];
 
   return (
     <>
@@ -27,14 +30,14 @@ function Index() {
         <div className="grid lg:grid-cols-12 gap-0 items-stretch">
           <div className="lg:col-span-5 flex items-center px-6 lg:px-14 py-16 lg:py-32 order-2 lg:order-1">
             <div className="max-w-md">
-              <p className="eyebrow text-foreground/60">Spring collection · 2026</p>
+              <p className="eyebrow text-foreground/60">From our Sri Lankan workshop</p>
               <h1 className="mt-5 font-display text-5xl md:text-6xl lg:text-7xl leading-[0.95]">
                 Fabrics<br/>for a life<br/><em className="text-clay">slowly lived.</em>
               </h1>
               <p className="mt-6 text-base text-muted-foreground leading-relaxed">
-                Hand-blocked cushions, handwoven throws and slow-craft ceramics —
-                commissioned from the small workshops we've known for years and
-                made for the homes that will love them for many more.
+                Hand-blocked cushions, hand-loomed silk and slow-craft textiles —
+                made in small batches in our workshop, by the people we've known
+                for years, for the homes that will love them for many more.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
@@ -55,7 +58,7 @@ function Index() {
           <div className="lg:col-span-7 order-1 lg:order-2">
             <img
               src={heroInterior}
-              alt="Sustainable luxury bedroom with hand-blocked indigo cushions and antique carved bed"
+              alt="Sustainable luxury bedroom with hand-blocked indigo cushions"
               width={1600}
               height={1100}
               className="h-[60vh] lg:h-[90vh] w-full object-cover"
@@ -66,17 +69,17 @@ function Index() {
 
       {/* CATEGORIES STRIP */}
       <section className="border-y border-border bg-secondary/40">
-        <div className="mx-auto max-w-7xl px-6 lg:px-10 py-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-y-6 gap-x-4 text-center">
-          {CATEGORIES.map((c) => (
+        <div className="mx-auto max-w-7xl px-6 lg:px-10 py-12 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-y-6 gap-x-4 text-center">
+          {topCategories.map((c) => (
             <Link
               key={c.slug}
               to="/shop"
               search={{ category: c.slug }}
-              className="group flex flex-col items-center gap-2 hover:text-clay transition-colors"
+              className="group flex flex-col items-center gap-1 hover:text-clay transition-colors"
             >
-              <span className="font-display text-2xl">{c.label.split(" ")[0]}</span>
-              <span className="eyebrow text-foreground/60 group-hover:text-clay">
-                Browse
+              <span className="font-display text-xl leading-tight">{c.label}</span>
+              <span className="eyebrow text-foreground/60 group-hover:text-clay text-[10px]">
+                {c.count} pieces
               </span>
             </Link>
           ))}
@@ -114,31 +117,31 @@ function Index() {
       {/* SECONDARY GRID */}
       <section className="mx-auto max-w-7xl px-6 lg:px-10 py-24">
         <div className="grid lg:grid-cols-2 gap-10">
-          <Link to="/shop" search={{ category: "ceramics" }} className="group block">
+          <Link to="/shop" search={{ category: "cups" }} className="group block">
             <div className="overflow-hidden bg-muted aspect-[4/5]">
               <img
-                src={PRODUCTS[2].image}
+                src={ceramicsPick.images[0]}
                 alt="Ceramics"
                 width={1200} height={1500} loading="lazy"
                 className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
               />
             </div>
             <div className="mt-6">
-              <p className="eyebrow text-foreground/60">Ceramics</p>
+              <p className="eyebrow text-foreground/60">Tableware</p>
               <h3 className="font-display text-3xl mt-2">Slow-thrown stoneware</h3>
             </div>
           </Link>
-          <Link to="/shop" search={{ category: "lounging" }} className="group block">
+          <Link to="/shop" search={{ category: "dressing-gowns" }} className="group block">
             <div className="overflow-hidden bg-muted aspect-[4/5]">
               <img
-                src={PRODUCTS[4].image}
+                src={loungingPick.images[0]}
                 alt="Lounging"
                 width={1200} height={1500} loading="lazy"
                 className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
               />
             </div>
             <div className="mt-6">
-              <p className="eyebrow text-foreground/60">Lounging</p>
+              <p className="eyebrow text-foreground/60">Loungewear</p>
               <h3 className="font-display text-3xl mt-2">For the long evenings</h3>
             </div>
           </Link>

@@ -66,7 +66,7 @@ function CartPage() {
               <li key={product.slug} className="flex gap-5 py-6">
                 <Link to="/product/$slug" params={{ slug: product.slug }} className="shrink-0">
                   <img
-                    src={product.image}
+                    src={product.images[0]}
                     alt={product.name}
                     width={140}
                     height={140}
@@ -84,7 +84,7 @@ function CartPage() {
                       >
                         {product.name}
                       </Link>
-                      <p className="text-xs text-muted-foreground mt-1 uppercase tracking-[0.18em]">{product.origin}</p>
+                      {product.sku && <p className="text-xs text-muted-foreground mt-1 uppercase tracking-[0.18em]">SKU: {product.sku}</p>}
                     </div>
                     <button onClick={() => remove(product.slug)} aria-label="Remove" className="p-1 text-foreground/50 hover:text-foreground">
                       <X size={16} />
