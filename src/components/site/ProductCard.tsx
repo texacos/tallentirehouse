@@ -10,7 +10,7 @@ export function ProductCard({ product }: { product: Product }) {
     >
       <div className="overflow-hidden bg-muted aspect-square">
         <img
-          src={product.image}
+          src={product.images[0]}
           alt={product.name}
           width={900}
           height={900}
@@ -19,10 +19,9 @@ export function ProductCard({ product }: { product: Product }) {
         />
       </div>
       <div className="mt-4 flex justify-between items-baseline gap-3">
-        <h3 className="font-display text-xl leading-snug">{product.name}</h3>
-        <span className="text-sm tabular-nums text-foreground/80">{formatPrice(product.price)}</span>
+        <h3 className="font-display text-lg leading-snug">{product.name}</h3>
+        <span className="text-sm tabular-nums text-foreground/80 whitespace-nowrap">{formatPrice(product.price)}</span>
       </div>
-      <p className="mt-1 text-xs text-muted-foreground uppercase tracking-[0.18em]">{product.origin}</p>
     </Link>
   );
 }

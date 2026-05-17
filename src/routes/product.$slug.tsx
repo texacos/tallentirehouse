@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
-import { CATEGORIES, formatPrice, getProduct, PRODUCTS } from "@/lib/products";
+import { formatPrice, getCategory, getProduct, PRODUCTS } from "@/lib/products";
 import { useCart } from "@/lib/cart";
 import { ProductCard } from "@/components/site/ProductCard";
 
@@ -15,11 +15,11 @@ export const Route = createFileRoute("/product/$slug")({
     meta: loaderData
       ? [
           { title: `${loaderData.product.name} — Tallentire House` },
-          { name: "description", content: loaderData.product.blurb },
+          { name: "description", content: loaderData.product.description.slice(0, 155) },
           { property: "og:title", content: `${loaderData.product.name} — Tallentire House` },
-          { property: "og:description", content: loaderData.product.blurb },
-          { property: "og:image", content: loaderData.product.image },
-          { name: "twitter:image", content: loaderData.product.image },
+          { property: "og:description", content: loaderData.product.description.slice(0, 155) },
+          { property: "og:image", content: loaderData.product.images[0] },
+          { name: "twitter:image", content: loaderData.product.images[0] },
         ]
       : [],
   }),
@@ -37,8 +37,14 @@ function ProductPage() {
   const { product } = Route.useLoaderData();
   const { add, openDrawer } = useCart();
   const [qty, setQty] = useState(1);
-  const categoryLabel = CATEGORIES.find((c) => c.slug === product.category)?.label;
-  const related = PRODUCTS.filter((p) => p.slug !== product.slug).slice(0, 4);
+  const [activeImg, setActiveImg] = useState(0);
+
+  const primaryCategorySlug = product.categories[0];
+  const primaryCategory = primaryCategorySlug ? getCategory(primaryCategorySlug) : undefined;
+
+  const related = PRODUCTS.filter(
+    (p) => p.slug !== product.slug && p.categories.some((c) => product.categories.includes(c)),
+  ).slice(0, 4);
 
   const handleAdd = () => {
     add(product.slug, qty);
@@ -47,58 +53,61 @@ function ProductPage() {
 
   return (
     <div>
-      {/* Breadcrumb */}
       <div className="border-b border-border">
         <div className="mx-auto max-w-7xl px-6 lg:px-10 py-4 text-[11px] uppercase tracking-[0.22em] text-foreground/60">
           <Link to="/" className="hover:text-foreground">Home</Link>
           <span className="mx-2">/</span>
           <Link to="/shop" className="hover:text-foreground">Shop</Link>
-          <span className="mx-2">/</span>
-          <Link to="/shop" search={{ category: product.category }} className="hover:text-foreground">{categoryLabel}</Link>
+          {primaryCategory && (
+            <>
+              <span className="mx-2">/</span>
+              <Link to="/shop" search={{ category: primaryCategory.slug }} className="hover:text-foreground">{primaryCategory.label}</Link>
+            </>
+          )}
         </div>
       </div>
 
       <section className="mx-auto max-w-7xl px-6 lg:px-10 py-12 lg:py-20">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
-          {/* Image */}
-          <div className="bg-muted">
-            <img
-              src={product.image}
-              alt={product.name}
-              width={900}
-              height={900}
-              className="h-full w-full object-cover"
-            />
+          {/* Images */}
+          <div>
+            <div className="bg-muted aspect-square overflow-hidden">
+              <img
+                src={product.images[activeImg]}
+                alt={product.name}
+                width={1200}
+                height={1200}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            {product.images.length > 1 && (
+              <div className="mt-3 grid grid-cols-5 gap-2">
+                {product.images.map((src, i) => (
+                  <button
+                    key={src}
+                    onClick={() => setActiveImg(i)}
+                    className={`aspect-square overflow-hidden border ${i === activeImg ? "border-foreground" : "border-transparent opacity-70 hover:opacity-100"}`}
+                  >
+                    <img src={src} alt="" className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Details */}
           <div className="lg:py-6">
-            <p className="eyebrow text-foreground/60">{categoryLabel}</p>
-            <h1 className="mt-4 font-display text-5xl md:text-6xl leading-[0.95]">{product.name}</h1>
+            {primaryCategory && <p className="eyebrow text-foreground/60">{primaryCategory.label}</p>}
+            <h1 className="mt-4 font-display text-4xl md:text-5xl leading-[1.05]">{product.name}</h1>
             <div className="mt-5 text-xl tabular-nums">{formatPrice(product.price)}</div>
-
-            <p className="mt-8 text-base leading-relaxed text-foreground/85">{product.blurb}</p>
-
-            <div className="my-8 rule" />
-
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="eyebrow text-foreground/60 mb-1.5">Made in</p>
-                <p>{product.origin}</p>
-              </div>
-              <div>
-                <p className="eyebrow text-foreground/60 mb-1.5">Materials</p>
-                <p>{product.materials}</p>
-              </div>
-            </div>
+            {product.sku && <p className="mt-2 text-xs text-muted-foreground">SKU: {product.sku}</p>}
 
             <div className="my-8 rule" />
 
-            <p className="text-sm leading-relaxed text-muted-foreground">
+            <p className="text-sm leading-relaxed text-foreground/85 whitespace-pre-line">
               {product.description}
             </p>
 
-            {/* Quantity + add */}
             <div className="mt-10 flex items-stretch gap-3">
               <div className="inline-flex items-center border border-foreground">
                 <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="px-3 py-3" aria-label="Decrease">
@@ -124,15 +133,16 @@ function ProductPage() {
         </div>
       </section>
 
-      {/* Related */}
-      <section className="mx-auto max-w-7xl px-6 lg:px-10 pb-24">
-        <h2 className="font-display text-3xl mb-10">You may also love</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
-          {related.map((p) => (
-            <ProductCard key={p.slug} product={p} />
-          ))}
-        </div>
-      </section>
+      {related.length > 0 && (
+        <section className="mx-auto max-w-7xl px-6 lg:px-10 pb-24">
+          <h2 className="font-display text-3xl mb-10">You may also love</h2>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
+            {related.map((p) => (
+              <ProductCard key={p.slug} product={p} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
