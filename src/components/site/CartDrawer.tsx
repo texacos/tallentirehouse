@@ -62,7 +62,7 @@ export function CartDrawer() {
                   <li key={product.slug} className="flex gap-4 py-5">
                     <Link to="/product/$slug" params={{ slug: product.slug }} onClick={closeDrawer} className="shrink-0">
                       <img
-                        src={product.image}
+                        src={product.images[0]}
                         alt={product.name}
                         width={88}
                         height={88}
@@ -82,7 +82,7 @@ export function CartDrawer() {
                         </Link>
                         <div className="text-sm">{formatPrice(lineTotal)}</div>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">{product.origin}</p>
+                      {product.sku && <p className="text-xs text-muted-foreground mt-1">SKU: {product.sku}</p>}
                       <div className="mt-3 flex items-center justify-between">
                         <div className="inline-flex items-center border border-border">
                           <button onClick={() => setQty(product.slug, qty - 1)} className="p-1.5" aria-label="Decrease">
