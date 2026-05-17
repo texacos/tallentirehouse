@@ -7,6 +7,7 @@ import { CATEGORIES } from "@/lib/products";
 export function Header() {
   const { count, openDrawer } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navCategories = CATEGORIES.slice(0, 7);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
@@ -20,8 +21,7 @@ export function Header() {
         </button>
 
         <nav className="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.18em] text-foreground/80">
-          <Link to="/shop" className="hover:text-foreground transition-colors">Shop</Link>
-          <Link to="/about" className="hover:text-foreground transition-colors">Journal</Link>
+          <Link to="/shop" className="hover:text-foreground transition-colors">Shop all</Link>
           <Link to="/about" className="hover:text-foreground transition-colors">Our Story</Link>
         </nav>
 
@@ -46,10 +46,10 @@ export function Header() {
         </div>
       </div>
 
-      {/* Secondary nav (categories) */}
+      {/* Secondary nav (top categories) */}
       <div className="hidden lg:block border-t border-border/40">
-        <div className="mx-auto flex max-w-7xl items-center justify-center gap-10 px-10 py-3 text-[12px] uppercase tracking-[0.22em] text-foreground/70">
-          {CATEGORIES.map((c) => (
+        <div className="mx-auto flex max-w-7xl items-center justify-center gap-8 px-10 py-3 text-[11px] uppercase tracking-[0.22em] text-foreground/70">
+          {navCategories.map((c) => (
             <Link
               key={c.slug}
               to="/shop"
@@ -59,12 +59,15 @@ export function Header() {
               {c.label}
             </Link>
           ))}
+          <Link to="/shop" className="hover:text-foreground transition-colors font-medium">
+            All →
+          </Link>
         </div>
       </div>
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="lg:hidden border-t border-border/40 bg-background">
+        <div className="lg:hidden border-t border-border/40 bg-background max-h-[70vh] overflow-y-auto">
           <div className="flex flex-col gap-1 px-6 py-4 text-sm uppercase tracking-[0.18em]">
             <Link to="/shop" onClick={() => setMobileOpen(false)} className="py-2">Shop all</Link>
             {CATEGORIES.map((c) => (
