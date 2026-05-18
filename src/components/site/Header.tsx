@@ -56,17 +56,17 @@ export function Header() {
         </div>
       </div>
 
-      {/* Secondary nav (top categories) */}
+      {/* Secondary nav (top-level groups) */}
       <div className="hidden lg:block border-t border-border/40">
         <div className="mx-auto flex max-w-7xl items-center justify-center gap-8 px-10 py-3 text-[11px] uppercase tracking-[0.22em] text-foreground/70">
-          {navCategories.map((c) => (
+          {navGroups.map((g) => (
             <Link
-              key={c.slug}
+              key={g.slug}
               to="/shop"
-              search={{ category: c.slug }}
+              search={{ category: g.slug }}
               className="hover:text-foreground transition-colors"
             >
-              {c.label}
+              {g.label}
             </Link>
           ))}
           <Link to="/shop" className="hover:text-foreground transition-colors font-medium">
@@ -75,23 +75,90 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — expandable hierarchy */}
       {mobileOpen && (
-        <div className="lg:hidden border-t border-border/40 bg-background max-h-[70vh] overflow-y-auto">
-          <div className="flex flex-col gap-1 px-6 py-4 text-sm uppercase tracking-[0.18em]">
-            <Link to="/shop" onClick={() => setMobileOpen(false)} className="py-2">Shop all</Link>
-            {CATEGORIES.map((c) => (
+        <div className="lg:hidden border-t border-border/40 bg-background max-h-[80vh] overflow-y-auto">
+          <div className="flex flex-col px-6 py-4 text-sm">
+            <Link
+              to="/shop"
+              onClick={() => setMobileOpen(false)}
+              className="py-2.5 uppercase tracking-[0.18em] border-b border-border/50"
+            >
+              Shop all
+            </Link>
+
+            {CATEGORY_GROUPS.map((g) => {
+              const isOpen = openGroups.has(g.slug);
+              return (
+                <div key={g.slug} className="border-b border-border/50">
+                  <div className="flex items-stretch">
+                    <Link
+                      to="/shop"
+                      search={{ category: g.slug }}
+                      onClick={() => setMobileOpen(false)}
+                      className="flex-1 py-2.5 uppercase tracking-[0.18em] text-foreground/85"
+                    >
+                      {g.label}
+                    </Link>
+                    <button
+                      type="button"
+                      aria-label={isOpen ? `Collapse ${g.label}` : `Expand ${g.label}`}
+                      aria-expanded={isOpen}
+                      onClick={() => toggleGroup(g.slug)}
+                      className="px-3 text-foreground/50 hover:text-foreground"
+                    >
+                      <ChevronDown
+                        size={16}
+                        className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                  </div>
+                  {isOpen && (
+                    <ul className="pb-3 pl-3 space-y-1">
+                      {g.children.map((leafSlug) => {
+                        const leaf = CATEGORIES.find((c) => c.slug === leafSlug);
+                        if (!leaf) return null;
+                        return (
+                          <li key={leafSlug}>
+                            <Link
+                              to="/shop"
+                              search={{ category: leafSlug }}
+                              onClick={() => setMobileOpen(false)}
+                              className="block py-1.5 text-[13px] text-foreground/70 border-l border-border/40 pl-3"
+                            >
+                              {leaf.label}
+                              <span className="ml-2 text-foreground/40 tabular-nums text-xs">
+                                {leaf.count}
+                              </span>
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
+
+            {UNGROUPED.map((c) => (
               <Link
                 key={c.slug}
                 to="/shop"
                 search={{ category: c.slug }}
                 onClick={() => setMobileOpen(false)}
-                className="py-2 text-foreground/80"
+                className="py-2.5 uppercase tracking-[0.18em] text-foreground/85 border-b border-border/50"
               >
                 {c.label}
               </Link>
             ))}
-            <Link to="/about" onClick={() => setMobileOpen(false)} className="py-2">Our Story</Link>
+
+            <Link
+              to="/about"
+              onClick={() => setMobileOpen(false)}
+              className="py-2.5 mt-2 uppercase tracking-[0.18em]"
+            >
+              Our Story
+            </Link>
           </div>
         </div>
       )}
