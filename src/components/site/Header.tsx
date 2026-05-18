@@ -26,8 +26,8 @@ export function Header() {
         </nav>
 
         <Link to="/" className="flex items-baseline gap-3 select-none">
-          <span className="font-display text-3xl md:text-4xl tracking-tight">Tallentire</span>
-          <span className="hidden sm:inline eyebrow text-foreground/60">Fabrics for life</span>
+          <span className="font-display text-3xl md:text-4xl tracking-tight text-nowrap">Tallentire House</span>
+          <span className="hidden lg:inline eyebrow text-foreground/60">Fabrics for life</span>
         </Link>
 
         <div className="flex items-center gap-1">
