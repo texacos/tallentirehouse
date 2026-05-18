@@ -13,6 +13,72 @@ export type Product = {
 
 export type CategoryInfo = { slug: string; label: string; count: number };
 
+export type CategoryGroup = {
+  slug: string;
+  label: string;
+  children: string[]; // leaf category slugs
+};
+
+// Parent groupings of the leaf categories. Parent slugs are namespaced
+// with the `group-` prefix to avoid colliding with any leaf slug.
+export const CATEGORY_GROUPS: CategoryGroup[] = [
+  {
+    slug: "group-fabrics",
+    label: "Fabrics",
+    children: ["cotton-canvas", "cotton-twill", "cotton-voile", "cotton-flax"],
+  },
+  {
+    slug: "group-cushions",
+    label: "Cushions & Bolsters",
+    children: ["cotton-cushions", "silk-cushions", "bolsters", "cushions-bolsters"],
+  },
+  {
+    slug: "group-bags",
+    label: "Bags & Purses",
+    children: ["cosmetics-purses", "travel-purses", "shopping-bags", "weekend-travel-bags"],
+  },
+  {
+    slug: "group-loungewear",
+    label: "Loungewear & Sleepwear",
+    children: [
+      "dressing-gowns",
+      "pyjama-tops",
+      "pyjama-trousers",
+      "camisole-tops",
+      "camisole-shorts",
+      "children-pyjamas",
+      "sarongs",
+      "loungewear",
+    ],
+  },
+  {
+    slug: "group-tops-dresses",
+    label: "Tops & Dresses",
+    children: [
+      "sleeveless-tops-dresses",
+      "long-sleeved-dresses",
+      "smock-tops",
+      "men-s-shirts",
+      "jackets",
+    ],
+  },
+  {
+    slug: "group-stoles",
+    label: "Stoles & Shawls",
+    children: ["tabby-silk-stoles", "gajji-silk-stoles", "halcyon-shawls-bedthrows"],
+  },
+  {
+    slug: "group-tableware",
+    label: "Tableware",
+    children: ["napkins", "placemats", "aprons"],
+  },
+  {
+    slug: "group-ceramics",
+    label: "Ceramics",
+    children: ["cups", "bowls", "plates"],
+  },
+];
+
 export const CATEGORIES: CategoryInfo[] = [
   {
     "slug": "cosmetics-purses",
@@ -196,6 +262,33 @@ export const getProductsByCategory = (categorySlug: string): Product[] =>
 
 export const getCategory = (slug: string): CategoryInfo | undefined =>
   CATEGORIES.find((c) => c.slug === slug);
+
+const GROUP_INDEX: Record<string, CategoryGroup> = Object.fromEntries(
+  CATEGORY_GROUPS.map((g) => [g.slug, g]),
+);
+export const getCategoryGroup = (slug: string): CategoryGroup | undefined =>
+  GROUP_INDEX[slug];
+
+// Resolve a filter slug (leaf category OR parent group) to the leaf slugs
+// that should match. Returns null when the slug is unknown.
+export const resolveCategoryFilter = (slug: string | undefined): string[] | null => {
+  if (!slug) return null;
+  const group = GROUP_INDEX[slug];
+  if (group) return group.children;
+  if (getCategory(slug)) return [slug];
+  return null;
+};
+
+// Count of products matching a leaf slug OR a parent group slug.
+export const countForCategory = (slug: string): number => {
+  const leaves = resolveCategoryFilter(slug);
+  if (!leaves) return 0;
+  return PRODUCTS.filter((p) => p.categories.some((c) => leaves.includes(c))).length;
+};
+
+// Label resolver that handles both leaves and groups.
+export const getCategoryLabel = (slug: string): string =>
+  getCategoryGroup(slug)?.label ?? getCategory(slug)?.label ?? slug;
 
 export const formatPrice = (n: number): string =>
   new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR', maximumFractionDigits: 0 }).format(n);
