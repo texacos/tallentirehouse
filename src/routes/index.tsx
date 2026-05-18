@@ -110,7 +110,7 @@ function Index() {
             "We don't believe in trends. We believe in pieces that find their way
             into the rhythm of a home and stay there — quietly, for many years."
           </p>
-          <p className="mt-8 eyebrow text-background/60">— The Tallentire studio</p>
+          <p className="mt-8 eyebrow text-background/60">— Tallentire House</p>
         </div>
       </section>
 
