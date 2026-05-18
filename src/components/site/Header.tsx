@@ -1,13 +1,23 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingBag, Menu, X } from "lucide-react";
+import { ShoppingBag, Menu, X, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/lib/cart";
-import { CATEGORIES } from "@/lib/products";
+import { CATEGORIES, CATEGORY_GROUPS } from "@/lib/products";
+
+const GROUPED_LEAVES = new Set(CATEGORY_GROUPS.flatMap((g) => g.children));
+const UNGROUPED = CATEGORIES.filter((c) => !GROUPED_LEAVES.has(c.slug));
 
 export function Header() {
   const { count, openDrawer } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const navCategories = CATEGORIES.slice(0, 7);
+  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
+  const toggleGroup = (slug: string) =>
+    setOpenGroups((prev) => {
+      const next = new Set(prev);
+      next.has(slug) ? next.delete(slug) : next.add(slug);
+      return next;
+    });
+  const navGroups = CATEGORY_GROUPS.slice(0, 7);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
