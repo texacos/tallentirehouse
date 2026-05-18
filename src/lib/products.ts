@@ -13,6 +13,72 @@ export type Product = {
 
 export type CategoryInfo = { slug: string; label: string; count: number };
 
+export type CategoryGroup = {
+  slug: string;
+  label: string;
+  children: string[]; // leaf category slugs
+};
+
+// Parent groupings of the leaf categories. Parent slugs are namespaced
+// with the `group-` prefix to avoid colliding with any leaf slug.
+export const CATEGORY_GROUPS: CategoryGroup[] = [
+  {
+    slug: "group-fabrics",
+    label: "Fabrics",
+    children: ["cotton-canvas", "cotton-twill", "cotton-voile", "cotton-flax"],
+  },
+  {
+    slug: "group-cushions",
+    label: "Cushions & Bolsters",
+    children: ["cotton-cushions", "silk-cushions", "bolsters", "cushions-bolsters"],
+  },
+  {
+    slug: "group-bags",
+    label: "Bags & Purses",
+    children: ["cosmetics-purses", "travel-purses", "shopping-bags", "weekend-travel-bags"],
+  },
+  {
+    slug: "group-loungewear",
+    label: "Loungewear & Sleepwear",
+    children: [
+      "dressing-gowns",
+      "pyjama-tops",
+      "pyjama-trousers",
+      "camisole-tops",
+      "camisole-shorts",
+      "children-pyjamas",
+      "sarongs",
+      "loungewear",
+    ],
+  },
+  {
+    slug: "group-tops-dresses",
+    label: "Tops & Dresses",
+    children: [
+      "sleeveless-tops-dresses",
+      "long-sleeved-dresses",
+      "smock-tops",
+      "men-s-shirts",
+      "jackets",
+    ],
+  },
+  {
+    slug: "group-stoles",
+    label: "Stoles & Shawls",
+    children: ["tabby-silk-stoles", "gajji-silk-stoles", "halcyon-shawls-bedthrows"],
+  },
+  {
+    slug: "group-tableware",
+    label: "Tableware",
+    children: ["napkins", "placemats", "aprons"],
+  },
+  {
+    slug: "group-ceramics",
+    label: "Ceramics",
+    children: ["cups", "bowls", "plates"],
+  },
+];
+
 export const CATEGORIES: CategoryInfo[] = [
   {
     "slug": "cosmetics-purses",
