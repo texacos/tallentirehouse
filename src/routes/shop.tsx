@@ -6,6 +6,7 @@ import {
   CATEGORIES,
   CATEGORY_GROUPS,
   PRODUCTS,
+  type CategoryGroup,
   countForCategory,
   getCategoryLabel,
   resolveCategoryFilter,
