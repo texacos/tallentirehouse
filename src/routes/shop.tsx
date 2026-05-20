@@ -11,6 +11,15 @@ import {
   resolveCategoryFilter,
 } from "@/lib/products";
 import { ProductCard } from "@/components/site/ProductCard";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+
 
 const PAGE_SIZE = 48;
 
