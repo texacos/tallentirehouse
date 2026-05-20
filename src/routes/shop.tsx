@@ -261,3 +261,59 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
     </nav>
   );
 }
+
+// Find the parent group that contains a given leaf slug.
+function findParentGroup(leafSlug: string): CategoryGroup | undefined {
+  return CATEGORY_GROUPS.find((g) => g.children.includes(leafSlug));
+}
+
+function CategoryBreadcrumbs({ activeSlug }: { activeSlug?: string }) {
+  const group = activeSlug ? findParentGroup(activeSlug) : undefined;
+  const label = activeSlug ? getCategoryLabel(activeSlug) : undefined;
+
+  return (
+    <Breadcrumb>
+      <BreadcrumbList className="text-xs text-muted-foreground">
+        <BreadcrumbItem>
+          <BreadcrumbLink asChild>
+            <Link to="/">Home</Link>
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+
+        <BreadcrumbSeparator />
+
+        {activeSlug ? (
+          <>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/shop">Shop</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+
+            {group && (
+              <>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link to="/shop" search={{ category: group.slug }}>
+                      {group.label}
+                    </Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+              </>
+            )}
+
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage className="text-foreground/80">{label}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </>
+        ) : (
+          <BreadcrumbItem>
+            <BreadcrumbPage className="text-foreground/80">Shop</BreadcrumbPage>
+          </BreadcrumbItem>
+        )}
+      </BreadcrumbList>
+    </Breadcrumb>
+  );
+}
