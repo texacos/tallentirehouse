@@ -85,7 +85,8 @@ function Shop() {
 
           {/* GRID */}
           <div>
-            <p className="eyebrow text-foreground/60 mb-6">
+            <CategoryBreadcrumbs activeSlug={category} />
+            <p className="eyebrow text-foreground/60 mb-6 mt-4">
               {filtered.length} {filtered.length === 1 ? "piece" : "pieces"}
             </p>
             {items.length === 0 ? (
