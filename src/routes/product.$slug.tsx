@@ -1,50 +1,58 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
-import { formatPrice, getCategory, getProduct, PRODUCTS } from "@/lib/products";
+import { formatPrice, getCategory, getProduct } from "@/lib/products";
+import { useAllProducts, useCustomProducts } from "@/lib/customProducts";
 import { useCart } from "@/lib/cart";
 import { ProductCard } from "@/components/site/ProductCard";
 
 export const Route = createFileRoute("/product/$slug")({
-  loader: ({ params }) => {
+  head: ({ params }) => {
     const product = getProduct(params.slug);
-    if (!product) throw notFound();
-    return { product };
+    return {
+      meta: product
+        ? [
+            { title: `${product.name} — Tallentire House` },
+            { name: "description", content: product.description.slice(0, 155) },
+            { property: "og:title", content: `${product.name} — Tallentire House` },
+            { property: "og:description", content: product.description.slice(0, 155) },
+            { property: "og:image", content: product.images[0] },
+            { name: "twitter:image", content: product.images[0] },
+          ]
+        : [{ title: "Product — Tallentire House" }],
+    };
   },
-  head: ({ loaderData }) => ({
-    meta: loaderData
-      ? [
-          { title: `${loaderData.product.name} — Tallentire House` },
-          { name: "description", content: loaderData.product.description.slice(0, 155) },
-          { property: "og:title", content: `${loaderData.product.name} — Tallentire House` },
-          { property: "og:description", content: loaderData.product.description.slice(0, 155) },
-          { property: "og:image", content: loaderData.product.images[0] },
-          { name: "twitter:image", content: loaderData.product.images[0] },
-        ]
-      : [],
-  }),
-  notFoundComponent: () => (
-    <div className="mx-auto max-w-3xl px-6 py-32 text-center">
-      <p className="eyebrow text-foreground/60">404</p>
-      <h1 className="mt-4 font-display text-4xl">We can't find that piece</h1>
-      <Link to="/shop" className="mt-6 inline-block eyebrow border-b border-foreground pb-0.5">Back to the shop</Link>
-    </div>
-  ),
   component: ProductPage,
 });
 
 function ProductPage() {
-  const { product } = Route.useLoaderData();
+  const { slug } = Route.useParams();
+  const customProducts = useCustomProducts();
+  const allProducts = useAllProducts();
+  const product =
+    customProducts.find((p) => p.slug === slug) ?? getProduct(slug);
+
   const { add, openDrawer } = useCart();
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState(0);
 
+  if (!product) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 py-32 text-center">
+        <p className="eyebrow text-foreground/60">404</p>
+        <h1 className="mt-4 font-display text-4xl">We can't find that piece</h1>
+        <Link to="/shop" className="mt-6 inline-block eyebrow border-b border-foreground pb-0.5">Back to the shop</Link>
+      </div>
+    );
+  }
+
   const primaryCategorySlug = product.categories[0];
   const primaryCategory = primaryCategorySlug ? getCategory(primaryCategorySlug) : undefined;
 
-  const related = PRODUCTS.filter(
+  const related = allProducts.filter(
     (p) => p.slug !== product.slug && p.categories.some((c) => product.categories.includes(c)),
   ).slice(0, 4);
+
 
   const handleAdd = () => {
     add(product.slug, qty);

@@ -5,12 +5,11 @@ import { z } from "zod";
 import {
   CATEGORIES,
   CATEGORY_GROUPS,
-  PRODUCTS,
   type CategoryGroup,
-  countForCategory,
   getCategoryLabel,
   resolveCategoryFilter,
 } from "@/lib/products";
+import { useAllProducts } from "@/lib/customProducts";
 import { ProductCard } from "@/components/site/ProductCard";
 import {
   Breadcrumb,
@@ -51,12 +50,13 @@ const UNGROUPED_CATEGORIES = CATEGORIES.filter((c) => !GROUPED_LEAVES.has(c.slug
 
 function Shop() {
   const { category, page = 1 } = Route.useSearch();
+  const allProducts = useAllProducts();
 
   const filtered = useMemo(() => {
     const leaves = resolveCategoryFilter(category);
-    if (!leaves) return PRODUCTS;
-    return PRODUCTS.filter((p) => p.categories.some((c) => leaves.includes(c)));
-  }, [category]);
+    if (!leaves) return allProducts;
+    return allProducts.filter((p) => p.categories.some((c) => leaves.includes(c)));
+  }, [category, allProducts]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const current = Math.min(page, pageCount);
@@ -68,7 +68,7 @@ function Shop() {
       <section className="border-b border-border">
         <div className="mx-auto max-w-7xl px-6 lg:px-10 py-14 lg:py-20 text-center">
           <p className="eyebrow text-foreground/60">
-            {category ? "Category" : `${PRODUCTS.length} pieces`}
+            {category ? "Category" : `${allProducts.length} pieces`}
           </p>
           <h1 className="mt-4 font-display text-5xl md:text-6xl">{heading}</h1>
           <p className="mx-auto mt-5 max-w-xl text-sm text-muted-foreground leading-relaxed">
@@ -76,6 +76,7 @@ function Shop() {
           </p>
         </div>
       </section>
+
 
       <section className="mx-auto max-w-7xl px-6 lg:px-10 py-10 lg:py-14">
         <div className="grid lg:grid-cols-[240px_1fr] gap-10 lg:gap-14">
@@ -137,6 +138,8 @@ function Shop() {
 }
 
 function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
+  const allProducts = useAllProducts();
+
   // A group is initially expanded if it's selected, or contains the selected leaf.
   const initialOpen = useMemo(() => {
     const set = new Set<string>();
@@ -157,6 +160,12 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
       return next;
     });
 
+  const countFor = (slug: string) => {
+    const leaves = resolveCategoryFilter(slug);
+    if (!leaves) return 0;
+    return allProducts.filter((p) => p.categories.some((c) => leaves.includes(c))).length;
+  };
+
   return (
     <nav aria-label="Categories" className="text-sm">
       <p className="eyebrow text-foreground/60 mb-4">Browse</p>
@@ -168,14 +177,15 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
         }`}
       >
         All pieces
-        <span className="ml-2 text-foreground/40 tabular-nums">{PRODUCTS.length}</span>
+        <span className="ml-2 text-foreground/40 tabular-nums">{allProducts.length}</span>
       </Link>
 
       <ul className="mt-1">
         {CATEGORY_GROUPS.map((g) => {
           const isOpen = open.has(g.slug);
           const isActiveGroup = activeSlug === g.slug;
-          const groupCount = countForCategory(g.slug);
+          const groupCount = countFor(g.slug);
+
           return (
             <li key={g.slug} className="border-b border-border/50">
               <div className="flex items-stretch">

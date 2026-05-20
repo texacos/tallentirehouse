@@ -33,7 +33,9 @@ export function Header() {
         <nav className="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.18em] text-foreground/80">
           <Link to="/shop" className="hover:text-foreground transition-colors">Shop all</Link>
           <Link to="/about" className="hover:text-foreground transition-colors">Our Story</Link>
+          <Link to="/admin/products" className="hover:text-foreground transition-colors text-foreground/50">Admin</Link>
         </nav>
+
 
         <Link to="/" className="flex items-baseline gap-3 select-none">
           <span className="font-display text-3xl md:text-4xl tracking-tight text-nowrap">Tallentire House</span>

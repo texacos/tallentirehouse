@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { PRODUCTS, type Product } from "./products";
+import { useCustomProducts } from "./customProducts";
 
 export type CartItem = { slug: string; qty: number };
 
@@ -24,6 +25,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const customProducts = useCustomProducts();
 
   useEffect(() => {
     try {
@@ -41,7 +43,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const value = useMemo<CartCtx>(() => {
     const detailed = items
       .map((i) => {
-        const product = PRODUCTS.find((p) => p.slug === i.slug);
+        const product =
+          customProducts.find((p) => p.slug === i.slug) ??
+          PRODUCTS.find((p) => p.slug === i.slug);
         if (!product) return null;
         return { ...i, product, lineTotal: product.price * i.qty };
       })
@@ -70,7 +74,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       closeDrawer: () => setIsOpen(false),
       isOpen,
     };
-  }, [items, isOpen]);
+  }, [items, isOpen, customProducts]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
