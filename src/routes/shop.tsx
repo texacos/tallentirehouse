@@ -5,12 +5,11 @@ import { z } from "zod";
 import {
   CATEGORIES,
   CATEGORY_GROUPS,
-  PRODUCTS,
   type CategoryGroup,
-  countForCategory,
   getCategoryLabel,
   resolveCategoryFilter,
 } from "@/lib/products";
+import { useAllProducts } from "@/lib/customProducts";
 import { ProductCard } from "@/components/site/ProductCard";
 import {
   Breadcrumb,
