@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { PRODUCTS, type Product } from "./products";
+import { useCustomProducts } from "./customProducts";
 
 export type CartItem = { slug: string; qty: number };
 
