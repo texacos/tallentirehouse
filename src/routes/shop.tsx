@@ -138,6 +138,8 @@ function Shop() {
 }
 
 function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
+  const allProducts = useAllProducts();
+
   // A group is initially expanded if it's selected, or contains the selected leaf.
   const initialOpen = useMemo(() => {
     const set = new Set<string>();
@@ -158,6 +160,12 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
       return next;
     });
 
+  const countFor = (slug: string) => {
+    const leaves = resolveCategoryFilter(slug);
+    if (!leaves) return 0;
+    return allProducts.filter((p) => p.categories.some((c) => leaves.includes(c))).length;
+  };
+
   return (
     <nav aria-label="Categories" className="text-sm">
       <p className="eyebrow text-foreground/60 mb-4">Browse</p>
@@ -169,14 +177,15 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
         }`}
       >
         All pieces
-        <span className="ml-2 text-foreground/40 tabular-nums">{PRODUCTS.length}</span>
+        <span className="ml-2 text-foreground/40 tabular-nums">{allProducts.length}</span>
       </Link>
 
       <ul className="mt-1">
         {CATEGORY_GROUPS.map((g) => {
           const isOpen = open.has(g.slug);
           const isActiveGroup = activeSlug === g.slug;
-          const groupCount = countForCategory(g.slug);
+          const groupCount = countFor(g.slug);
+
           return (
             <li key={g.slug} className="border-b border-border/50">
               <div className="flex items-stretch">
