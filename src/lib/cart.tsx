@@ -43,7 +43,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const value = useMemo<CartCtx>(() => {
     const detailed = items
       .map((i) => {
-        const product = PRODUCTS.find((p) => p.slug === i.slug);
+        const product =
+          customProducts.find((p) => p.slug === i.slug) ??
+          PRODUCTS.find((p) => p.slug === i.slug);
         if (!product) return null;
         return { ...i, product, lineTotal: product.price * i.qty };
       })
