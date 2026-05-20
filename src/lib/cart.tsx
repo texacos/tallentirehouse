@@ -74,7 +74,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       closeDrawer: () => setIsOpen(false),
       isOpen,
     };
-  }, [items, isOpen]);
+  }, [items, isOpen, customProducts]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
