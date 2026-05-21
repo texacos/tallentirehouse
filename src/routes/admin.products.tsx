@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Trash2, Plus, X } from "lucide-react";
 import { z } from "zod";
 import { CATEGORIES, formatPrice, type Product } from "@/lib/products";
@@ -9,6 +9,7 @@ import {
   slugify,
   useCustomProducts,
 } from "@/lib/customProducts";
+import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,7 +42,34 @@ export const Route = createFileRoute("/admin/products")({
 
 function AdminProductsPage() {
   const custom = useCustomProducts();
+  const { user, isAdmin, loading, signOut } = useAuth();
+  const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
+
+  useEffect(() => {
+    if (loading) return;
+    if (!user) navigate({ to: "/login" });
+  }, [loading, user, navigate]);
+
+  if (loading) {
+    return <div className="mx-auto max-w-5xl px-6 py-20 text-sm text-muted-foreground">Loading…</div>;
+  }
+  if (!user) return null;
+  if (!isAdmin) {
+    return (
+      <div className="mx-auto max-w-xl px-6 py-20 text-center">
+        <p className="eyebrow text-foreground/60">Access denied</p>
+        <h1 className="mt-3 font-display text-3xl">Admin role required</h1>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Your account doesn't have admin privileges. Ask an existing admin to grant you access.
+        </p>
+        <div className="mt-6 flex justify-center gap-3">
+          <Link to="/"><Button variant="outline">Back to shop</Button></Link>
+          <Button variant="ghost" onClick={async () => { await signOut(); navigate({ to: "/login" }); }}>Sign out</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-5xl px-6 lg:px-10 py-14">
