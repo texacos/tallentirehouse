@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingBag, Menu, X, ChevronDown } from "lucide-react";
+import { ShoppingBag, Menu, X, ChevronDown, User } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/lib/cart";
+import { useAuth } from "@/lib/auth";
 import { CATEGORIES, CATEGORY_GROUPS } from "@/lib/products";
 
 const GROUPED_LEAVES = new Set(CATEGORY_GROUPS.flatMap((g) => g.children));
@@ -9,6 +10,7 @@ const UNGROUPED = CATEGORIES.filter((c) => !GROUPED_LEAVES.has(c.slug));
 
 export function Header() {
   const { count, openDrawer } = useCart();
+  const { user, isAdmin } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
   const toggleGroup = (slug: string) =>
@@ -33,7 +35,9 @@ export function Header() {
         <nav className="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.18em] text-foreground/80">
           <Link to="/shop" className="hover:text-foreground transition-colors">Shop all</Link>
           <Link to="/about" className="hover:text-foreground transition-colors">Our Story</Link>
-          <Link to="/admin/products" className="hover:text-foreground transition-colors text-foreground/50">Admin</Link>
+          {isAdmin && (
+            <Link to="/admin/products" className="hover:text-foreground transition-colors text-foreground/50">Admin</Link>
+          )}
         </nav>
 
 
@@ -43,6 +47,13 @@ export function Header() {
         </Link>
 
         <div className="flex items-center gap-1">
+          <Link
+            to={user ? "/account" : "/login"}
+            aria-label={user ? "Account" : "Sign in"}
+            className="p-2 text-foreground hover:opacity-70 transition"
+          >
+            <User size={20} strokeWidth={1.5} />
+          </Link>
           <button
             onClick={openDrawer}
             aria-label="Open cart"
