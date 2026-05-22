@@ -47,13 +47,15 @@ export function Header() {
         </Link>
 
         <div className="flex items-center gap-1">
-          <Link
-            to={user ? "/account" : "/login"}
-            aria-label={user ? "Account" : "Sign in"}
-            className="p-2 text-foreground hover:opacity-70 transition"
-          >
-            <User size={20} strokeWidth={1.5} />
-          </Link>
+          {user && (
+            <Link
+              to="/account"
+              aria-label="Account"
+              className="p-2 text-foreground hover:opacity-70 transition"
+            >
+              <User size={20} strokeWidth={1.5} />
+            </Link>
+          )}
           <button
             onClick={openDrawer}
             aria-label="Open cart"
