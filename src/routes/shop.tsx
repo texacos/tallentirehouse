@@ -9,7 +9,7 @@ import {
   getCategoryLabel,
   resolveCategoryFilter,
 } from "@/lib/products";
-import { useAllProducts } from "@/lib/customProducts";
+import { productsQueryOptions, useProducts } from "@/lib/products-store";
 import { ProductCard } from "@/components/site/ProductCard";
 import {
   Breadcrumb,
@@ -41,6 +41,7 @@ export const Route = createFileRoute("/shop")({
       { property: "og:title", content: "Shop the collection — Tallentire House" },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(productsQueryOptions),
   component: Shop,
 });
 
@@ -50,7 +51,7 @@ const UNGROUPED_CATEGORIES = CATEGORIES.filter((c) => !GROUPED_LEAVES.has(c.slug
 
 function Shop() {
   const { category, page = 1 } = Route.useSearch();
-  const allProducts = useAllProducts();
+  const allProducts = useProducts();
 
   const filtered = useMemo(() => {
     const leaves = resolveCategoryFilter(category);
@@ -138,7 +139,7 @@ function Shop() {
 }
 
 function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
-  const allProducts = useAllProducts();
+  const allProducts = useProducts();
 
   // A group is initially expanded if it's selected, or contains the selected leaf.
   const initialOpen = useMemo(() => {
@@ -156,7 +157,8 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
   const toggle = (slug: string) =>
     setOpen((prev) => {
       const next = new Set(prev);
-      next.has(slug) ? next.delete(slug) : next.add(slug);
+      if (next.has(slug)) next.delete(slug);
+      else next.add(slug);
       return next;
     });
 
@@ -236,7 +238,7 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
                         >
                           {leaf.label}
                           <span className="ml-2 text-foreground/40 tabular-nums text-xs">
-                            {leaf.count}
+                            {countFor(leafSlug)}
                           </span>
                         </Link>
                       </li>
@@ -248,7 +250,7 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
           );
         })}
 
-        {/* Ungrouped leaf categories (e.g. pos-only) */}
+        {/* Ungrouped leaf categories */}
         {UNGROUPED_CATEGORIES.map((c) => {
           const isActive = activeSlug === c.slug;
           return (
@@ -263,7 +265,9 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
                 }`}
               >
                 {c.label}
-                <span className="ml-2 text-foreground/40 tabular-nums text-xs">{c.count}</span>
+                <span className="ml-2 text-foreground/40 tabular-nums text-xs">
+                  {countFor(c.slug)}
+                </span>
               </Link>
             </li>
           );
@@ -273,7 +277,6 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
   );
 }
 
-// Find the parent group that contains a given leaf slug.
 function findParentGroup(leafSlug: string): CategoryGroup | undefined {
   return CATEGORY_GROUPS.find((g) => g.children.includes(leafSlug));
 }

@@ -1,15 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Trash2, Plus, X } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Trash2, Plus, X, Upload, Loader2 } from "lucide-react";
 import { z } from "zod";
-import { CATEGORIES, formatPrice, type Product } from "@/lib/products";
-import {
-  addCustomProduct,
-  deleteCustomProduct,
-  slugify,
-  useCustomProducts,
-} from "@/lib/customProducts";
+import { CATEGORIES, formatPrice, slugify, type Product } from "@/lib/products";
+import { productsQueryOptions, useProducts } from "@/lib/products-store";
 import { useAuth } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +24,7 @@ const productSchema = z.object({
   price: z.coerce.number().int().min(0, "Price must be 0 or more"),
   description: z.string().trim().max(4000).optional().or(z.literal("")),
   categories: z.array(z.string().min(1)).min(1, "Pick at least one category"),
-  images: z.array(z.string().trim().min(1)).min(1, "Add at least one image URL"),
+  images: z.array(z.string().trim().min(1)).min(1, "Add at least one image"),
 });
 
 export const Route = createFileRoute("/admin/products")({
@@ -37,19 +34,46 @@ export const Route = createFileRoute("/admin/products")({
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(productsQueryOptions),
   component: AdminProductsPage,
 });
 
 function AdminProductsPage() {
-  const custom = useCustomProducts();
+  const products = useProducts();
+  const queryClient = useQueryClient();
   const { user, isAdmin, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     if (loading) return;
     if (!user) navigate({ to: "/login" });
   }, [loading, user, navigate]);
+
+  const filtered = useMemo(() => {
+    if (!query.trim()) return products.slice(0, 60);
+    const q = query.trim().toLowerCase();
+    return products
+      .filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.slug.toLowerCase().includes(q) ||
+          p.sku.toLowerCase().includes(q),
+      )
+      .slice(0, 60);
+  }, [products, query]);
+
+  const onDelete = async (slug: string, name: string) => {
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    const { error } = await supabase.from("products").delete().eq("slug", slug);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Product deleted");
+    queryClient.invalidateQueries({ queryKey: ["products"] });
+  };
 
   if (loading) {
     return <div className="mx-auto max-w-5xl px-6 py-20 text-sm text-muted-foreground">Loading…</div>;
@@ -76,10 +100,10 @@ function AdminProductsPage() {
       <div className="flex items-end justify-between gap-6 flex-wrap">
         <div>
           <p className="eyebrow text-foreground/60">Admin</p>
-          <h1 className="mt-3 font-display text-4xl md:text-5xl">Your products</h1>
+          <h1 className="mt-3 font-display text-4xl md:text-5xl">Products</h1>
           <p className="mt-3 text-sm text-muted-foreground max-w-lg">
-            Manually created pieces are stored in your browser and appear alongside
-            the catalog throughout the shop.
+            All {products.length} pieces live in a single database. Add, edit or remove
+            them here — changes appear across the shop immediately.
           </p>
         </div>
         <Button onClick={() => setShowForm((v) => !v)} variant={showForm ? "outline" : "default"}>
@@ -90,66 +114,73 @@ function AdminProductsPage() {
 
       {showForm && (
         <div className="mt-10 border border-border p-6 lg:p-8 bg-card">
-          <NewProductForm onCreated={() => setShowForm(false)} />
+          <NewProductForm
+            onCreated={(slug) => {
+              setShowForm(false);
+              queryClient.invalidateQueries({ queryKey: ["products"] });
+              navigate({ to: "/product/$slug", params: { slug } });
+            }}
+          />
         </div>
       )}
 
       <div className="mt-12 rule" />
 
-      <h2 className="mt-10 font-display text-2xl">
-        Custom products
-        <span className="ml-2 text-foreground/40 tabular-nums text-base">{custom.length}</span>
-      </h2>
+      <div className="mt-10 flex items-center justify-between gap-4 flex-wrap">
+        <h2 className="font-display text-2xl">
+          All products
+          <span className="ml-2 text-foreground/40 tabular-nums text-base">{products.length}</span>
+        </h2>
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search by name, slug or SKU…"
+          className="max-w-xs"
+        />
+      </div>
 
-      {custom.length === 0 ? (
-        <p className="mt-6 text-sm text-muted-foreground">
-          You haven't added any products yet. Click <em>New product</em> to create one.
-        </p>
-      ) : (
-        <ul className="mt-6 divide-y divide-border border-y border-border">
-          {custom.map((p) => (
-            <li key={p.slug} className="flex items-center gap-4 py-4">
-              <div className="h-16 w-16 shrink-0 bg-muted overflow-hidden">
-                {p.images[0] && (
-                  <img src={p.images[0]} alt="" className="h-full w-full object-cover" />
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <Link
-                  to="/product/$slug"
-                  params={{ slug: p.slug }}
-                  className="font-medium hover:underline underline-offset-4"
-                >
-                  {p.name}
-                </Link>
-                <p className="text-xs text-muted-foreground truncate">
-                  {p.sku ? `${p.sku} · ` : ""}
-                  {p.categories.join(", ")}
-                </p>
-              </div>
-              <div className="text-sm tabular-nums">{formatPrice(p.price)}</div>
-              <button
-                aria-label={`Delete ${p.name}`}
-                onClick={() => {
-                  if (confirm(`Delete "${p.name}"?`)) {
-                    deleteCustomProduct(p.slug);
-                    toast.success("Product deleted");
-                  }
-                }}
-                className="p-2 text-foreground/60 hover:text-destructive transition"
+      <ul className="mt-6 divide-y divide-border border-y border-border">
+        {filtered.map((p) => (
+          <li key={p.slug} className="flex items-center gap-4 py-4">
+            <div className="h-16 w-16 shrink-0 bg-muted overflow-hidden">
+              {p.images[0] && (
+                <img src={p.images[0]} alt="" className="h-full w-full object-cover" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <Link
+                to="/product/$slug"
+                params={{ slug: p.slug }}
+                className="font-medium hover:underline underline-offset-4"
               >
-                <Trash2 size={16} />
-              </button>
-            </li>
-          ))}
-        </ul>
+                {p.name}
+              </Link>
+              <p className="text-xs text-muted-foreground truncate">
+                {p.sku ? `${p.sku} · ` : ""}
+                {p.categories.join(", ")}
+              </p>
+            </div>
+            <div className="text-sm tabular-nums">{formatPrice(p.price)}</div>
+            <button
+              aria-label={`Delete ${p.name}`}
+              onClick={() => onDelete(p.slug, p.name)}
+              className="p-2 text-foreground/60 hover:text-destructive transition"
+            >
+              <Trash2 size={16} />
+            </button>
+          </li>
+        ))}
+      </ul>
+      {query.trim() === "" && products.length > filtered.length && (
+        <p className="mt-4 text-xs text-muted-foreground">
+          Showing first {filtered.length} of {products.length}. Use the search to find more.
+        </p>
       )}
     </div>
   );
 }
 
-function NewProductForm({ onCreated }: { onCreated: () => void }) {
-  const navigate = useNavigate();
+function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
@@ -157,7 +188,9 @@ function NewProductForm({ onCreated }: { onCreated: () => void }) {
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
   const [cats, setCats] = useState<string[]>([]);
-  const [images, setImages] = useState<string[]>([""]);
+  const [images, setImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const sortedCategories = useMemo(
@@ -174,19 +207,38 @@ function NewProductForm({ onCreated }: { onCreated: () => void }) {
     setCats((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]));
   }
 
-  function setImage(i: number, value: string) {
-    setImages((prev) => prev.map((img, idx) => (idx === i ? value : img)));
-  }
-  function addImageField() {
-    setImages((prev) => [...prev, ""]);
-  }
-  function removeImageField(i: number) {
-    setImages((prev) => (prev.length === 1 ? prev : prev.filter((_, idx) => idx !== i)));
+  async function onFilesSelected(fileList: FileList | null) {
+    if (!fileList || fileList.length === 0) return;
+    setUploading(true);
+    const uploaded: string[] = [];
+    try {
+      for (const file of Array.from(fileList)) {
+        const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+        const key = `${crypto.randomUUID()}.${ext}`;
+        const { error } = await supabase.storage
+          .from("product-images")
+          .upload(key, file, { cacheControl: "31536000", upsert: false, contentType: file.type });
+        if (error) {
+          toast.error(`Upload failed: ${error.message}`);
+          continue;
+        }
+        uploaded.push(`/api/public/product-images/${key}`);
+      }
+      if (uploaded.length) {
+        setImages((prev) => [...prev, ...uploaded]);
+        toast.success(`Uploaded ${uploaded.length} image${uploaded.length > 1 ? "s" : ""}`);
+      }
+    } finally {
+      setUploading(false);
+    }
   }
 
-  function onSubmit(e: React.FormEvent) {
+  function removeImage(i: number) {
+    setImages((prev) => prev.filter((_, idx) => idx !== i));
+  }
+
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const cleanedImages = images.map((s) => s.trim()).filter(Boolean);
     const result = productSchema.safeParse({
       name,
       slug,
@@ -194,7 +246,7 @@ function NewProductForm({ onCreated }: { onCreated: () => void }) {
       price,
       description,
       categories: cats,
-      images: cleanedImages,
+      images,
     });
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
@@ -206,7 +258,9 @@ function NewProductForm({ onCreated }: { onCreated: () => void }) {
       return;
     }
     setErrors({});
-    const product: Product = {
+    setSubmitting(true);
+
+    const row: Omit<Product, never> = {
       slug: result.data.slug,
       name: result.data.name,
       sku: result.data.sku ?? "",
@@ -215,15 +269,19 @@ function NewProductForm({ onCreated }: { onCreated: () => void }) {
       categories: result.data.categories,
       images: result.data.images,
     };
-    try {
-      addCustomProduct(product);
-      toast.success("Product created");
-      onCreated();
-      navigate({ to: "/product/$slug", params: { slug: product.slug } });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to create product";
-      setErrors({ slug: message });
+
+    const { error } = await supabase.from("products").insert(row);
+    setSubmitting(false);
+    if (error) {
+      if (error.code === "23505") {
+        setErrors({ slug: `A product with the slug "${row.slug}" already exists.` });
+      } else {
+        toast.error(error.message);
+      }
+      return;
     }
+    toast.success("Product created");
+    onCreated(row.slug);
   }
 
   return (
@@ -294,35 +352,48 @@ function NewProductForm({ onCreated }: { onCreated: () => void }) {
         </div>
       </Field>
 
-      <Field label="Image URLs" error={errors.images} hint="Paste hosted image URLs (or paths under /products/...)">
-        <div className="space-y-2">
-          {images.map((img, i) => (
-            <div key={i} className="flex gap-2">
-              <Input
-                value={img}
-                onChange={(e) => setImage(i, e.target.value)}
-                placeholder="https://… or /products/my-item/0.jpg"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() => removeImageField(i)}
-                disabled={images.length === 1}
-                aria-label="Remove image"
-              >
-                <X />
-              </Button>
+      <Field
+        label="Images"
+        error={errors.images}
+        hint="Upload JPG or PNG files — they'll be stored securely."
+      >
+        <div className="space-y-3">
+          {images.length > 0 && (
+            <div className="grid grid-cols-4 md:grid-cols-6 gap-2">
+              {images.map((src, i) => (
+                <div key={src + i} className="relative aspect-square bg-muted overflow-hidden group">
+                  <img src={src} alt="" className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(i)}
+                    className="absolute top-1 right-1 bg-background/90 rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+                    aria-label="Remove image"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              ))}
             </div>
-          ))}
-          <Button type="button" variant="ghost" size="sm" onClick={addImageField}>
-            <Plus /> Add image
-          </Button>
+          )}
+          <label className="inline-flex items-center gap-2 border border-dashed border-border rounded-md px-4 py-3 cursor-pointer hover:bg-accent/30 transition text-sm">
+            {uploading ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
+            <span>{uploading ? "Uploading…" : "Add images"}</span>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => onFilesSelected(e.target.files)}
+              disabled={uploading}
+            />
+          </label>
         </div>
       </Field>
 
       <div className="flex justify-end gap-3">
-        <Button type="submit">Create product</Button>
+        <Button type="submit" disabled={submitting || uploading}>
+          {submitting ? <><Loader2 className="animate-spin" /> Creating…</> : "Create product"}
+        </Button>
       </div>
     </form>
   );
