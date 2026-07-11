@@ -1,6 +1,13 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { PRODUCTS, type Product } from "./products";
-import { useCustomProducts } from "./customProducts";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+import type { Product } from "./products";
+import { useProductsOptional } from "./products-store";
 
 export type CartItem = { slug: string; qty: number };
 
@@ -25,13 +32,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
-  const customProducts = useCustomProducts();
+  const products = useProductsOptional();
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) setItems(JSON.parse(raw));
-    } catch {}
+    } catch {
+      /* ignore */
+    }
     setHydrated(true);
   }, []);
 
@@ -43,9 +52,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const value = useMemo<CartCtx>(() => {
     const detailed = items
       .map((i) => {
-        const product =
-          customProducts.find((p) => p.slug === i.slug) ??
-          PRODUCTS.find((p) => p.slug === i.slug);
+        const product = products.find((p) => p.slug === i.slug);
         if (!product) return null;
         return { ...i, product, lineTotal: product.price * i.qty };
       })
@@ -74,7 +81,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       closeDrawer: () => setIsOpen(false),
       isOpen,
     };
-  }, [items, isOpen, customProducts]);
+  }, [items, isOpen, products]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
