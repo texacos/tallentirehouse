@@ -1,36 +1,25 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
-import { formatPrice, getCategory, getProduct } from "@/lib/products";
-import { useAllProducts, useCustomProducts } from "@/lib/customProducts";
+import { formatPrice, getCategory } from "@/lib/products";
+import { productsQueryOptions, useProduct, useProducts } from "@/lib/products-store";
 import { useCart } from "@/lib/cart";
 import { ProductCard } from "@/components/site/ProductCard";
 
 export const Route = createFileRoute("/product/$slug")({
-  head: ({ params }) => {
-    const product = getProduct(params.slug);
-    return {
-      meta: product
-        ? [
-            { title: `${product.name} — Tallentire House` },
-            { name: "description", content: product.description.slice(0, 155) },
-            { property: "og:title", content: `${product.name} — Tallentire House` },
-            { property: "og:description", content: product.description.slice(0, 155) },
-            { property: "og:image", content: product.images[0] },
-            { name: "twitter:image", content: product.images[0] },
-          ]
-        : [{ title: "Product — Tallentire House" }],
-    };
-  },
+  head: ({ params }) => ({
+    meta: [
+      { title: `${params.slug.replace(/-/g, " ")} — Tallentire House` },
+    ],
+  }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(productsQueryOptions),
   component: ProductPage,
 });
 
 function ProductPage() {
   const { slug } = Route.useParams();
-  const customProducts = useCustomProducts();
-  const allProducts = useAllProducts();
-  const product =
-    customProducts.find((p) => p.slug === slug) ?? getProduct(slug);
+  const allProducts = useProducts();
+  const product = useProduct(slug);
 
   const { add, openDrawer } = useCart();
   const [qty, setQty] = useState(1);

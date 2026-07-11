@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { PRODUCTS, CATEGORIES } from "@/lib/products";
+import { CATEGORIES } from "@/lib/products";
+import { productsQueryOptions, useProducts } from "@/lib/products-store";
 import { ProductCard } from "@/components/site/ProductCard";
 import heroInterior from "@/assets/hero-interior.jpg";
 
@@ -14,14 +15,24 @@ export const Route = createFileRoute("/")({
       { name: "twitter:image", content: heroInterior },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(productsQueryOptions),
   component: Index,
 });
 
 function Index() {
-  const featured = PRODUCTS.slice(0, 8);
+  const products = useProducts();
+  const featured = products.slice(0, 8);
   const topCategories = CATEGORIES.slice(0, 8);
-  const ceramicsPick = PRODUCTS.find((p) => p.categories.includes("cups") || p.categories.includes("bowls")) ?? PRODUCTS[1];
-  const loungingPick = PRODUCTS.find((p) => p.categories.includes("dressing-gowns") || p.categories.includes("camisole-tops")) ?? PRODUCTS[2];
+  const ceramicsPick =
+    products.find((p) => p.categories.includes("cups") || p.categories.includes("bowls")) ??
+    products[1] ??
+    products[0];
+  const loungingPick =
+    products.find(
+      (p) => p.categories.includes("dressing-gowns") || p.categories.includes("camisole-tops"),
+    ) ??
+    products[2] ??
+    products[0];
 
   return (
     <>
@@ -115,38 +126,40 @@ function Index() {
       </section>
 
       {/* SECONDARY GRID */}
-      <section className="mx-auto max-w-7xl px-6 lg:px-10 py-24">
-        <div className="grid lg:grid-cols-2 gap-10">
-          <Link to="/shop" search={{ category: "cups" }} className="group block">
-            <div className="overflow-hidden bg-muted aspect-[4/5]">
-              <img
-                src={ceramicsPick.images[0]}
-                alt="Ceramics"
-                width={1200} height={1500} loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
-              />
-            </div>
-            <div className="mt-6">
-              <p className="eyebrow text-foreground/60">Tableware</p>
-              <h3 className="font-display text-3xl mt-2">Slow-thrown stoneware</h3>
-            </div>
-          </Link>
-          <Link to="/shop" search={{ category: "dressing-gowns" }} className="group block">
-            <div className="overflow-hidden bg-muted aspect-[4/5]">
-              <img
-                src={loungingPick.images[0]}
-                alt="Lounging"
-                width={1200} height={1500} loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
-              />
-            </div>
-            <div className="mt-6">
-              <p className="eyebrow text-foreground/60">Loungewear</p>
-              <h3 className="font-display text-3xl mt-2">For the long evenings</h3>
-            </div>
-          </Link>
-        </div>
-      </section>
+      {ceramicsPick && loungingPick && (
+        <section className="mx-auto max-w-7xl px-6 lg:px-10 py-24">
+          <div className="grid lg:grid-cols-2 gap-10">
+            <Link to="/shop" search={{ category: "cups" }} className="group block">
+              <div className="overflow-hidden bg-muted aspect-[4/5]">
+                <img
+                  src={ceramicsPick.images[0]}
+                  alt="Ceramics"
+                  width={1200} height={1500} loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
+                />
+              </div>
+              <div className="mt-6">
+                <p className="eyebrow text-foreground/60">Tableware</p>
+                <h3 className="font-display text-3xl mt-2">Slow-thrown stoneware</h3>
+              </div>
+            </Link>
+            <Link to="/shop" search={{ category: "dressing-gowns" }} className="group block">
+              <div className="overflow-hidden bg-muted aspect-[4/5]">
+                <img
+                  src={loungingPick.images[0]}
+                  alt="Lounging"
+                  width={1200} height={1500} loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
+                />
+              </div>
+              <div className="mt-6">
+                <p className="eyebrow text-foreground/60">Loungewear</p>
+                <h3 className="font-display text-3xl mt-2">For the long evenings</h3>
+              </div>
+            </Link>
+          </div>
+        </section>
+      )}
     </>
   );
 }
