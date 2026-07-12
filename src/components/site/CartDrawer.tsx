@@ -58,8 +58,8 @@ export function CartDrawer() {
           <>
             <div className="flex-1 overflow-y-auto px-6 py-4">
               <ul className="divide-y divide-border">
-                {detailed.map(({ product, qty, lineTotal }) => (
-                  <li key={product.slug} className="flex gap-4 py-5">
+                {detailed.map(({ product, qty, lineTotal, size, variant }) => (
+                  <li key={product.slug + "::" + (size ?? "")} className="flex gap-4 py-5">
                     <Link to="/product/$slug" params={{ slug: product.slug }} onClick={closeDrawer} className="shrink-0">
                       <img
                         src={product.images[0]}
@@ -82,19 +82,24 @@ export function CartDrawer() {
                         </Link>
                         <div className="text-sm">{formatPrice(lineTotal)}</div>
                       </div>
-                      {product.sku && <p className="text-xs text-muted-foreground mt-1">SKU: {product.sku}</p>}
+                      {size && (
+                        <p className="text-xs text-muted-foreground mt-1 uppercase tracking-[0.16em]">Size: {size}</p>
+                      )}
+                      {(variant?.sku || product.sku) && (
+                        <p className="text-xs text-muted-foreground mt-1">SKU: {variant?.sku || product.sku}</p>
+                      )}
                       <div className="mt-3 flex items-center justify-between">
                         <div className="inline-flex items-center border border-border">
-                          <button onClick={() => setQty(product.slug, qty - 1)} className="p-1.5" aria-label="Decrease">
+                          <button onClick={() => setQty(product.slug, qty - 1, size)} className="p-1.5" aria-label="Decrease">
                             <Minus size={12} />
                           </button>
                           <span className="px-3 text-sm tabular-nums">{qty}</span>
-                          <button onClick={() => setQty(product.slug, qty + 1)} className="p-1.5" aria-label="Increase">
+                          <button onClick={() => setQty(product.slug, qty + 1, size)} className="p-1.5" aria-label="Increase">
                             <Plus size={12} />
                           </button>
                         </div>
                         <button
-                          onClick={() => remove(product.slug)}
+                          onClick={() => remove(product.slug, size)}
                           className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-4"
                         >
                           Remove
@@ -104,6 +109,7 @@ export function CartDrawer() {
                   </li>
                 ))}
               </ul>
+
             </div>
 
             <div className="border-t border-border px-6 py-5">
