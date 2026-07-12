@@ -1,7 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { formatPrice, type Product } from "@/lib/products";
+import { formatPrice, isVariable, displayPrice, type Product } from "@/lib/products";
 
 export function ProductCard({ product }: { product: Product }) {
+  const variable = isVariable(product);
+  const shownPrice = displayPrice(product);
   return (
     <Link
       to="/product/$slug"
@@ -20,7 +22,10 @@ export function ProductCard({ product }: { product: Product }) {
       </div>
       <div className="mt-4 flex justify-between items-baseline gap-3">
         <h3 className="font-display text-lg leading-snug">{product.name}</h3>
-        <span className="text-sm tabular-nums text-foreground/80 whitespace-nowrap">{formatPrice(product.price)}</span>
+        <span className="text-sm tabular-nums text-foreground/80 whitespace-nowrap">
+          {variable && <span className="text-[10px] uppercase tracking-[0.18em] mr-1 text-foreground/50">from</span>}
+          {formatPrice(shownPrice)}
+        </span>
       </div>
     </Link>
   );

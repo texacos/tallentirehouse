@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Minus, Plus } from "lucide-react";
-import { formatPrice, getCategory } from "@/lib/products";
+import { formatPrice, getCategory, isVariable, displayPrice, SIZE_OPTIONS } from "@/lib/products";
 import { productsQueryOptions, useProduct, useProducts } from "@/lib/products-store";
 import { useCart } from "@/lib/cart";
 import { ProductCard } from "@/components/site/ProductCard";
@@ -24,6 +24,15 @@ function ProductPage() {
   const { add, openDrawer } = useCart();
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState(0);
+  const variable = product ? isVariable(product) : false;
+  const [selectedSize, setSelectedSize] = useState<string | undefined>(
+    product && variable ? product.variants[0].size : undefined,
+  );
+
+  const activeVariant = useMemo(() => {
+    if (!product || !variable || !selectedSize) return undefined;
+    return product.variants.find((v) => v.size === selectedSize);
+  }, [product, variable, selectedSize]);
 
   if (!product) {
     return (
@@ -42,11 +51,14 @@ function ProductPage() {
     (p) => p.slug !== product.slug && p.categories.some((c) => product.categories.includes(c)),
   ).slice(0, 4);
 
+  const unitPrice = activeVariant?.price ?? (variable ? displayPrice(product) : product.price);
 
   const handleAdd = () => {
-    add(product.slug, qty);
+    if (variable && !selectedSize) return;
+    add(product.slug, qty, selectedSize);
     openDrawer();
   };
+
 
   return (
     <div>
