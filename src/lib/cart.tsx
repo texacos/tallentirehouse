@@ -6,19 +6,26 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { Product } from "./products";
+import type { Product, ProductVariant } from "./products";
 import { useProductsOptional } from "./products-store";
 
-export type CartItem = { slug: string; qty: number };
+export type CartItem = { slug: string; size?: string; qty: number };
+
+export type DetailedCartItem = CartItem & {
+  product: Product;
+  variant?: ProductVariant;
+  unitPrice: number;
+  lineTotal: number;
+};
 
 type CartCtx = {
   items: CartItem[];
-  detailed: Array<CartItem & { product: Product; lineTotal: number }>;
+  detailed: DetailedCartItem[];
   count: number;
   subtotal: number;
-  add: (slug: string, qty?: number) => void;
-  remove: (slug: string) => void;
-  setQty: (slug: string, qty: number) => void;
+  add: (slug: string, qty?: number, size?: string) => void;
+  remove: (slug: string, size?: string) => void;
+  setQty: (slug: string, qty: number, size?: string) => void;
   clear: () => void;
   openDrawer: () => void;
   closeDrawer: () => void;
@@ -26,7 +33,10 @@ type CartCtx = {
 };
 
 const Ctx = createContext<CartCtx | null>(null);
-const STORAGE_KEY = "th_cart_v1";
+const STORAGE_KEY = "th_cart_v2";
+
+const sameLine = (a: CartItem, slug: string, size?: string) =>
+  a.slug === slug && (a.size ?? "") === (size ?? "");
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -54,27 +64,35 @@ export function CartProvider({ children }: { children: ReactNode }) {
       .map((i) => {
         const product = products.find((p) => p.slug === i.slug);
         if (!product) return null;
-        return { ...i, product, lineTotal: product.price * i.qty };
+        const variant = i.size
+          ? product.variants.find((v) => v.size === i.size)
+          : undefined;
+        const unitPrice = variant?.price ?? product.price;
+        return { ...i, product, variant, unitPrice, lineTotal: unitPrice * i.qty };
       })
-      .filter(Boolean) as CartCtx["detailed"];
+      .filter(Boolean) as DetailedCartItem[];
 
     return {
       items,
       detailed,
       count: items.reduce((s, i) => s + i.qty, 0),
       subtotal: detailed.reduce((s, i) => s + i.lineTotal, 0),
-      add: (slug, qty = 1) =>
+      add: (slug, qty = 1, size) =>
         setItems((prev) => {
-          const found = prev.find((i) => i.slug === slug);
-          if (found) return prev.map((i) => (i.slug === slug ? { ...i, qty: i.qty + qty } : i));
-          return [...prev, { slug, qty }];
+          const found = prev.find((i) => sameLine(i, slug, size));
+          if (found)
+            return prev.map((i) =>
+              sameLine(i, slug, size) ? { ...i, qty: i.qty + qty } : i,
+            );
+          return [...prev, { slug, size, qty }];
         }),
-      remove: (slug) => setItems((prev) => prev.filter((i) => i.slug !== slug)),
-      setQty: (slug, qty) =>
+      remove: (slug, size) =>
+        setItems((prev) => prev.filter((i) => !sameLine(i, slug, size))),
+      setQty: (slug, qty, size) =>
         setItems((prev) =>
           qty <= 0
-            ? prev.filter((i) => i.slug !== slug)
-            : prev.map((i) => (i.slug === slug ? { ...i, qty } : i)),
+            ? prev.filter((i) => !sameLine(i, slug, size))
+            : prev.map((i) => (sameLine(i, slug, size) ? { ...i, qty } : i)),
         ),
       clear: () => setItems([]),
       openDrawer: () => setIsOpen(true),
