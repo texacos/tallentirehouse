@@ -62,8 +62,8 @@ function CartPage() {
         {/* Items */}
         <div className="lg:col-span-2">
           <ul className="divide-y divide-border border-t border-b border-border">
-            {detailed.map(({ product, qty, lineTotal }) => (
-              <li key={product.slug} className="flex gap-5 py-6">
+            {detailed.map(({ product, qty, lineTotal, unitPrice, size, variant }) => (
+              <li key={product.slug + "::" + (size ?? "")} className="flex gap-5 py-6">
                 <Link to="/product/$slug" params={{ slug: product.slug }} className="shrink-0">
                   <img
                     src={product.images[0]}
@@ -84,32 +84,38 @@ function CartPage() {
                       >
                         {product.name}
                       </Link>
-                      {product.sku && <p className="text-xs text-muted-foreground mt-1 uppercase tracking-[0.18em]">SKU: {product.sku}</p>}
+                      {size && (
+                        <p className="text-xs text-muted-foreground mt-1 uppercase tracking-[0.18em]">Size: {size}</p>
+                      )}
+                      {(variant?.sku || product.sku) && (
+                        <p className="text-xs text-muted-foreground mt-1 uppercase tracking-[0.18em]">SKU: {variant?.sku || product.sku}</p>
+                      )}
                     </div>
-                    <button onClick={() => remove(product.slug)} aria-label="Remove" className="p-1 text-foreground/50 hover:text-foreground">
+                    <button onClick={() => remove(product.slug, size)} aria-label="Remove" className="p-1 text-foreground/50 hover:text-foreground">
                       <X size={16} />
                     </button>
                   </div>
 
                   <div className="mt-auto flex items-end justify-between pt-4">
                     <div className="inline-flex items-center border border-border">
-                      <button onClick={() => setQty(product.slug, qty - 1)} className="p-2" aria-label="Decrease">
+                      <button onClick={() => setQty(product.slug, qty - 1, size)} className="p-2" aria-label="Decrease">
                         <Minus size={12} />
                       </button>
                       <span className="px-3 text-sm tabular-nums">{qty}</span>
-                      <button onClick={() => setQty(product.slug, qty + 1)} className="p-2" aria-label="Increase">
+                      <button onClick={() => setQty(product.slug, qty + 1, size)} className="p-2" aria-label="Increase">
                         <Plus size={12} />
                       </button>
                     </div>
                     <div className="text-right">
                       <div className="tabular-nums">{formatPrice(lineTotal)}</div>
-                      <div className="text-xs text-muted-foreground">{formatPrice(product.price)} each</div>
+                      <div className="text-xs text-muted-foreground">{formatPrice(unitPrice)} each</div>
                     </div>
                   </div>
                 </div>
               </li>
             ))}
           </ul>
+
         </div>
 
         {/* Summary */}

@@ -2,14 +2,37 @@
 // The product data itself lives in the database (public.products);
 // use the hooks in `products-store.ts` to read it.
 
+export type ProductVariant = {
+  size: string; // e.g. "S", "M", "L"
+  sku?: string;
+  price: number; // LKR
+};
+
 export type Product = {
   slug: string;
   name: string;
   sku: string;
-  price: number; // LKR
+  price: number; // LKR — base price (used when variants is empty)
   description: string;
   categories: string[];
   images: string[];
+  variants: ProductVariant[]; // empty = simple product
+};
+
+/** Standard size options presented in the admin UI. */
+export const SIZE_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: "S", label: "Small" },
+  { value: "M", label: "Medium" },
+  { value: "L", label: "Large" },
+];
+
+export const isVariable = (p: Pick<Product, "variants">): boolean =>
+  Array.isArray(p.variants) && p.variants.length > 0;
+
+/** Lowest price across variants (falls back to base price). */
+export const displayPrice = (p: Product): number => {
+  if (!isVariable(p)) return p.price;
+  return p.variants.reduce((min, v) => (v.price < min ? v.price : min), p.variants[0].price);
 };
 
 export type CategoryInfo = { slug: string; label: string; count: number };

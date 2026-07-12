@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Minus, Plus } from "lucide-react";
-import { formatPrice, getCategory } from "@/lib/products";
+import { formatPrice, getCategory, isVariable, displayPrice, SIZE_OPTIONS } from "@/lib/products";
 import { productsQueryOptions, useProduct, useProducts } from "@/lib/products-store";
 import { useCart } from "@/lib/cart";
 import { ProductCard } from "@/components/site/ProductCard";
@@ -24,6 +24,15 @@ function ProductPage() {
   const { add, openDrawer } = useCart();
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState(0);
+  const variable = product ? isVariable(product) : false;
+  const [selectedSize, setSelectedSize] = useState<string | undefined>(
+    product && variable ? product.variants[0].size : undefined,
+  );
+
+  const activeVariant = useMemo(() => {
+    if (!product || !variable || !selectedSize) return undefined;
+    return product.variants.find((v) => v.size === selectedSize);
+  }, [product, variable, selectedSize]);
 
   if (!product) {
     return (
@@ -42,11 +51,14 @@ function ProductPage() {
     (p) => p.slug !== product.slug && p.categories.some((c) => product.categories.includes(c)),
   ).slice(0, 4);
 
+  const unitPrice = activeVariant?.price ?? (variable ? displayPrice(product) : product.price);
 
   const handleAdd = () => {
-    add(product.slug, qty);
+    if (variable && !selectedSize) return;
+    add(product.slug, qty, selectedSize);
     openDrawer();
   };
+
 
   return (
     <div>
@@ -96,14 +108,48 @@ function ProductPage() {
           <div className="lg:py-6">
             {primaryCategory && <p className="eyebrow text-foreground/60">{primaryCategory.label}</p>}
             <h1 className="mt-4 font-display text-4xl md:text-5xl leading-[1.05]">{product.name}</h1>
-            <div className="mt-5 text-xl tabular-nums">{formatPrice(product.price)}</div>
-            {product.sku && <p className="mt-2 text-xs text-muted-foreground">SKU: {product.sku}</p>}
+            <div className="mt-5 text-xl tabular-nums">
+              {variable && !activeVariant && (
+                <span className="text-xs uppercase tracking-[0.18em] mr-2 text-foreground/60">from</span>
+              )}
+              {formatPrice(unitPrice)}
+            </div>
+            {(activeVariant?.sku || product.sku) && (
+              <p className="mt-2 text-xs text-muted-foreground">SKU: {activeVariant?.sku || product.sku}</p>
+            )}
 
             <div className="my-8 rule" />
 
             <p className="text-sm leading-relaxed text-foreground/85 whitespace-pre-line">
               {product.description}
             </p>
+
+            {variable && (
+              <div className="mt-8">
+                <p className="eyebrow text-foreground/60 mb-3">Size</p>
+                <div className="flex flex-wrap gap-2">
+                  {product.variants.map((v) => {
+                    const label = SIZE_OPTIONS.find((s) => s.value === v.size)?.label ?? v.size;
+                    const active = selectedSize === v.size;
+                    return (
+                      <button
+                        key={v.size}
+                        onClick={() => setSelectedSize(v.size)}
+                        aria-pressed={active}
+                        className={`px-4 py-2 text-xs border transition ${
+                          active
+                            ? "bg-foreground text-background border-foreground"
+                            : "border-border hover:border-foreground"
+                        }`}
+                      >
+                        <span className="font-medium">{v.size}</span>
+                        <span className="ml-1 opacity-70">· {label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <div className="mt-10 flex items-stretch gap-3">
               <div className="inline-flex items-center border border-foreground">
@@ -117,11 +163,15 @@ function ProductPage() {
               </div>
               <button
                 onClick={handleAdd}
-                className="flex-1 bg-foreground text-background px-6 py-4 text-xs uppercase tracking-[0.22em] hover:bg-foreground/85 transition"
+                disabled={variable && !selectedSize}
+                className="flex-1 bg-foreground text-background px-6 py-4 text-xs uppercase tracking-[0.22em] hover:bg-foreground/85 transition disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Add to basket — {formatPrice(product.price * qty)}
+                {variable && !selectedSize
+                  ? "Choose a size"
+                  : `Add to basket — ${formatPrice(unitPrice * qty)}`}
               </button>
             </div>
+
 
             <p className="mt-5 text-xs text-muted-foreground">
               Made to order. Ships within 2–3 weeks. Worldwide shipping calculated at checkout.

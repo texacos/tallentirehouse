@@ -3,7 +3,15 @@ import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Trash2, Plus, X, Upload, Loader2 } from "lucide-react";
 import { z } from "zod";
-import { CATEGORIES, formatPrice, slugify, type Product } from "@/lib/products";
+import {
+  CATEGORIES,
+  formatPrice,
+  slugify,
+  SIZE_OPTIONS,
+  isVariable,
+  type Product,
+  type ProductVariant,
+} from "@/lib/products";
 import { productsQueryOptions, useProducts } from "@/lib/products-store";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +19,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+
+const variantSchema = z.object({
+  size: z.string().trim().min(1).max(20),
+  sku: z.string().trim().max(40).optional().or(z.literal("")),
+  price: z.coerce.number().int().min(0),
+});
 
 const productSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(160),
@@ -25,6 +39,7 @@ const productSchema = z.object({
   description: z.string().trim().max(4000).optional().or(z.literal("")),
   categories: z.array(z.string().min(1)).min(1, "Pick at least one category"),
   images: z.array(z.string().trim().min(1)).min(1, "Add at least one image"),
+  variants: z.array(variantSchema),
 });
 
 export const Route = createFileRoute("/admin/products")({
@@ -158,6 +173,11 @@ function AdminProductsPage() {
               <p className="text-xs text-muted-foreground truncate">
                 {p.sku ? `${p.sku} · ` : ""}
                 {p.categories.join(", ")}
+                {isVariable(p) && (
+                  <span className="ml-2 uppercase tracking-[0.16em] text-[10px] text-foreground/60">
+                    · {p.variants.length} sizes
+                  </span>
+                )}
               </p>
             </div>
             <div className="text-sm tabular-nums">{formatPrice(p.price)}</div>
@@ -192,6 +212,8 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [hasVariants, setHasVariants] = useState(false);
+  const [variants, setVariants] = useState<Array<{ size: string; sku: string; price: string }>>([]);
 
   const sortedCategories = useMemo(
     () => [...CATEGORIES].sort((a, b) => a.label.localeCompare(b.label)),
@@ -205,6 +227,18 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
 
   function toggleCat(c: string) {
     setCats((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]));
+  }
+
+  function toggleSize(size: string) {
+    setVariants((prev) => {
+      const idx = prev.findIndex((v) => v.size === size);
+      if (idx >= 0) return prev.filter((v) => v.size !== size);
+      return [...prev, { size, sku: "", price: price || "" }];
+    });
+  }
+
+  function updateVariant(size: string, patch: Partial<{ sku: string; price: string }>) {
+    setVariants((prev) => prev.map((v) => (v.size === size ? { ...v, ...patch } : v)));
   }
 
   async function onFilesSelected(fileList: FileList | null) {
@@ -239,6 +273,7 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const variantPayload = hasVariants ? variants : [];
     const result = productSchema.safeParse({
       name,
       slug,
@@ -247,6 +282,7 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
       description,
       categories: cats,
       images,
+      variants: variantPayload,
     });
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
@@ -257,8 +293,18 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
       setErrors(fieldErrors);
       return;
     }
+    if (hasVariants && result.data.variants.length === 0) {
+      setErrors({ variants: "Add at least one size, or turn off variable pricing." });
+      return;
+    }
     setErrors({});
     setSubmitting(true);
+
+    const cleanVariants: ProductVariant[] = result.data.variants.map((v) => ({
+      size: v.size,
+      sku: v.sku || undefined,
+      price: v.price,
+    }));
 
     const row: Omit<Product, never> = {
       slug: result.data.slug,
@@ -268,6 +314,7 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
       description: result.data.description ?? "",
       categories: result.data.categories,
       images: result.data.images,
+      variants: cleanVariants,
     };
 
     const { error } = await supabase.from("products").insert(row);
@@ -304,7 +351,7 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
         <Field label="SKU (optional)" error={errors.sku}>
           <Input value={sku} onChange={(e) => setSku(e.target.value)} placeholder="CF01" maxLength={40} />
         </Field>
-        <Field label="Price (LKR)" error={errors.price}>
+        <Field label={hasVariants ? "Base price (LKR)" : "Price (LKR)"} error={errors.price} hint={hasVariants ? "Fallback when no size chosen" : undefined}>
           <Input
             type="number"
             inputMode="numeric"
@@ -351,6 +398,70 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
           })}
         </div>
       </Field>
+
+      <div className="border border-border rounded-md p-4 space-y-4">
+        <label className="flex items-center gap-2 text-sm cursor-pointer">
+          <input
+            type="checkbox"
+            checked={hasVariants}
+            onChange={(e) => setHasVariants(e.target.checked)}
+            className="accent-foreground"
+          />
+          <span className="font-medium">Variable product — offer sizes</span>
+        </label>
+        {hasVariants && (
+          <div className="space-y-3">
+            <p className="text-xs text-muted-foreground">
+              Select the sizes this piece is offered in, then set a price for each. The
+              base price above is used as a fallback for the shop card "from" price.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {SIZE_OPTIONS.map((s) => {
+                const active = variants.some((v) => v.size === s.value);
+                return (
+                  <button
+                    key={s.value}
+                    type="button"
+                    onClick={() => toggleSize(s.value)}
+                    className={`px-3 py-1.5 text-xs border transition ${
+                      active
+                        ? "bg-foreground text-background border-foreground"
+                        : "border-border hover:border-foreground"
+                    }`}
+                  >
+                    {s.value} — {s.label}
+                  </button>
+                );
+              })}
+            </div>
+            {variants.length > 0 && (
+              <div className="grid gap-2">
+                {variants.map((v) => (
+                  <div key={v.size} className="grid grid-cols-[auto_1fr_1fr] gap-3 items-center">
+                    <div className="w-10 text-center text-sm font-medium">{v.size}</div>
+                    <Input
+                      placeholder="SKU (optional)"
+                      value={v.sku}
+                      onChange={(e) => updateVariant(v.size, { sku: e.target.value })}
+                      maxLength={40}
+                    />
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      step={1}
+                      placeholder="Price (LKR)"
+                      value={v.price}
+                      onChange={(e) => updateVariant(v.size, { price: e.target.value })}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+            {errors.variants && <p className="text-xs text-destructive">{errors.variants}</p>}
+          </div>
+        )}
+      </div>
 
       <Field
         label="Images"
