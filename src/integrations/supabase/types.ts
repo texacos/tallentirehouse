@@ -26,6 +26,7 @@ export type Database = {
           sku: string
           slug: string
           updated_at: string
+          variants: Json
         }
         Insert: {
           categories?: string[]
@@ -38,6 +39,7 @@ export type Database = {
           sku?: string
           slug: string
           updated_at?: string
+          variants?: Json
         }
         Update: {
           categories?: string[]
@@ -50,6 +52,7 @@ export type Database = {
           sku?: string
           slug?: string
           updated_at?: string
+          variants?: Json
         }
         Relationships: []
       }
