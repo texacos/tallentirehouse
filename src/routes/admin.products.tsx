@@ -389,6 +389,19 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
             placeholder="10500"
           />
         </Field>
+        {!hasVariants && (
+          <Field label="Stock" error={errors.stock} hint="Units on hand">
+            <Input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              step={1}
+              value={stock}
+              onChange={(e) => setStock(e.target.value)}
+              placeholder="0"
+            />
+          </Field>
+        )}
       </div>
 
       <Field label="Description" error={errors.description}>
