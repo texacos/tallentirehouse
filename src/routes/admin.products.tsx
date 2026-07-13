@@ -123,10 +123,15 @@ function AdminProductsPage() {
             them here — changes appear across the shop immediately.
           </p>
         </div>
-        <Button onClick={() => setShowForm((v) => !v)} variant={showForm ? "outline" : "default"}>
-          {showForm ? <X /> : <Plus />}
-          {showForm ? "Cancel" : "New product"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Link to="/admin/import-export">
+            <Button variant="outline">Import / Export</Button>
+          </Link>
+          <Button onClick={() => setShowForm((v) => !v)} variant={showForm ? "outline" : "default"}>
+            {showForm ? <X /> : <Plus />}
+            {showForm ? "Cancel" : "New product"}
+          </Button>
+        </div>
       </div>
 
       {showForm && (
