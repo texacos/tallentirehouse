@@ -452,8 +452,8 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
         {hasVariants && (
           <div className="space-y-3">
             <p className="text-xs text-muted-foreground">
-              Select the sizes this piece is offered in, then set a price for each. The
-              base price above is used as a fallback for the shop card "from" price.
+              Select the sizes this piece is offered in, then set a price and stock
+              for each. The base price above is used as the shop card "from" price.
             </p>
             <div className="flex flex-wrap gap-2">
               {SIZE_OPTIONS.map((s) => {
@@ -474,11 +474,39 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
                 );
               })}
             </div>
+            <div className="flex gap-2 items-center">
+              <Input
+                value={customSize}
+                onChange={(e) => setCustomSize(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addCustomSize();
+                  }
+                }}
+                placeholder="Custom size (e.g. XL, 38, One Size)"
+                maxLength={40}
+                className="max-w-xs"
+              />
+              <Button type="button" variant="outline" size="sm" onClick={addCustomSize}>
+                Add size
+              </Button>
+            </div>
             {variants.length > 0 && (
               <div className="grid gap-2">
+                <div className="grid grid-cols-[6rem_1fr_1fr_6rem_auto] gap-3 text-[10px] uppercase tracking-[0.16em] text-foreground/60">
+                  <span>Size</span>
+                  <span>SKU</span>
+                  <span>Price (LKR)</span>
+                  <span>Stock</span>
+                  <span />
+                </div>
                 {variants.map((v) => (
-                  <div key={v.size} className="grid grid-cols-[auto_1fr_1fr] gap-3 items-center">
-                    <div className="w-10 text-center text-sm font-medium">{v.size}</div>
+                  <div
+                    key={v.size}
+                    className="grid grid-cols-[6rem_1fr_1fr_6rem_auto] gap-3 items-center"
+                  >
+                    <div className="text-sm font-medium truncate" title={v.size}>{v.size}</div>
                     <Input
                       placeholder="SKU (optional)"
                       value={v.sku}
@@ -490,10 +518,27 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
                       inputMode="numeric"
                       min={0}
                       step={1}
-                      placeholder="Price (LKR)"
+                      placeholder="Price"
                       value={v.price}
                       onChange={(e) => updateVariant(v.size, { price: e.target.value })}
                     />
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      step={1}
+                      placeholder="0"
+                      value={v.stock}
+                      onChange={(e) => updateVariant(v.size, { stock: e.target.value })}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeVariant(v.size)}
+                      aria-label={`Remove ${v.size}`}
+                      className="p-2 text-foreground/60 hover:text-destructive"
+                    >
+                      <X size={14} />
+                    </button>
                   </div>
                 ))}
               </div>
