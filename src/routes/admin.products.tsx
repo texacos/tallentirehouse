@@ -21,9 +21,10 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 const variantSchema = z.object({
-  size: z.string().trim().min(1).max(20),
+  size: z.string().trim().min(1).max(40),
   sku: z.string().trim().max(40).optional().or(z.literal("")),
   price: z.coerce.number().int().min(0),
+  stock: z.coerce.number().int().min(0),
 });
 
 const productSchema = z.object({
@@ -36,6 +37,7 @@ const productSchema = z.object({
     .regex(/^[a-z0-9-]+$/, "Lowercase letters, numbers and dashes only"),
   sku: z.string().trim().max(40).optional().or(z.literal("")),
   price: z.coerce.number().int().min(0, "Price must be 0 or more"),
+  stock: z.coerce.number().int().min(0, "Stock must be 0 or more"),
   description: z.string().trim().max(4000).optional().or(z.literal("")),
   categories: z.array(z.string().min(1)).min(1, "Pick at least one category"),
   images: z.array(z.string().trim().min(1)).min(1, "Add at least one image"),
@@ -121,10 +123,15 @@ function AdminProductsPage() {
             them here — changes appear across the shop immediately.
           </p>
         </div>
-        <Button onClick={() => setShowForm((v) => !v)} variant={showForm ? "outline" : "default"}>
-          {showForm ? <X /> : <Plus />}
-          {showForm ? "Cancel" : "New product"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Link to="/admin/import-export">
+            <Button variant="outline">Import / Export</Button>
+          </Link>
+          <Button onClick={() => setShowForm((v) => !v)} variant={showForm ? "outline" : "default"}>
+            {showForm ? <X /> : <Plus />}
+            {showForm ? "Cancel" : "New product"}
+          </Button>
+        </div>
       </div>
 
       {showForm && (
@@ -206,6 +213,7 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
   const [slugTouched, setSlugTouched] = useState(false);
   const [sku, setSku] = useState("");
   const [price, setPrice] = useState("");
+  const [stock, setStock] = useState("0");
   const [description, setDescription] = useState("");
   const [cats, setCats] = useState<string[]>([]);
   const [images, setImages] = useState<string[]>([]);
@@ -213,7 +221,10 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [hasVariants, setHasVariants] = useState(false);
-  const [variants, setVariants] = useState<Array<{ size: string; sku: string; price: string }>>([]);
+  const [variants, setVariants] = useState<
+    Array<{ size: string; sku: string; price: string; stock: string }>
+  >([]);
+  const [customSize, setCustomSize] = useState("");
 
   const sortedCategories = useMemo(
     () => [...CATEGORIES].sort((a, b) => a.label.localeCompare(b.label)),
@@ -233,11 +244,29 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
     setVariants((prev) => {
       const idx = prev.findIndex((v) => v.size === size);
       if (idx >= 0) return prev.filter((v) => v.size !== size);
-      return [...prev, { size, sku: "", price: price || "" }];
+      return [...prev, { size, sku: "", price: price || "", stock: "0" }];
     });
   }
 
-  function updateVariant(size: string, patch: Partial<{ sku: string; price: string }>) {
+  function addCustomSize() {
+    const size = customSize.trim();
+    if (!size) return;
+    if (variants.some((v) => v.size.toLowerCase() === size.toLowerCase())) {
+      toast.error(`Size "${size}" already added`);
+      return;
+    }
+    setVariants((prev) => [...prev, { size, sku: "", price: price || "", stock: "0" }]);
+    setCustomSize("");
+  }
+
+  function removeVariant(size: string) {
+    setVariants((prev) => prev.filter((v) => v.size !== size));
+  }
+
+  function updateVariant(
+    size: string,
+    patch: Partial<{ sku: string; price: string; stock: string }>,
+  ) {
     setVariants((prev) => prev.map((v) => (v.size === size ? { ...v, ...patch } : v)));
   }
 
@@ -279,6 +308,7 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
       slug,
       sku,
       price,
+      stock,
       description,
       categories: cats,
       images,
@@ -304,6 +334,7 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
       size: v.size,
       sku: v.sku || undefined,
       price: v.price,
+      stock: v.stock,
     }));
 
     const row: Omit<Product, never> = {
@@ -311,6 +342,7 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
       name: result.data.name,
       sku: result.data.sku ?? "",
       price: result.data.price,
+      stock: hasVariants ? 0 : result.data.stock,
       description: result.data.description ?? "",
       categories: result.data.categories,
       images: result.data.images,
@@ -362,6 +394,19 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
             placeholder="10500"
           />
         </Field>
+        {!hasVariants && (
+          <Field label="Stock" error={errors.stock} hint="Units on hand">
+            <Input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              step={1}
+              value={stock}
+              onChange={(e) => setStock(e.target.value)}
+              placeholder="0"
+            />
+          </Field>
+        )}
       </div>
 
       <Field label="Description" error={errors.description}>
@@ -412,8 +457,8 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
         {hasVariants && (
           <div className="space-y-3">
             <p className="text-xs text-muted-foreground">
-              Select the sizes this piece is offered in, then set a price for each. The
-              base price above is used as a fallback for the shop card "from" price.
+              Select the sizes this piece is offered in, then set a price and stock
+              for each. The base price above is used as the shop card "from" price.
             </p>
             <div className="flex flex-wrap gap-2">
               {SIZE_OPTIONS.map((s) => {
@@ -434,11 +479,39 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
                 );
               })}
             </div>
+            <div className="flex gap-2 items-center">
+              <Input
+                value={customSize}
+                onChange={(e) => setCustomSize(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addCustomSize();
+                  }
+                }}
+                placeholder="Custom size (e.g. XL, 38, One Size)"
+                maxLength={40}
+                className="max-w-xs"
+              />
+              <Button type="button" variant="outline" size="sm" onClick={addCustomSize}>
+                Add size
+              </Button>
+            </div>
             {variants.length > 0 && (
               <div className="grid gap-2">
+                <div className="grid grid-cols-[6rem_1fr_1fr_6rem_auto] gap-3 text-[10px] uppercase tracking-[0.16em] text-foreground/60">
+                  <span>Size</span>
+                  <span>SKU</span>
+                  <span>Price (LKR)</span>
+                  <span>Stock</span>
+                  <span />
+                </div>
                 {variants.map((v) => (
-                  <div key={v.size} className="grid grid-cols-[auto_1fr_1fr] gap-3 items-center">
-                    <div className="w-10 text-center text-sm font-medium">{v.size}</div>
+                  <div
+                    key={v.size}
+                    className="grid grid-cols-[6rem_1fr_1fr_6rem_auto] gap-3 items-center"
+                  >
+                    <div className="text-sm font-medium truncate" title={v.size}>{v.size}</div>
                     <Input
                       placeholder="SKU (optional)"
                       value={v.sku}
@@ -450,10 +523,27 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
                       inputMode="numeric"
                       min={0}
                       step={1}
-                      placeholder="Price (LKR)"
+                      placeholder="Price"
                       value={v.price}
                       onChange={(e) => updateVariant(v.size, { price: e.target.value })}
                     />
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      step={1}
+                      placeholder="0"
+                      value={v.stock}
+                      onChange={(e) => updateVariant(v.size, { stock: e.target.value })}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeVariant(v.size)}
+                      aria-label={`Remove ${v.size}`}
+                      className="p-2 text-foreground/60 hover:text-destructive"
+                    >
+                      <X size={14} />
+                    </button>
                   </div>
                 ))}
               </div>

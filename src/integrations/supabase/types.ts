@@ -25,6 +25,7 @@ export type Database = {
           price: number
           sku: string
           slug: string
+          stock: number
           updated_at: string
           variants: Json
         }
@@ -38,6 +39,7 @@ export type Database = {
           price?: number
           sku?: string
           slug: string
+          stock?: number
           updated_at?: string
           variants?: Json
         }
@@ -51,6 +53,7 @@ export type Database = {
           price?: number
           sku?: string
           slug?: string
+          stock?: number
           updated_at?: string
           variants?: Json
         }
