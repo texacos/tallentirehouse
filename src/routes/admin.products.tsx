@@ -21,9 +21,10 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 const variantSchema = z.object({
-  size: z.string().trim().min(1).max(20),
+  size: z.string().trim().min(1).max(40),
   sku: z.string().trim().max(40).optional().or(z.literal("")),
   price: z.coerce.number().int().min(0),
+  stock: z.coerce.number().int().min(0),
 });
 
 const productSchema = z.object({
@@ -36,6 +37,7 @@ const productSchema = z.object({
     .regex(/^[a-z0-9-]+$/, "Lowercase letters, numbers and dashes only"),
   sku: z.string().trim().max(40).optional().or(z.literal("")),
   price: z.coerce.number().int().min(0, "Price must be 0 or more"),
+  stock: z.coerce.number().int().min(0, "Stock must be 0 or more"),
   description: z.string().trim().max(4000).optional().or(z.literal("")),
   categories: z.array(z.string().min(1)).min(1, "Pick at least one category"),
   images: z.array(z.string().trim().min(1)).min(1, "Add at least one image"),
