@@ -3,9 +3,10 @@
 // use the hooks in `products-store.ts` to read it.
 
 export type ProductVariant = {
-  size: string; // e.g. "S", "M", "L"
+  size: string; // e.g. "S", "M", "L", or any custom label
   sku?: string;
   price: number; // LKR
+  stock?: number; // units on hand for this size
 };
 
 export type Product = {
@@ -17,6 +18,7 @@ export type Product = {
   categories: string[];
   images: string[];
   variants: ProductVariant[]; // empty = simple product
+  stock: number; // units on hand for simple products (ignored when variants is set)
 };
 
 /** Standard size options presented in the admin UI. */
