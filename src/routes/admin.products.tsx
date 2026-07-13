@@ -208,6 +208,7 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
   const [slugTouched, setSlugTouched] = useState(false);
   const [sku, setSku] = useState("");
   const [price, setPrice] = useState("");
+  const [stock, setStock] = useState("0");
   const [description, setDescription] = useState("");
   const [cats, setCats] = useState<string[]>([]);
   const [images, setImages] = useState<string[]>([]);
@@ -215,7 +216,10 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [hasVariants, setHasVariants] = useState(false);
-  const [variants, setVariants] = useState<Array<{ size: string; sku: string; price: string }>>([]);
+  const [variants, setVariants] = useState<
+    Array<{ size: string; sku: string; price: string; stock: string }>
+  >([]);
+  const [customSize, setCustomSize] = useState("");
 
   const sortedCategories = useMemo(
     () => [...CATEGORIES].sort((a, b) => a.label.localeCompare(b.label)),
@@ -235,11 +239,29 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
     setVariants((prev) => {
       const idx = prev.findIndex((v) => v.size === size);
       if (idx >= 0) return prev.filter((v) => v.size !== size);
-      return [...prev, { size, sku: "", price: price || "" }];
+      return [...prev, { size, sku: "", price: price || "", stock: "0" }];
     });
   }
 
-  function updateVariant(size: string, patch: Partial<{ sku: string; price: string }>) {
+  function addCustomSize() {
+    const size = customSize.trim();
+    if (!size) return;
+    if (variants.some((v) => v.size.toLowerCase() === size.toLowerCase())) {
+      toast.error(`Size "${size}" already added`);
+      return;
+    }
+    setVariants((prev) => [...prev, { size, sku: "", price: price || "", stock: "0" }]);
+    setCustomSize("");
+  }
+
+  function removeVariant(size: string) {
+    setVariants((prev) => prev.filter((v) => v.size !== size));
+  }
+
+  function updateVariant(
+    size: string,
+    patch: Partial<{ sku: string; price: string; stock: string }>,
+  ) {
     setVariants((prev) => prev.map((v) => (v.size === size ? { ...v, ...patch } : v)));
   }
 
