@@ -303,6 +303,7 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
       slug,
       sku,
       price,
+      stock,
       description,
       categories: cats,
       images,
@@ -328,6 +329,7 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
       size: v.size,
       sku: v.sku || undefined,
       price: v.price,
+      stock: v.stock,
     }));
 
     const row: Omit<Product, never> = {
@@ -335,6 +337,7 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
       name: result.data.name,
       sku: result.data.sku ?? "",
       price: result.data.price,
+      stock: hasVariants ? 0 : result.data.stock,
       description: result.data.description ?? "",
       categories: result.data.categories,
       images: result.data.images,
