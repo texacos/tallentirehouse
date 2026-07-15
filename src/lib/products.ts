@@ -37,6 +37,16 @@ export const displayPrice = (p: Product): number => {
   return p.variants.reduce((min, v) => (v.price < min ? v.price : min), p.variants[0].price);
 };
 
+/** Total stock — sum of variants for variable products, else base stock. */
+export const totalStock = (p: Product): number => {
+  if (isVariable(p)) return p.variants.reduce((n, v) => n + (v.stock ?? 0), 0);
+  return p.stock ?? 0;
+};
+
+/** True when the whole product is out of stock (no variant/simple stock left). */
+export const isOutOfStock = (p: Product): boolean => totalStock(p) <= 0;
+
+
 export type CategoryInfo = { slug: string; label: string; count: number };
 
 export type CategoryGroup = {
