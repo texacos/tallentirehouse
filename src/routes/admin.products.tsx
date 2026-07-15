@@ -1,7 +1,17 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Trash2, Plus, X, Upload, Loader2 } from "lucide-react";
+import {
+  Trash2,
+  Plus,
+  X,
+  Upload,
+  Loader2,
+  Pencil,
+  Search,
+  Download,
+} from "lucide-react";
+import Papa from "papaparse";
 import { z } from "zod";
 import {
   CATEGORIES,
@@ -9,6 +19,7 @@ import {
   slugify,
   SIZE_OPTIONS,
   isVariable,
+  totalStock,
   type Product,
   type ProductVariant,
 } from "@/lib/products";
@@ -44,6 +55,92 @@ const productSchema = z.object({
   variants: z.array(variantSchema),
 });
 
+// ---------- CSV helpers (moved from the removed import/export page) ----------
+
+const CSV_COLUMNS = [
+  "slug",
+  "name",
+  "sku",
+  "price",
+  "stock",
+  "description",
+  "categories",
+  "images",
+  "variants",
+] as const;
+
+type CsvRow = Record<(typeof CSV_COLUMNS)[number], string>;
+
+function productToCsvRow(p: Product): CsvRow {
+  return {
+    slug: p.slug,
+    name: p.name,
+    sku: p.sku,
+    price: String(p.price),
+    stock: String(p.stock ?? 0),
+    description: p.description,
+    categories: p.categories.join("|"),
+    images: p.images.join("|"),
+    variants: p.variants.length ? JSON.stringify(p.variants) : "",
+  };
+}
+
+function parseVariants(raw: string): ProductVariant[] {
+  const trimmed = raw?.trim();
+  if (!trimmed) return [];
+  try {
+    const parsed = JSON.parse(trimmed);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((v) => v && typeof v.size === "string")
+      .map((v) => ({
+        size: String(v.size).slice(0, 40),
+        sku: v.sku ? String(v.sku).slice(0, 40) : undefined,
+        price: Number.isFinite(Number(v.price)) ? Math.max(0, Math.trunc(Number(v.price))) : 0,
+        stock: Number.isFinite(Number(v.stock)) ? Math.max(0, Math.trunc(Number(v.stock))) : 0,
+      }));
+  } catch {
+    return [];
+  }
+}
+
+function csvRowToProduct(
+  row: Partial<Record<string, string>>,
+):
+  | { ok: true; product: Omit<Product, never> }
+  | { ok: false; error: string } {
+  const slug = (row.slug ?? "").trim().toLowerCase();
+  const name = (row.name ?? "").trim();
+  if (!slug) return { ok: false, error: "Missing slug" };
+  if (!/^[a-z0-9-]+$/.test(slug)) return { ok: false, error: `Invalid slug "${slug}"` };
+  if (!name) return { ok: false, error: `Missing name for ${slug}` };
+  const price = Number(row.price ?? "0");
+  const stock = Number(row.stock ?? "0");
+  const categories = (row.categories ?? "")
+    .split("|")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const images = (row.images ?? "")
+    .split("|")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const variants = parseVariants(row.variants ?? "");
+  return {
+    ok: true,
+    product: {
+      slug,
+      name,
+      sku: (row.sku ?? "").trim(),
+      price: Number.isFinite(price) ? Math.max(0, Math.trunc(price)) : 0,
+      stock: Number.isFinite(stock) ? Math.max(0, Math.trunc(stock)) : 0,
+      description: (row.description ?? "").trim(),
+      categories,
+      images,
+      variants,
+    },
+  };
+}
+
 export const Route = createFileRoute("/admin/products")({
   head: () => ({
     meta: [
@@ -60,26 +157,37 @@ function AdminProductsPage() {
   const queryClient = useQueryClient();
   const { user, isAdmin, loading, signOut } = useAuth();
   const navigate = useNavigate();
+
   const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<Product | null>(null);
   const [query, setQuery] = useState("");
+  const [category, setCategory] = useState<string>("");
+  const [busy, setBusy] = useState<null | "import" | "export">(null);
+  const [lastReport, setLastReport] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (loading) return;
     if (!user) navigate({ to: "/login" });
   }, [loading, user, navigate]);
 
+  const sortedCategories = useMemo(
+    () => [...CATEGORIES].sort((a, b) => a.label.localeCompare(b.label)),
+    [],
+  );
+
   const filtered = useMemo(() => {
-    if (!query.trim()) return products.slice(0, 60);
     const q = query.trim().toLowerCase();
-    return products
-      .filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.slug.toLowerCase().includes(q) ||
-          p.sku.toLowerCase().includes(q),
-      )
-      .slice(0, 60);
-  }, [products, query]);
+    return products.filter((p) => {
+      if (category && !p.categories.includes(category)) return false;
+      if (!q) return true;
+      return (
+        p.name.toLowerCase().includes(q) ||
+        p.slug.toLowerCase().includes(q) ||
+        p.sku.toLowerCase().includes(q)
+      );
+    });
+  }, [products, query, category]);
 
   const onDelete = async (slug: string, name: string) => {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
@@ -91,6 +199,100 @@ function AdminProductsPage() {
     toast.success("Product deleted");
     queryClient.invalidateQueries({ queryKey: ["products"] });
   };
+
+  function onExport() {
+    if (busy) return;
+    const rows = filtered.map(productToCsvRow);
+    if (rows.length === 0) {
+      toast.error("No products match the current filter");
+      return;
+    }
+    setBusy("export");
+    try {
+      const csv = Papa.unparse({ fields: [...CSV_COLUMNS], data: rows });
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const stamp = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `products-${stamp}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      const msg = `Exported ${rows.length} product${rows.length === 1 ? "" : "s"}`;
+      setLastReport(msg);
+      toast.success(msg);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function onImportFile(file: File) {
+    setBusy("import");
+    setLastReport(null);
+    try {
+      const text = await file.text();
+      const parsed = Papa.parse<Record<string, string>>(text, {
+        header: true,
+        skipEmptyLines: true,
+        transformHeader: (h) => h.trim().toLowerCase(),
+      });
+      if (parsed.errors.length) toast.error(`CSV parse error: ${parsed.errors[0].message}`);
+      const rows = parsed.data;
+      if (!rows.length) {
+        toast.error("CSV appears to be empty");
+        return;
+      }
+
+      const existingSlugs = new Set(products.map((p) => p.slug));
+      const toInsert: Array<Omit<Product, never>> = [];
+      const toUpdate: Array<Omit<Product, never>> = [];
+      const errors: string[] = [];
+
+      for (let i = 0; i < rows.length; i++) {
+        const result = csvRowToProduct(rows[i]);
+        if (!result.ok) {
+          errors.push(`Row ${i + 2}: ${result.error}`);
+          continue;
+        }
+        if (existingSlugs.has(result.product.slug)) toUpdate.push(result.product);
+        else toInsert.push(result.product);
+      }
+
+      let created = 0;
+      let updated = 0;
+
+      if (toInsert.length) {
+        const { error, data } = await supabase
+          .from("products")
+          .insert(toInsert)
+          .select("slug");
+        if (error) errors.push(`Insert error: ${error.message}`);
+        else created = data?.length ?? toInsert.length;
+      }
+
+      for (const product of toUpdate) {
+        const { slug, ...rest } = product;
+        const { error } = await supabase.from("products").update(rest).eq("slug", slug);
+        if (error) errors.push(`Update ${slug}: ${error.message}`);
+        else updated += 1;
+      }
+
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      const summary = `Imported ${created} new · Updated ${updated} existing${
+        errors.length ? ` · ${errors.length} error${errors.length === 1 ? "" : "s"}` : ""
+      }`;
+      setLastReport(summary + (errors.length ? `\n${errors.slice(0, 5).join("\n")}` : ""));
+      if (errors.length) toast.error(summary);
+      else toast.success(summary);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Import failed");
+    } finally {
+      setBusy(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
 
   if (loading) {
     return <div className="mx-auto max-w-5xl px-6 py-20 text-sm text-muted-foreground">Loading…</div>;
@@ -113,117 +315,236 @@ function AdminProductsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-6 lg:px-10 py-14">
+    <div className="mx-auto max-w-6xl px-6 lg:px-10 py-14">
       <div className="flex items-end justify-between gap-6 flex-wrap">
         <div>
           <p className="eyebrow text-foreground/60">Admin</p>
           <h1 className="mt-3 font-display text-4xl md:text-5xl">Products</h1>
           <p className="mt-3 text-sm text-muted-foreground max-w-lg">
-            All {products.length} pieces live in a single database. Add, edit or remove
-            them here — changes appear across the shop immediately.
+            All {products.length} pieces live in a single database. Add, edit,
+            import, export or remove them here — changes appear across the shop
+            immediately.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Link to="/admin/import-export">
-            <Button variant="outline">Import / Export</Button>
-          </Link>
-          <Button onClick={() => setShowForm((v) => !v)} variant={showForm ? "outline" : "default"}>
-            {showForm ? <X /> : <Plus />}
-            {showForm ? "Cancel" : "New product"}
+          <Button
+            onClick={() => {
+              setEditing(null);
+              setShowForm((v) => !v);
+            }}
+            variant={showForm && !editing ? "outline" : "default"}
+          >
+            {showForm && !editing ? <X /> : <Plus />}
+            {showForm && !editing ? "Cancel" : "New product"}
           </Button>
         </div>
       </div>
 
-      {showForm && (
+      {/* Inline create / edit form */}
+      {(showForm || editing) && (
         <div className="mt-10 border border-border p-6 lg:p-8 bg-card">
-          <NewProductForm
-            onCreated={(slug) => {
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-display text-2xl">
+              {editing ? `Edit — ${editing.name}` : "New product"}
+            </h2>
+            {editing && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setEditing(null)}
+              >
+                <X /> Close
+              </Button>
+            )}
+          </div>
+          <ProductForm
+            key={editing?.slug ?? "new"}
+            initial={editing}
+            onDone={(slug) => {
               setShowForm(false);
+              setEditing(null);
               queryClient.invalidateQueries({ queryKey: ["products"] });
-              navigate({ to: "/product/$slug", params: { slug } });
+              if (!editing) navigate({ to: "/product/$slug", params: { slug } });
             }}
           />
         </div>
       )}
 
+      {/* Filters + Import/Export bar */}
       <div className="mt-12 rule" />
-
-      <div className="mt-10 flex items-center justify-between gap-4 flex-wrap">
-        <h2 className="font-display text-2xl">
-          All products
-          <span className="ml-2 text-foreground/40 tabular-nums text-base">{products.length}</span>
-        </h2>
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by name, slug or SKU…"
-          className="max-w-xs"
-        />
+      <div className="mt-10 grid gap-3 md:grid-cols-[1fr_16rem_auto]">
+        <div className="relative">
+          <Search
+            size={14}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40"
+          />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search by name, slug or SKU…"
+            className="pl-9"
+          />
+        </div>
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+        >
+          <option value="">All categories</option>
+          {sortedCategories.map((c) => (
+            <option key={c.slug} value={c.slug}>
+              {c.label}
+            </option>
+          ))}
+        </select>
+        <div className="flex items-center gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv,text/csv"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) void onImportFile(f);
+            }}
+          />
+          <Button
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={busy !== null}
+          >
+            {busy === "import" ? <Loader2 className="animate-spin" /> : <Upload />}
+            Import CSV
+          </Button>
+          <Button
+            variant="outline"
+            onClick={onExport}
+            disabled={busy !== null || filtered.length === 0}
+          >
+            {busy === "export" ? <Loader2 className="animate-spin" /> : <Download />}
+            Export CSV
+          </Button>
+        </div>
       </div>
 
+      <p className="mt-3 text-xs text-muted-foreground">
+        {filtered.length} of {products.length} products match
+      </p>
+
+      {lastReport && (
+        <pre className="mt-4 whitespace-pre-wrap rounded-md border border-border bg-muted/40 p-4 text-xs text-foreground/80">
+          {lastReport}
+        </pre>
+      )}
+
       <ul className="mt-6 divide-y divide-border border-y border-border">
-        {filtered.map((p) => (
-          <li key={p.slug} className="flex items-center gap-4 py-4">
-            <div className="h-16 w-16 shrink-0 bg-muted overflow-hidden">
-              {p.images[0] && (
-                <img src={p.images[0]} alt="" className="h-full w-full object-cover" />
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <Link
-                to="/product/$slug"
-                params={{ slug: p.slug }}
-                className="font-medium hover:underline underline-offset-4"
-              >
-                {p.name}
-              </Link>
-              <p className="text-xs text-muted-foreground truncate">
-                {p.sku ? `${p.sku} · ` : ""}
-                {p.categories.join(", ")}
-                {isVariable(p) && (
-                  <span className="ml-2 uppercase tracking-[0.16em] text-[10px] text-foreground/60">
-                    · {p.variants.length} sizes
-                  </span>
+        {filtered.slice(0, 200).map((p) => {
+          const stock = totalStock(p);
+          const oos = stock <= 0;
+          return (
+            <li key={p.slug} className="flex items-center gap-4 py-4">
+              <div className="h-16 w-16 shrink-0 bg-muted overflow-hidden">
+                {p.images[0] && (
+                  <img src={p.images[0]} alt="" className="h-full w-full object-cover" />
                 )}
-              </p>
-            </div>
-            <div className="text-sm tabular-nums">{formatPrice(p.price)}</div>
-            <button
-              aria-label={`Delete ${p.name}`}
-              onClick={() => onDelete(p.slug, p.name)}
-              className="p-2 text-foreground/60 hover:text-destructive transition"
-            >
-              <Trash2 size={16} />
-            </button>
-          </li>
-        ))}
+              </div>
+              <div className="flex-1 min-w-0">
+                <Link
+                  to="/product/$slug"
+                  params={{ slug: p.slug }}
+                  className="font-medium hover:underline underline-offset-4"
+                >
+                  {p.name}
+                </Link>
+                <p className="text-xs text-muted-foreground truncate">
+                  {p.sku ? `${p.sku} · ` : ""}
+                  {p.categories.join(", ")}
+                  {isVariable(p) && (
+                    <span className="ml-2 uppercase tracking-[0.16em] text-[10px] text-foreground/60">
+                      · {p.variants.length} sizes
+                    </span>
+                  )}
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-sm tabular-nums">{formatPrice(p.price)}</div>
+                <div
+                  className={`text-[10px] uppercase tracking-[0.16em] ${
+                    oos ? "text-destructive" : "text-foreground/60"
+                  }`}
+                >
+                  {oos ? "Out of stock" : `${stock} in stock`}
+                </div>
+              </div>
+              <button
+                aria-label={`Edit ${p.name}`}
+                onClick={() => {
+                  setEditing(p);
+                  setShowForm(false);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="p-2 text-foreground/60 hover:text-foreground transition"
+              >
+                <Pencil size={16} />
+              </button>
+              <button
+                aria-label={`Delete ${p.name}`}
+                onClick={() => onDelete(p.slug, p.name)}
+                className="p-2 text-foreground/60 hover:text-destructive transition"
+              >
+                <Trash2 size={16} />
+              </button>
+            </li>
+          );
+        })}
       </ul>
-      {query.trim() === "" && products.length > filtered.length && (
+      {filtered.length > 200 && (
         <p className="mt-4 text-xs text-muted-foreground">
-          Showing first {filtered.length} of {products.length}. Use the search to find more.
+          Showing first 200 of {filtered.length}. Narrow the search or category to see more.
         </p>
+      )}
+      {filtered.length === 0 && (
+        <p className="mt-6 text-sm text-muted-foreground">No products match the filter.</p>
       )}
     </div>
   );
 }
 
-function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
-  const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
-  const [slugTouched, setSlugTouched] = useState(false);
-  const [sku, setSku] = useState("");
-  const [price, setPrice] = useState("");
-  const [stock, setStock] = useState("0");
-  const [description, setDescription] = useState("");
-  const [cats, setCats] = useState<string[]>([]);
-  const [images, setImages] = useState<string[]>([]);
+// -------------------- Shared create / edit form --------------------
+
+function ProductForm({
+  initial,
+  onDone,
+}: {
+  initial: Product | null;
+  onDone: (slug: string) => void;
+}) {
+  const isEdit = !!initial;
+  const [name, setName] = useState(initial?.name ?? "");
+  const [slug, setSlug] = useState(initial?.slug ?? "");
+  const [slugTouched, setSlugTouched] = useState(isEdit);
+  const [sku, setSku] = useState(initial?.sku ?? "");
+  const [price, setPrice] = useState(initial ? String(initial.price) : "");
+  const [stock, setStock] = useState(initial ? String(initial.stock ?? 0) : "0");
+  const [description, setDescription] = useState(initial?.description ?? "");
+  const [cats, setCats] = useState<string[]>(initial?.categories ?? []);
+  const [images, setImages] = useState<string[]>(initial?.images ?? []);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [hasVariants, setHasVariants] = useState(false);
+  const [hasVariants, setHasVariants] = useState(
+    !!initial && isVariable(initial),
+  );
   const [variants, setVariants] = useState<
     Array<{ size: string; sku: string; price: string; stock: string }>
-  >([]);
+  >(
+    initial?.variants.map((v) => ({
+      size: v.size,
+      sku: v.sku ?? "",
+      price: String(v.price),
+      stock: String(v.stock ?? 0),
+    })) ?? [],
+  );
   const [customSize, setCustomSize] = useState("");
 
   const sortedCategories = useMemo(
@@ -349,18 +670,37 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
       variants: cleanVariants,
     };
 
-    const { error } = await supabase.from("products").insert(row);
-    setSubmitting(false);
-    if (error) {
-      if (error.code === "23505") {
-        setErrors({ slug: `A product with the slug "${row.slug}" already exists.` });
-      } else {
-        toast.error(error.message);
+    if (isEdit && initial) {
+      const { slug: newSlug, ...rest } = row;
+      const { error } = await supabase
+        .from("products")
+        .update({ ...rest, slug: newSlug })
+        .eq("slug", initial.slug);
+      setSubmitting(false);
+      if (error) {
+        if (error.code === "23505") {
+          setErrors({ slug: `A product with the slug "${newSlug}" already exists.` });
+        } else {
+          toast.error(error.message);
+        }
+        return;
       }
-      return;
+      toast.success("Changes saved");
+      onDone(row.slug);
+    } else {
+      const { error } = await supabase.from("products").insert(row);
+      setSubmitting(false);
+      if (error) {
+        if (error.code === "23505") {
+          setErrors({ slug: `A product with the slug "${row.slug}" already exists.` });
+        } else {
+          toast.error(error.message);
+        }
+        return;
+      }
+      toast.success("Product created");
+      onDone(row.slug);
     }
-    toast.success("Product created");
-    onCreated(row.slug);
   }
 
   return (
@@ -593,7 +933,11 @@ function NewProductForm({ onCreated }: { onCreated: (slug: string) => void }) {
 
       <div className="flex justify-end gap-3">
         <Button type="submit" disabled={submitting || uploading}>
-          {submitting ? <><Loader2 className="animate-spin" /> Creating…</> : "Create product"}
+          {submitting ? (
+            <><Loader2 className="animate-spin" /> {isEdit ? "Saving…" : "Creating…"}</>
+          ) : (
+            isEdit ? "Save changes" : "Create product"
+          )}
         </Button>
       </div>
     </form>

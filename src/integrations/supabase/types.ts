@@ -83,6 +83,30 @@ export type Database = {
         }
         Relationships: []
       }
+      restock_requests: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          product_name: string
+          product_slug: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          product_name: string
+          product_slug: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          product_name?: string
+          product_slug?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

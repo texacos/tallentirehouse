@@ -1,24 +1,30 @@
 import { Link } from "@tanstack/react-router";
-import { formatPrice, isVariable, displayPrice, type Product } from "@/lib/products";
+import { formatPrice, isVariable, displayPrice, isOutOfStock, type Product } from "@/lib/products";
 
 export function ProductCard({ product }: { product: Product }) {
   const variable = isVariable(product);
   const shownPrice = displayPrice(product);
+  const oos = isOutOfStock(product);
   return (
     <Link
       to="/product/$slug"
       params={{ slug: product.slug }}
       className="group block"
     >
-      <div className="overflow-hidden bg-muted aspect-square">
+      <div className="relative overflow-hidden bg-muted aspect-square">
         <img
           src={product.images[0]}
           alt={product.name}
           width={900}
           height={900}
           loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
+          className={`h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04] ${oos ? "opacity-70" : ""}`}
         />
+        {oos && (
+          <span className="absolute top-3 left-3 bg-background/95 text-foreground text-[10px] uppercase tracking-[0.22em] px-2.5 py-1 border border-border">
+            Out of stock
+          </span>
+        )}
       </div>
       <div className="mt-4 flex justify-between items-baseline gap-3">
         <h3 className="font-display text-lg leading-snug">{product.name}</h3>

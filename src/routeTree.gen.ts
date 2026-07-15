@@ -19,7 +19,6 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
-import { Route as AdminImportExportRouteImport } from './routes/admin.import-export'
 import { Route as ApiPublicProductImagesSplatRouteImport } from './routes/api/public/product-images.$'
 
 const ShopRoute = ShopRouteImport.update({
@@ -72,11 +71,6 @@ const AdminProductsRoute = AdminProductsRouteImport.update({
   path: '/admin/products',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminImportExportRoute = AdminImportExportRouteImport.update({
-  id: '/admin/import-export',
-  path: '/admin/import-export',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicProductImagesSplatRoute =
   ApiPublicProductImagesSplatRouteImport.update({
     id: '/api/public/product-images/$',
@@ -93,7 +87,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
-  '/admin/import-export': typeof AdminImportExportRoute
   '/admin/products': typeof AdminProductsRoute
   '/product/$slug': typeof ProductSlugRoute
   '/api/public/product-images/$': typeof ApiPublicProductImagesSplatRoute
@@ -107,7 +100,6 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
-  '/admin/import-export': typeof AdminImportExportRoute
   '/admin/products': typeof AdminProductsRoute
   '/product/$slug': typeof ProductSlugRoute
   '/api/public/product-images/$': typeof ApiPublicProductImagesSplatRoute
@@ -122,7 +114,6 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
-  '/admin/import-export': typeof AdminImportExportRoute
   '/admin/products': typeof AdminProductsRoute
   '/product/$slug': typeof ProductSlugRoute
   '/api/public/product-images/$': typeof ApiPublicProductImagesSplatRoute
@@ -138,7 +129,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/shop'
-    | '/admin/import-export'
     | '/admin/products'
     | '/product/$slug'
     | '/api/public/product-images/$'
@@ -152,7 +142,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/shop'
-    | '/admin/import-export'
     | '/admin/products'
     | '/product/$slug'
     | '/api/public/product-images/$'
@@ -166,7 +155,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/shop'
-    | '/admin/import-export'
     | '/admin/products'
     | '/product/$slug'
     | '/api/public/product-images/$'
@@ -181,7 +169,6 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ShopRoute: typeof ShopRoute
-  AdminImportExportRoute: typeof AdminImportExportRoute
   AdminProductsRoute: typeof AdminProductsRoute
   ProductSlugRoute: typeof ProductSlugRoute
   ApiPublicProductImagesSplatRoute: typeof ApiPublicProductImagesSplatRoute
@@ -259,13 +246,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/import-export': {
-      id: '/admin/import-export'
-      path: '/admin/import-export'
-      fullPath: '/admin/import-export'
-      preLoaderRoute: typeof AdminImportExportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/product-images/$': {
       id: '/api/public/product-images/$'
       path: '/api/public/product-images/$'
@@ -285,7 +265,6 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ShopRoute: ShopRoute,
-  AdminImportExportRoute: AdminImportExportRoute,
   AdminProductsRoute: AdminProductsRoute,
   ProductSlugRoute: ProductSlugRoute,
   ApiPublicProductImagesSplatRoute: ApiPublicProductImagesSplatRoute,

@@ -1,10 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Minus, Plus } from "lucide-react";
-import { formatPrice, getCategory, isVariable, displayPrice, SIZE_OPTIONS } from "@/lib/products";
+import { Minus, Plus, Loader2 } from "lucide-react";
+import { z } from "zod";
+import { toast } from "sonner";
+import {
+  formatPrice,
+  getCategory,
+  isVariable,
+  displayPrice,
+  SIZE_OPTIONS,
+  isOutOfStock,
+} from "@/lib/products";
 import { productsQueryOptions, useProduct, useProducts } from "@/lib/products-store";
 import { useCart } from "@/lib/cart";
 import { ProductCard } from "@/components/site/ProductCard";
+import { submitRestockRequest } from "@/lib/restock.functions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/product/$slug")({
   head: ({ params }) => ({
@@ -15,6 +27,8 @@ export const Route = createFileRoute("/product/$slug")({
   loader: ({ context }) => context.queryClient.ensureQueryData(productsQueryOptions),
   component: ProductPage,
 });
+
+const emailSchema = z.string().trim().toLowerCase().email();
 
 function ProductPage() {
   const { slug } = Route.useParams();
@@ -33,6 +47,10 @@ function ProductPage() {
     if (!product || !variable || !selectedSize) return undefined;
     return product.variants.find((v) => v.size === selectedSize);
   }, [product, variable, selectedSize]);
+
+  const [email, setEmail] = useState("");
+  const [submittingRestock, setSubmittingRestock] = useState(false);
+  const [restockSent, setRestockSent] = useState(false);
 
   if (!product) {
     return (
@@ -53,12 +71,50 @@ function ProductPage() {
 
   const unitPrice = activeVariant?.price ?? (variable ? displayPrice(product) : product.price);
 
+  // Stock resolution
+  const productOutOfStock = isOutOfStock(product);
+  const currentStock = variable
+    ? (activeVariant?.stock ?? 0)
+    : product.stock ?? 0;
+  const variantOutOfStock = variable && !!activeVariant && (activeVariant.stock ?? 0) <= 0;
+  const canAdd =
+    !productOutOfStock &&
+    (!variable || (!!activeVariant && !variantOutOfStock));
+
   const handleAdd = () => {
+    if (!canAdd) return;
     if (variable && !selectedSize) return;
-    add(product.slug, qty, selectedSize);
+    const cappedQty = Math.min(qty, currentStock || qty);
+    add(product.slug, cappedQty, selectedSize);
     openDrawer();
   };
 
+  async function onRestockSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!product) return;
+    const parsed = emailSchema.safeParse(email);
+    if (!parsed.success) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    setSubmittingRestock(true);
+    try {
+      await submitRestockRequest({
+        data: {
+          productSlug: product.slug,
+          productName: product.name,
+          email: parsed.data,
+        },
+      });
+      setRestockSent(true);
+      setEmail("");
+      toast.success("Thank you — we'll be in touch");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setSubmittingRestock(false);
+    }
+  }
 
   return (
     <div>
@@ -80,14 +136,19 @@ function ProductPage() {
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
           {/* Images */}
           <div>
-            <div className="bg-muted aspect-square overflow-hidden">
+            <div className="relative bg-muted aspect-square overflow-hidden">
               <img
                 src={product.images[activeImg]}
                 alt={product.name}
                 width={1200}
                 height={1200}
-                className="h-full w-full object-cover"
+                className={`h-full w-full object-cover ${productOutOfStock ? "opacity-80" : ""}`}
               />
+              {productOutOfStock && (
+                <span className="absolute top-4 left-4 bg-background/95 text-foreground text-[11px] uppercase tracking-[0.22em] px-3 py-1.5 border border-border">
+                  Out of stock
+                </span>
+              )}
             </div>
             {product.images.length > 1 && (
               <div className="mt-3 grid grid-cols-5 gap-2">
@@ -118,6 +179,27 @@ function ProductPage() {
               <p className="mt-2 text-xs text-muted-foreground">SKU: {activeVariant?.sku || product.sku}</p>
             )}
 
+            {/* Stock indicator */}
+            <div className="mt-3 text-xs uppercase tracking-[0.18em]">
+              {productOutOfStock ? (
+                <span className="text-destructive">Out of stock</span>
+              ) : variable ? (
+                activeVariant ? (
+                  variantOutOfStock ? (
+                    <span className="text-destructive">Out of stock in {activeVariant.size}</span>
+                  ) : (
+                    <span className="text-foreground/70">
+                      {activeVariant.stock} in stock ({activeVariant.size})
+                    </span>
+                  )
+                ) : (
+                  <span className="text-foreground/60">Select a size to see stock</span>
+                )
+              ) : (
+                <span className="text-foreground/70">{currentStock} in stock</span>
+              )}
+            </div>
+
             <div className="my-8 rule" />
 
             <p className="text-sm leading-relaxed text-foreground/85 whitespace-pre-line">
@@ -131,6 +213,7 @@ function ProductPage() {
                   {product.variants.map((v) => {
                     const label = SIZE_OPTIONS.find((s) => s.value === v.size)?.label ?? v.size;
                     const active = selectedSize === v.size;
+                    const vOOS = (v.stock ?? 0) <= 0;
                     return (
                       <button
                         key={v.size}
@@ -140,10 +223,13 @@ function ProductPage() {
                           active
                             ? "bg-foreground text-background border-foreground"
                             : "border-border hover:border-foreground"
-                        }`}
+                        } ${vOOS ? "opacity-60" : ""}`}
                       >
                         <span className="font-medium">{v.size}</span>
                         <span className="ml-1 opacity-70">· {label}</span>
+                        <span className="ml-2 text-[10px] opacity-70">
+                          {vOOS ? "· out" : `· ${v.stock} left`}
+                        </span>
                       </button>
                     );
                   })}
@@ -151,31 +237,88 @@ function ProductPage() {
               </div>
             )}
 
-            <div className="mt-10 flex items-stretch gap-3">
-              <div className="inline-flex items-center border border-foreground">
-                <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="px-3 py-3" aria-label="Decrease">
-                  <Minus size={14} />
-                </button>
-                <span className="w-10 text-center text-sm tabular-nums">{qty}</span>
-                <button onClick={() => setQty((q) => q + 1)} className="px-3 py-3" aria-label="Increase">
-                  <Plus size={14} />
-                </button>
+            {/* Add to cart OR restock form */}
+            {canAdd ? (
+              <>
+                <div className="mt-10 flex items-stretch gap-3">
+                  <div className="inline-flex items-center border border-foreground">
+                    <button
+                      onClick={() => setQty((q) => Math.max(1, q - 1))}
+                      className="px-3 py-3"
+                      aria-label="Decrease"
+                    >
+                      <Minus size={14} />
+                    </button>
+                    <span className="w-10 text-center text-sm tabular-nums">{qty}</span>
+                    <button
+                      onClick={() =>
+                        setQty((q) => Math.min(currentStock || q + 1, q + 1))
+                      }
+                      className="px-3 py-3"
+                      aria-label="Increase"
+                      disabled={qty >= currentStock}
+                    >
+                      <Plus size={14} />
+                    </button>
+                  </div>
+                  <button
+                    onClick={handleAdd}
+                    disabled={variable && !selectedSize}
+                    className="flex-1 bg-foreground text-background px-6 py-4 text-xs uppercase tracking-[0.22em] hover:bg-foreground/85 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {variable && !selectedSize
+                      ? "Choose a size"
+                      : `Add to basket — ${formatPrice(unitPrice * qty)}`}
+                  </button>
+                </div>
+                <p className="mt-5 text-xs text-muted-foreground">
+                  Made to order. Ships within 2–3 weeks. Worldwide shipping calculated at checkout.
+                </p>
+              </>
+            ) : (
+              <div className="mt-10 border border-border p-6 bg-muted/30">
+                {restockSent ? (
+                  <>
+                    <h2 className="font-display text-xl">Thank you</h2>
+                    <p className="mt-2 text-sm text-foreground/80">
+                      We've received your request and will get back to you as soon
+                      as this piece is available again.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-foreground/85">
+                      This product is currently out of stock. If you want us to make
+                      it again for you, please submit your email address below and
+                      we'll get back to you.
+                    </p>
+                    <form
+                      onSubmit={onRestockSubmit}
+                      className="mt-4 flex flex-col sm:flex-row gap-2"
+                    >
+                      <Input
+                        type="email"
+                        required
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        maxLength={320}
+                        className="flex-1"
+                      />
+                      <Button type="submit" disabled={submittingRestock}>
+                        {submittingRestock ? (
+                          <>
+                            <Loader2 className="animate-spin" /> Sending…
+                          </>
+                        ) : (
+                          "Submit"
+                        )}
+                      </Button>
+                    </form>
+                  </>
+                )}
               </div>
-              <button
-                onClick={handleAdd}
-                disabled={variable && !selectedSize}
-                className="flex-1 bg-foreground text-background px-6 py-4 text-xs uppercase tracking-[0.22em] hover:bg-foreground/85 transition disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {variable && !selectedSize
-                  ? "Choose a size"
-                  : `Add to basket — ${formatPrice(unitPrice * qty)}`}
-              </button>
-            </div>
-
-
-            <p className="mt-5 text-xs text-muted-foreground">
-              Made to order. Ships within 2–3 weeks. Worldwide shipping calculated at checkout.
-            </p>
+            )}
           </div>
         </div>
       </section>
