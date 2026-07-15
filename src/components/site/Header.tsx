@@ -36,11 +36,9 @@ export function Header() {
           <Link to="/shop" className="hover:text-foreground transition-colors">Shop all</Link>
           <Link to="/about" className="hover:text-foreground transition-colors">Our Story</Link>
           {isAdmin && (
-            <>
-              <Link to="/admin/products" className="hover:text-foreground transition-colors text-foreground/50">Admin</Link>
-              <Link to="/admin/import-export" className="hover:text-foreground transition-colors text-foreground/50">Import/Export</Link>
-            </>
+            <Link to="/admin/products" className="hover:text-foreground transition-colors text-foreground/50">Admin</Link>
           )}
+
         </nav>
 
 
