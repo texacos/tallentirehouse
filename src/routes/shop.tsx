@@ -8,8 +8,10 @@ import {
   type CategoryGroup,
   getCategoryLabel,
   resolveCategoryFilter,
+  isOutOfStock,
 } from "@/lib/products";
 import { productsQueryOptions, useProducts } from "@/lib/products-store";
+import { useSiteSettings } from "@/lib/site-settings";
 import { ProductCard } from "@/components/site/ProductCard";
 import {
   Breadcrumb,
@@ -51,7 +53,13 @@ const UNGROUPED_CATEGORIES = CATEGORIES.filter((c) => !GROUPED_LEAVES.has(c.slug
 
 function Shop() {
   const { category, page = 1 } = Route.useSearch();
-  const allProducts = useProducts();
+  const allProductsRaw = useProducts();
+  const { hideOutOfStock } = useSiteSettings();
+
+  const allProducts = useMemo(
+    () => (hideOutOfStock ? allProductsRaw.filter((p) => !isOutOfStock(p)) : allProductsRaw),
+    [allProductsRaw, hideOutOfStock],
+  );
 
   const filtered = useMemo(() => {
     const leaves = resolveCategoryFilter(category);
