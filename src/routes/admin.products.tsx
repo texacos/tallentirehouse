@@ -24,6 +24,7 @@ import {
   type ProductVariant,
 } from "@/lib/products";
 import { productsQueryOptions, useProducts } from "@/lib/products-store";
+import { useSiteSettings, useUpdateSiteSetting } from "@/lib/site-settings";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -157,6 +158,8 @@ function AdminProductsPage() {
   const queryClient = useQueryClient();
   const { user, isAdmin, loading, signOut } = useAuth();
   const navigate = useNavigate();
+  const { hideOutOfStock } = useSiteSettings();
+  const updateSetting = useUpdateSiteSetting();
 
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
