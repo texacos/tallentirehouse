@@ -24,6 +24,7 @@ import {
   type ProductVariant,
 } from "@/lib/products";
 import { productsQueryOptions, useProducts } from "@/lib/products-store";
+import { useSiteSettings, useUpdateSiteSetting } from "@/lib/site-settings";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -157,6 +158,8 @@ function AdminProductsPage() {
   const queryClient = useQueryClient();
   const { user, isAdmin, loading, signOut } = useAuth();
   const navigate = useNavigate();
+  const { hideOutOfStock } = useSiteSettings();
+  const updateSetting = useUpdateSiteSetting();
 
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
@@ -339,6 +342,37 @@ function AdminProductsPage() {
           </Button>
         </div>
       </div>
+
+      {/* Shop-wide settings */}
+      <div className="mt-8 flex items-center gap-3 rounded-md border border-border bg-muted/30 px-4 py-3">
+        <input
+          id="hide-oos"
+          type="checkbox"
+          checked={hideOutOfStock}
+          disabled={updateSetting.isPending}
+          onChange={(e) => {
+            const next = e.target.checked;
+            updateSetting.mutate(
+              { key: "hide_out_of_stock", value: next },
+              {
+                onSuccess: () =>
+                  toast.success(
+                    next
+                      ? "Out-of-stock products hidden from the shop"
+                      : "Out-of-stock products visible in the shop",
+                  ),
+                onError: (err) =>
+                  toast.error(err instanceof Error ? err.message : "Failed to update"),
+              },
+            );
+          }}
+          className="h-4 w-4 accent-foreground"
+        />
+        <Label htmlFor="hide-oos" className="cursor-pointer text-sm">
+          Hide out-of-stock products from the shop pages
+        </Label>
+      </div>
+
 
       {/* Inline create / edit form */}
       {(showForm || editing) && (
