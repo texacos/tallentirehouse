@@ -119,6 +119,7 @@ function csvRowToProduct(
   if (!/^[a-z0-9-]+$/.test(slug)) return { ok: false, error: `Invalid slug "${slug}"` };
   if (!name) return { ok: false, error: `Missing name for ${slug}` };
   const price = Number(row.price ?? "0");
+  const weight = Number(row.weight_kg ?? "0.5");
   const stock = Number(row.stock ?? "0");
   const categories = (row.categories ?? "")
     .split("|")
@@ -135,7 +136,8 @@ function csvRowToProduct(
       slug,
       name,
       sku: (row.sku ?? "").trim(),
-      price: Number.isFinite(price) ? Math.max(0, Math.trunc(price)) : 0,
+      price: Number.isFinite(price) ? Math.max(0, price) : 0,
+      weight_kg: Number.isFinite(weight) ? Math.max(0, weight) : 0.5,
       stock: Number.isFinite(stock) ? Math.max(0, Math.trunc(stock)) : 0,
       description: (row.description ?? "").trim(),
       categories,
