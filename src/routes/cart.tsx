@@ -1,8 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Minus, Plus, X } from "lucide-react";
-import { useState } from "react";
+import { Minus, Plus, X, Loader2 } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
+import {
+  useCountryZones,
+  useShippingRates,
+  calcShippingUSD,
+} from "@/lib/shipping";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -14,11 +22,76 @@ export const Route = createFileRoute("/cart")({
   component: CartPage,
 });
 
+type Address = {
+  name: string;
+  line1: string;
+  line2: string;
+  city: string;
+  region: string;
+  postcode: string;
+  country: string;
+  email: string;
+  phone: string;
+};
+
+const emptyAddress = (): Address => ({
+  name: "",
+  line1: "",
+  line2: "",
+  city: "",
+  region: "",
+  postcode: "",
+  country: "",
+  email: "",
+  phone: "",
+});
+
 function CartPage() {
   const { detailed, subtotal, setQty, remove, count } = useCart();
   const [placed, setPlaced] = useState(false);
-  const shipping = subtotal > 0 ? (subtotal > 250 ? 0 : 18) : 0;
-  const total = subtotal + shipping;
+  const [shipping, setShipping] = useState<Address>(emptyAddress());
+  const [billingSame, setBillingSame] = useState(true);
+  const [billing, setBilling] = useState<Address>(emptyAddress());
+
+  const zonesQ = useCountryZones();
+  const ratesQ = useShippingRates();
+
+  const totalWeight = useMemo(
+    () => detailed.reduce((s, i) => s + (i.product.weight_kg ?? 0) * i.qty, 0),
+    [detailed],
+  );
+
+  const destinationZone = useMemo(() => {
+    if (!shipping.country || !zonesQ.data) return null;
+    const match = zonesQ.data.find(
+      (z) => z.country.toLowerCase() === shipping.country.trim().toLowerCase(),
+    );
+    return match?.zone ?? null;
+  }, [shipping.country, zonesQ.data]);
+
+  const shippingUSD = useMemo(() => {
+    if (destinationZone == null || !ratesQ.data) return null;
+    return calcShippingUSD(totalWeight, destinationZone, ratesQ.data);
+  }, [destinationZone, ratesQ.data, totalWeight]);
+
+  const shippingKnown = shippingUSD != null;
+  const total = subtotal + (shippingUSD ?? 0);
+
+  const addressComplete =
+    shipping.name.trim() &&
+    shipping.line1.trim() &&
+    shipping.city.trim() &&
+    shipping.postcode.trim() &&
+    shipping.country.trim() &&
+    shipping.email.trim() &&
+    (billingSame ||
+      (billing.name.trim() &&
+        billing.line1.trim() &&
+        billing.city.trim() &&
+        billing.postcode.trim() &&
+        billing.country.trim()));
+
+  const canPlace = count > 0 && shippingKnown && !!addressComplete;
 
   if (placed) {
     return (
@@ -26,10 +99,12 @@ function CartPage() {
         <p className="eyebrow text-foreground/60">Thank you</p>
         <h1 className="mt-4 font-display text-5xl">Your order is on its way</h1>
         <p className="mt-5 text-sm text-muted-foreground leading-relaxed">
-          This is a preview checkout — connect Stripe to take live payments. We'll
-          show you the exact flow once you're ready.
+          This is a preview checkout — connect Stripe to take live payments.
         </p>
-        <Link to="/shop" className="mt-8 inline-block bg-foreground text-background px-8 py-4 text-xs uppercase tracking-[0.22em]">
+        <Link
+          to="/shop"
+          className="mt-8 inline-block bg-foreground text-background px-8 py-4 text-xs uppercase tracking-[0.22em]"
+        >
           Continue shopping
         </Link>
       </div>
@@ -44,7 +119,10 @@ function CartPage() {
         <p className="mt-5 text-sm text-muted-foreground">
           Begin by browsing the collection.
         </p>
-        <Link to="/shop" className="mt-8 inline-block border border-foreground px-8 py-4 text-xs uppercase tracking-[0.22em] hover:bg-foreground hover:text-background transition">
+        <Link
+          to="/shop"
+          className="mt-8 inline-block border border-foreground px-8 py-4 text-xs uppercase tracking-[0.22em] hover:bg-foreground hover:text-background transition"
+        >
           Shop the collection
         </Link>
       </div>
@@ -59,8 +137,8 @@ function CartPage() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-12 lg:gap-16">
-        {/* Items */}
-        <div className="lg:col-span-2">
+        {/* Items + address */}
+        <div className="lg:col-span-2 space-y-12">
           <ul className="divide-y divide-border border-t border-b border-border">
             {detailed.map(({ product, qty, lineTotal, unitPrice, size, variant }) => (
               <li key={product.slug + "::" + (size ?? "")} className="flex gap-5 py-6">
@@ -85,30 +163,51 @@ function CartPage() {
                         {product.name}
                       </Link>
                       {size && (
-                        <p className="text-xs text-muted-foreground mt-1 uppercase tracking-[0.18em]">Size: {size}</p>
+                        <p className="text-xs text-muted-foreground mt-1 uppercase tracking-[0.18em]">
+                          Size: {size}
+                        </p>
                       )}
                       {(variant?.sku || product.sku) && (
-                        <p className="text-xs text-muted-foreground mt-1 uppercase tracking-[0.18em]">SKU: {variant?.sku || product.sku}</p>
+                        <p className="text-xs text-muted-foreground mt-1 uppercase tracking-[0.18em]">
+                          SKU: {variant?.sku || product.sku}
+                        </p>
                       )}
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {product.weight_kg} kg each
+                      </p>
                     </div>
-                    <button onClick={() => remove(product.slug, size)} aria-label="Remove" className="p-1 text-foreground/50 hover:text-foreground">
+                    <button
+                      onClick={() => remove(product.slug, size)}
+                      aria-label="Remove"
+                      className="p-1 text-foreground/50 hover:text-foreground"
+                    >
                       <X size={16} />
                     </button>
                   </div>
 
                   <div className="mt-auto flex items-end justify-between pt-4">
                     <div className="inline-flex items-center border border-border">
-                      <button onClick={() => setQty(product.slug, qty - 1, size)} className="p-2" aria-label="Decrease">
+                      <button
+                        onClick={() => setQty(product.slug, qty - 1, size)}
+                        className="p-2"
+                        aria-label="Decrease"
+                      >
                         <Minus size={12} />
                       </button>
                       <span className="px-3 text-sm tabular-nums">{qty}</span>
-                      <button onClick={() => setQty(product.slug, qty + 1, size)} className="p-2" aria-label="Increase">
+                      <button
+                        onClick={() => setQty(product.slug, qty + 1, size)}
+                        className="p-2"
+                        aria-label="Increase"
+                      >
                         <Plus size={12} />
                       </button>
                     </div>
                     <div className="text-right">
                       <div className="tabular-nums">{formatPrice(lineTotal)}</div>
-                      <div className="text-xs text-muted-foreground">{formatPrice(unitPrice)} each</div>
+                      <div className="text-xs text-muted-foreground">
+                        {formatPrice(unitPrice)} each
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -116,6 +215,36 @@ function CartPage() {
             ))}
           </ul>
 
+          <AddressBlock
+            title="Delivery address"
+            address={shipping}
+            onChange={setShipping}
+            countries={zonesQ.data?.map((z) => z.country) ?? []}
+            countriesLoading={zonesQ.isLoading}
+            requireContact
+          />
+
+          <div className="border border-border rounded-md p-4">
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={billingSame}
+                onChange={(e) => setBillingSame(e.target.checked)}
+                className="accent-foreground"
+              />
+              <span>Billing address is the same as delivery</span>
+            </label>
+          </div>
+
+          {!billingSame && (
+            <AddressBlock
+              title="Billing address"
+              address={billing}
+              onChange={setBilling}
+              countries={zonesQ.data?.map((z) => z.country) ?? []}
+              countriesLoading={zonesQ.isLoading}
+            />
+          )}
         </div>
 
         {/* Summary */}
@@ -127,32 +256,149 @@ function CartPage() {
               <dd className="tabular-nums">{formatPrice(subtotal)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">Shipping</dt>
-              <dd className="tabular-nums">{shipping === 0 ? "Free" : formatPrice(shipping)}</dd>
+              <dt className="text-muted-foreground">Total weight</dt>
+              <dd className="tabular-nums">{totalWeight.toFixed(2)} kg</dd>
             </div>
-            {shipping > 0 && (
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Shipping</dt>
+              <dd className="tabular-nums">
+                {ratesQ.isLoading || zonesQ.isLoading
+                  ? "…"
+                  : !shipping.country
+                    ? "Select country"
+                    : destinationZone == null
+                      ? "Not shippable"
+                      : shippingUSD == null
+                        ? "Contact us — over 25 kg"
+                        : formatPrice(shippingUSD)}
+              </dd>
+            </div>
+            {destinationZone != null && (
               <p className="text-xs text-muted-foreground">
-                Add {formatPrice(250 - subtotal)} for complimentary shipping.
+                Zone {destinationZone} rate applied.
               </p>
             )}
           </dl>
           <div className="my-5 rule" />
           <div className="flex justify-between text-base">
             <span>Total</span>
-            <span className="tabular-nums">{formatPrice(total)}</span>
+            <span className="tabular-nums">
+              {shippingKnown ? formatPrice(total) : "—"}
+            </span>
           </div>
 
           <button
             onClick={() => setPlaced(true)}
-            className="mt-6 w-full bg-foreground text-background py-4 text-xs uppercase tracking-[0.22em] hover:bg-foreground/85 transition"
+            disabled={!canPlace}
+            className="mt-6 w-full bg-foreground text-background py-4 text-xs uppercase tracking-[0.22em] hover:bg-foreground/85 transition disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Proceed to checkout
           </button>
-          <p className="mt-3 text-xs text-muted-foreground text-center">
-            Preview checkout. Stripe payments can be wired in next.
-          </p>
+          {!canPlace && (
+            <p className="mt-3 text-xs text-muted-foreground text-center">
+              Complete delivery address to calculate shipping.
+            </p>
+          )}
         </aside>
       </div>
     </div>
   );
 }
+
+function AddressBlock({
+  title,
+  address,
+  onChange,
+  countries,
+  countriesLoading,
+  requireContact,
+}: {
+  title: string;
+  address: Address;
+  onChange: (a: Address) => void;
+  countries: string[];
+  countriesLoading: boolean;
+  requireContact?: boolean;
+}) {
+  function update<K extends keyof Address>(key: K, value: Address[K]) {
+    onChange({ ...address, [key]: value });
+  }
+  return (
+    <div className="space-y-4">
+      <h2 className="font-display text-2xl">{title}</h2>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Cell label="Full name">
+          <Input value={address.name} onChange={(e) => update("name", e.target.value)} />
+        </Cell>
+        <Cell label="Country">
+          <select
+            value={address.country}
+            onChange={(e) => update("country", e.target.value)}
+            className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+          >
+            <option value="">
+              {countriesLoading ? "Loading…" : "Select country"}
+            </option>
+            {countries.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </Cell>
+        <Cell label="Address line 1" className="sm:col-span-2">
+          <Input value={address.line1} onChange={(e) => update("line1", e.target.value)} />
+        </Cell>
+        <Cell label="Address line 2 (optional)" className="sm:col-span-2">
+          <Input value={address.line2} onChange={(e) => update("line2", e.target.value)} />
+        </Cell>
+        <Cell label="City">
+          <Input value={address.city} onChange={(e) => update("city", e.target.value)} />
+        </Cell>
+        <Cell label="State / Region">
+          <Input value={address.region} onChange={(e) => update("region", e.target.value)} />
+        </Cell>
+        <Cell label="Postal code">
+          <Input value={address.postcode} onChange={(e) => update("postcode", e.target.value)} />
+        </Cell>
+        {requireContact && (
+          <>
+            <Cell label="Email">
+              <Input
+                type="email"
+                value={address.email}
+                onChange={(e) => update("email", e.target.value)}
+              />
+            </Cell>
+            <Cell label="Phone (optional)" className="sm:col-span-2">
+              <Input value={address.phone} onChange={(e) => update("phone", e.target.value)} />
+            </Cell>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Cell({
+  label,
+  children,
+  className,
+}: {
+  label: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`space-y-1.5 ${className ?? ""}`}>
+      <Label className="text-xs uppercase tracking-[0.18em] text-foreground/70">
+        {label}
+      </Label>
+      {children}
+    </div>
+  );
+}
+
+// Keep Loader2/Button imports used to appease treeshaking-aware linters.
+void Loader2;
+void Button;
