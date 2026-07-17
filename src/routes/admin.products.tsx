@@ -765,15 +765,26 @@ function ProductForm({
         <Field label="SKU (optional)" error={errors.sku}>
           <Input value={sku} onChange={(e) => setSku(e.target.value)} placeholder="CF01" maxLength={40} />
         </Field>
-        <Field label={hasVariants ? "Base price (LKR)" : "Price (LKR)"} error={errors.price} hint={hasVariants ? "Fallback when no size chosen" : undefined}>
+        <Field label={hasVariants ? "Base price (USD)" : "Price (USD)"} error={errors.price} hint={hasVariants ? "Fallback when no size chosen" : "Rounded to the nearest 0.5"}>
           <Input
             type="number"
-            inputMode="numeric"
+            inputMode="decimal"
             min={0}
-            step={1}
+            step={0.5}
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            placeholder="10500"
+            placeholder="35"
+          />
+        </Field>
+        <Field label="Weight (kg)" error={errors.weight_kg} hint="Used to calculate shipping">
+          <Input
+            type="number"
+            inputMode="decimal"
+            min={0}
+            step={0.01}
+            value={weightKg}
+            onChange={(e) => setWeightKg(e.target.value)}
+            placeholder="0.5"
           />
         </Field>
         {!hasVariants && (
