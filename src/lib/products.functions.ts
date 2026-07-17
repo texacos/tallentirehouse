@@ -20,20 +20,20 @@ export const fetchAllProducts = createServerFn({ method: "GET" }).handler(
     );
     const { data, error } = await supabase
       .from("products")
-      .select("slug,name,sku,price,description,categories,images,variants,stock,created_at")
+      .select("slug,name,sku,price,weight_kg,description,categories,images,variants,stock,created_at")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return (data ?? []).map((row) => ({
-      slug: row.slug,
-      name: row.name,
-      sku: row.sku ?? "",
-      price: row.price ?? 0,
-      description: row.description ?? "",
-      categories: (row.categories ?? []) as string[],
-      images: (row.images ?? []) as string[],
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      slug: row.slug as string,
+      name: row.name as string,
+      sku: (row.sku as string | null) ?? "",
+      price: Number(row.price ?? 0),
+      weight_kg: Number(row.weight_kg ?? 0.5),
+      description: (row.description as string | null) ?? "",
+      categories: ((row.categories as string[] | null) ?? []) as string[],
+      images: ((row.images as string[] | null) ?? []) as string[],
       variants: (Array.isArray(row.variants) ? row.variants : []) as ProductVariant[],
-      stock: row.stock ?? 0,
+      stock: Number(row.stock ?? 0),
     }));
   },
 );
-
