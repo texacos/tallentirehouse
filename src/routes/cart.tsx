@@ -397,7 +397,3 @@ function Cell({
     </div>
   );
 }
-
-// Keep Loader2/Button imports used to appease treeshaking-aware linters.
-void Loader2;
-void Button;
