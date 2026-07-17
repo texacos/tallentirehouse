@@ -564,6 +564,7 @@ function ProductForm({
   const [slugTouched, setSlugTouched] = useState(isEdit);
   const [sku, setSku] = useState(initial?.sku ?? "");
   const [price, setPrice] = useState(initial ? String(initial.price) : "");
+  const [weightKg, setWeightKg] = useState(initial ? String(initial.weight_kg ?? 0.5) : "0.5");
   const [stock, setStock] = useState(initial ? String(initial.stock ?? 0) : "0");
   const [description, setDescription] = useState(initial?.description ?? "");
   const [cats, setCats] = useState<string[]>(initial?.categories ?? []);
