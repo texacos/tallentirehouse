@@ -895,7 +895,7 @@ function ProductForm({
                 <div className="grid grid-cols-[6rem_1fr_1fr_6rem_auto] gap-3 text-[10px] uppercase tracking-[0.16em] text-foreground/60">
                   <span>Size</span>
                   <span>SKU</span>
-                  <span>Price (LKR)</span>
+                  <span>Price (USD)</span>
                   <span>Stock</span>
                   <span />
                 </div>
