@@ -5,7 +5,7 @@
 export type ProductVariant = {
   size: string; // e.g. "S", "M", "L", or any custom label
   sku?: string;
-  price: number; // LKR
+  price: number; // USD
   stock?: number; // units on hand for this size
 };
 
@@ -13,7 +13,8 @@ export type Product = {
   slug: string;
   name: string;
   sku: string;
-  price: number; // LKR — base price (used when variants is empty)
+  price: number; // USD — base price (used when variants is empty)
+  weight_kg: number; // shipping weight in kg
   description: string;
   categories: string[];
   images: string[];
@@ -177,12 +178,12 @@ export const resolveCategoryFilter = (slug: string | undefined): string[] | null
 export const getCategoryLabel = (slug: string): string =>
   getCategoryGroup(slug)?.label ?? getCategory(slug)?.label ?? slug;
 
+/** Prices are stored and displayed in USD, rounded to the nearest 0.5. */
 export const formatPrice = (n: number): string =>
-  new Intl.NumberFormat("en-LK", {
-    style: "currency",
-    currency: "LKR",
-    maximumFractionDigits: 0,
-  }).format(n);
+  `USD ${n.toLocaleString("en-US", {
+    minimumFractionDigits: n % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  })}`;
 
 export const slugify = (name: string): string =>
   name

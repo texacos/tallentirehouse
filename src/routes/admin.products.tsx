@@ -35,7 +35,7 @@ import { toast } from "sonner";
 const variantSchema = z.object({
   size: z.string().trim().min(1).max(40),
   sku: z.string().trim().max(40).optional().or(z.literal("")),
-  price: z.coerce.number().int().min(0),
+  price: z.coerce.number().min(0),
   stock: z.coerce.number().int().min(0),
 });
 
@@ -48,7 +48,8 @@ const productSchema = z.object({
     .max(120)
     .regex(/^[a-z0-9-]+$/, "Lowercase letters, numbers and dashes only"),
   sku: z.string().trim().max(40).optional().or(z.literal("")),
-  price: z.coerce.number().int().min(0, "Price must be 0 or more"),
+  price: z.coerce.number().min(0, "Price must be 0 or more"),
+  weight_kg: z.coerce.number().min(0, "Weight must be 0 or more"),
   stock: z.coerce.number().int().min(0, "Stock must be 0 or more"),
   description: z.string().trim().max(4000).optional().or(z.literal("")),
   categories: z.array(z.string().min(1)).min(1, "Pick at least one category"),
@@ -63,6 +64,7 @@ const CSV_COLUMNS = [
   "name",
   "sku",
   "price",
+  "weight_kg",
   "stock",
   "description",
   "categories",
@@ -78,6 +80,7 @@ function productToCsvRow(p: Product): CsvRow {
     name: p.name,
     sku: p.sku,
     price: String(p.price),
+    weight_kg: String(p.weight_kg ?? 0),
     stock: String(p.stock ?? 0),
     description: p.description,
     categories: p.categories.join("|"),
@@ -97,7 +100,7 @@ function parseVariants(raw: string): ProductVariant[] {
       .map((v) => ({
         size: String(v.size).slice(0, 40),
         sku: v.sku ? String(v.sku).slice(0, 40) : undefined,
-        price: Number.isFinite(Number(v.price)) ? Math.max(0, Math.trunc(Number(v.price))) : 0,
+        price: Number.isFinite(Number(v.price)) ? Math.max(0, Number(v.price)) : 0,
         stock: Number.isFinite(Number(v.stock)) ? Math.max(0, Math.trunc(Number(v.stock))) : 0,
       }));
   } catch {
@@ -116,6 +119,7 @@ function csvRowToProduct(
   if (!/^[a-z0-9-]+$/.test(slug)) return { ok: false, error: `Invalid slug "${slug}"` };
   if (!name) return { ok: false, error: `Missing name for ${slug}` };
   const price = Number(row.price ?? "0");
+  const weight = Number(row.weight_kg ?? "0.5");
   const stock = Number(row.stock ?? "0");
   const categories = (row.categories ?? "")
     .split("|")
@@ -132,7 +136,8 @@ function csvRowToProduct(
       slug,
       name,
       sku: (row.sku ?? "").trim(),
-      price: Number.isFinite(price) ? Math.max(0, Math.trunc(price)) : 0,
+      price: Number.isFinite(price) ? Math.max(0, price) : 0,
+      weight_kg: Number.isFinite(weight) ? Math.max(0, weight) : 0.5,
       stock: Number.isFinite(stock) ? Math.max(0, Math.trunc(stock)) : 0,
       description: (row.description ?? "").trim(),
       categories,
@@ -559,6 +564,7 @@ function ProductForm({
   const [slugTouched, setSlugTouched] = useState(isEdit);
   const [sku, setSku] = useState(initial?.sku ?? "");
   const [price, setPrice] = useState(initial ? String(initial.price) : "");
+  const [weightKg, setWeightKg] = useState(initial ? String(initial.weight_kg ?? 0.5) : "0.5");
   const [stock, setStock] = useState(initial ? String(initial.stock ?? 0) : "0");
   const [description, setDescription] = useState(initial?.description ?? "");
   const [cats, setCats] = useState<string[]>(initial?.categories ?? []);
@@ -663,6 +669,7 @@ function ProductForm({
       slug,
       sku,
       price,
+      weight_kg: weightKg,
       stock,
       description,
       categories: cats,
@@ -697,6 +704,7 @@ function ProductForm({
       name: result.data.name,
       sku: result.data.sku ?? "",
       price: result.data.price,
+      weight_kg: result.data.weight_kg,
       stock: hasVariants ? 0 : result.data.stock,
       description: result.data.description ?? "",
       categories: result.data.categories,
@@ -757,15 +765,26 @@ function ProductForm({
         <Field label="SKU (optional)" error={errors.sku}>
           <Input value={sku} onChange={(e) => setSku(e.target.value)} placeholder="CF01" maxLength={40} />
         </Field>
-        <Field label={hasVariants ? "Base price (LKR)" : "Price (LKR)"} error={errors.price} hint={hasVariants ? "Fallback when no size chosen" : undefined}>
+        <Field label={hasVariants ? "Base price (USD)" : "Price (USD)"} error={errors.price} hint={hasVariants ? "Fallback when no size chosen" : "Rounded to the nearest 0.5"}>
           <Input
             type="number"
-            inputMode="numeric"
+            inputMode="decimal"
             min={0}
-            step={1}
+            step={0.5}
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            placeholder="10500"
+            placeholder="35"
+          />
+        </Field>
+        <Field label="Weight (kg)" error={errors.weight_kg} hint="Used to calculate shipping">
+          <Input
+            type="number"
+            inputMode="decimal"
+            min={0}
+            step={0.01}
+            value={weightKg}
+            onChange={(e) => setWeightKg(e.target.value)}
+            placeholder="0.5"
           />
         </Field>
         {!hasVariants && (
@@ -876,7 +895,7 @@ function ProductForm({
                 <div className="grid grid-cols-[6rem_1fr_1fr_6rem_auto] gap-3 text-[10px] uppercase tracking-[0.16em] text-foreground/60">
                   <span>Size</span>
                   <span>SKU</span>
-                  <span>Price (LKR)</span>
+                  <span>Price (USD)</span>
                   <span>Stock</span>
                   <span />
                 </div>
@@ -894,9 +913,9 @@ function ProductForm({
                     />
                     <Input
                       type="number"
-                      inputMode="numeric"
+                      inputMode="decimal"
                       min={0}
-                      step={1}
+                      step={0.5}
                       placeholder="Price"
                       value={v.price}
                       onChange={(e) => updateVariant(v.size, { price: e.target.value })}

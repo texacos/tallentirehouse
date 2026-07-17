@@ -14,6 +14,21 @@ export type Database = {
   }
   public: {
     Tables: {
+      country_zones: {
+        Row: {
+          country: string
+          zone: number
+        }
+        Insert: {
+          country: string
+          zone: number
+        }
+        Update: {
+          country?: string
+          zone?: number
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           categories: string[]
@@ -28,6 +43,7 @@ export type Database = {
           stock: number
           updated_at: string
           variants: Json
+          weight_kg: number
         }
         Insert: {
           categories?: string[]
@@ -42,6 +58,7 @@ export type Database = {
           stock?: number
           updated_at?: string
           variants?: Json
+          weight_kg?: number
         }
         Update: {
           categories?: string[]
@@ -56,6 +73,7 @@ export type Database = {
           stock?: number
           updated_at?: string
           variants?: Json
+          weight_kg?: number
         }
         Relationships: []
       }
@@ -104,6 +122,27 @@ export type Database = {
           id?: string
           product_name?: string
           product_slug?: string
+        }
+        Relationships: []
+      }
+      shipping_rates: {
+        Row: {
+          id: string
+          max_weight_kg: number
+          price_usd: number
+          zone: number
+        }
+        Insert: {
+          id?: string
+          max_weight_kg: number
+          price_usd: number
+          zone: number
+        }
+        Update: {
+          id?: string
+          max_weight_kg?: number
+          price_usd?: number
+          zone?: number
         }
         Relationships: []
       }
