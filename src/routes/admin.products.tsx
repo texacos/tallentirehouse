@@ -100,7 +100,7 @@ function parseVariants(raw: string): ProductVariant[] {
       .map((v) => ({
         size: String(v.size).slice(0, 40),
         sku: v.sku ? String(v.sku).slice(0, 40) : undefined,
-        price: Number.isFinite(Number(v.price)) ? Math.max(0, Math.trunc(Number(v.price))) : 0,
+        price: Number.isFinite(Number(v.price)) ? Math.max(0, Number(v.price)) : 0,
         stock: Number.isFinite(Number(v.stock)) ? Math.max(0, Math.trunc(Number(v.stock))) : 0,
       }));
   } catch {
