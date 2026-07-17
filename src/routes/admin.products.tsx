@@ -669,6 +669,7 @@ function ProductForm({
       slug,
       sku,
       price,
+      weight_kg: weightKg,
       stock,
       description,
       categories: cats,
