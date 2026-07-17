@@ -913,9 +913,9 @@ function ProductForm({
                     />
                     <Input
                       type="number"
-                      inputMode="numeric"
+                      inputMode="decimal"
                       min={0}
-                      step={1}
+                      step={0.5}
                       placeholder="Price"
                       value={v.price}
                       onChange={(e) => updateVariant(v.size, { price: e.target.value })}
