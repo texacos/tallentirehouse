@@ -704,6 +704,7 @@ function ProductForm({
       name: result.data.name,
       sku: result.data.sku ?? "",
       price: result.data.price,
+      weight_kg: result.data.weight_kg,
       stock: hasVariants ? 0 : result.data.stock,
       description: result.data.description ?? "",
       categories: result.data.categories,
