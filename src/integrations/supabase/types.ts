@@ -110,6 +110,331 @@ export type Database = {
         }
         Relationships: []
       }
+      shipping_carriers: {
+        Row: {
+          code: string
+          created_at: string
+          currency: string
+          free_shipping_threshold: number | null
+          id: string
+          is_active: boolean
+          is_default: boolean
+          max_weight_kg: number
+          name: string
+          origin_country: string
+          round_weight: boolean
+          settings: Json
+          sort_order: number
+          updated_at: string
+          weight_interval_kg: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          currency?: string
+          free_shipping_threshold?: number | null
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          max_weight_kg?: number
+          name: string
+          origin_country?: string
+          round_weight?: boolean
+          settings?: Json
+          sort_order?: number
+          updated_at?: string
+          weight_interval_kg?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          currency?: string
+          free_shipping_threshold?: number | null
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          max_weight_kg?: number
+          name?: string
+          origin_country?: string
+          round_weight?: boolean
+          settings?: Json
+          sort_order?: number
+          updated_at?: string
+          weight_interval_kg?: number
+        }
+        Relationships: []
+      }
+      shipping_country_rules: {
+        Row: {
+          carrier_id: string
+          country: string
+          country_code: string | null
+          created_at: string
+          id: string
+          rate_group_id: string | null
+          status: Database["public"]["Enums"]["shipping_service_status"]
+          updated_at: string
+        }
+        Insert: {
+          carrier_id: string
+          country: string
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          rate_group_id?: string | null
+          status?: Database["public"]["Enums"]["shipping_service_status"]
+          updated_at?: string
+        }
+        Update: {
+          carrier_id?: string
+          country?: string
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          rate_group_id?: string | null
+          status?: Database["public"]["Enums"]["shipping_service_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipping_country_rules_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "shipping_carriers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipping_country_rules_rate_group_id_fkey"
+            columns: ["rate_group_id"]
+            isOneToOne: false
+            referencedRelation: "shipping_rate_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shipping_import_batches: {
+        Row: {
+          carrier_id: string | null
+          created_at: string
+          file_name: string | null
+          id: string
+          kind: string
+          rolled_back_at: string | null
+          rows_created: number
+          rows_skipped: number
+          rows_total: number
+          rows_updated: number
+          snapshot: Json
+          user_id: string | null
+          user_label: string | null
+          warnings: Json
+        }
+        Insert: {
+          carrier_id?: string | null
+          created_at?: string
+          file_name?: string | null
+          id?: string
+          kind: string
+          rolled_back_at?: string | null
+          rows_created?: number
+          rows_skipped?: number
+          rows_total?: number
+          rows_updated?: number
+          snapshot?: Json
+          user_id?: string | null
+          user_label?: string | null
+          warnings?: Json
+        }
+        Update: {
+          carrier_id?: string | null
+          created_at?: string
+          file_name?: string | null
+          id?: string
+          kind?: string
+          rolled_back_at?: string | null
+          rows_created?: number
+          rows_skipped?: number
+          rows_total?: number
+          rows_updated?: number
+          snapshot?: Json
+          user_id?: string | null
+          user_label?: string | null
+          warnings?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipping_import_batches_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "shipping_carriers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shipping_messages: {
+        Row: {
+          body_html: string
+          carrier_id: string | null
+          created_at: string
+          id: string
+          locale: string
+          status: Database["public"]["Enums"]["shipping_service_status"]
+          updated_at: string
+        }
+        Insert: {
+          body_html?: string
+          carrier_id?: string | null
+          created_at?: string
+          id?: string
+          locale?: string
+          status: Database["public"]["Enums"]["shipping_service_status"]
+          updated_at?: string
+        }
+        Update: {
+          body_html?: string
+          carrier_id?: string | null
+          created_at?: string
+          id?: string
+          locale?: string
+          status?: Database["public"]["Enums"]["shipping_service_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipping_messages_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "shipping_carriers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shipping_rate_groups: {
+        Row: {
+          carrier_id: string
+          code: string
+          created_at: string
+          id: string
+          label: string | null
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          carrier_id: string
+          code: string
+          created_at?: string
+          id?: string
+          label?: string | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          carrier_id?: string
+          code?: string
+          created_at?: string
+          id?: string
+          label?: string | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipping_rate_groups_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "shipping_carriers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shipping_rate_tiers: {
+        Row: {
+          created_at: string
+          id: string
+          max_weight_kg: number
+          price: number
+          rate_group_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          max_weight_kg: number
+          price: number
+          rate_group_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          max_weight_kg?: number
+          price?: number
+          rate_group_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipping_rate_tiers_rate_group_id_fkey"
+            columns: ["rate_group_id"]
+            isOneToOne: false
+            referencedRelation: "shipping_rate_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shipping_surcharges: {
+        Row: {
+          amount: number
+          calc: Database["public"]["Enums"]["shipping_surcharge_calc"]
+          carrier_id: string
+          country: string | null
+          created_at: string
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          kind: Database["public"]["Enums"]["shipping_surcharge_kind"]
+          label: string
+          starts_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          calc?: Database["public"]["Enums"]["shipping_surcharge_calc"]
+          carrier_id: string
+          country?: string | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["shipping_surcharge_kind"]
+          label: string
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          calc?: Database["public"]["Enums"]["shipping_surcharge_calc"]
+          carrier_id?: string
+          country?: string | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["shipping_surcharge_kind"]
+          label?: string
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipping_surcharges_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "shipping_carriers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       site_settings: {
         Row: {
           key: string
@@ -158,6 +483,9 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      shipping_service_status: "rated" | "no_rate" | "no_service"
+      shipping_surcharge_calc: "percent" | "fixed"
+      shipping_surcharge_kind: "fuel" | "remote_area" | "peak_season" | "custom"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -286,6 +614,9 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      shipping_service_status: ["rated", "no_rate", "no_service"],
+      shipping_surcharge_calc: ["percent", "fixed"],
+      shipping_surcharge_kind: ["fuel", "remote_area", "peak_season", "custom"],
     },
   },
 } as const
