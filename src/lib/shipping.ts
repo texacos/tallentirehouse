@@ -11,7 +11,8 @@ const countryZonesQuery = queryOptions({
       .from("country_zones" as never)
       .select("country,zone")
       .order("country");
-    if (error) throw new Error(error.message);
+    // Table is being rebuilt — treat as "no zones configured" instead of failing.
+    if (error) return [];
     return (data ?? []) as CountryZone[];
   },
   staleTime: 5 * 60_000,
@@ -25,7 +26,8 @@ const shippingRatesQuery = queryOptions({
       .select("zone,max_weight_kg,price_usd")
       .order("zone")
       .order("max_weight_kg");
-    if (error) throw new Error(error.message);
+    // Table is being rebuilt — treat as "no rates configured" instead of failing.
+    if (error) return [];
     return ((data ?? []) as ShippingRate[]).map((r) => ({
       zone: r.zone,
       max_weight_kg: Number(r.max_weight_kg),
