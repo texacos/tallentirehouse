@@ -11,7 +11,8 @@ const countryZonesQuery = queryOptions({
       .from("country_zones" as never)
       .select("country,zone")
       .order("country");
-    if (error) throw new Error(error.message);
+    // Table is being rebuilt — treat as "no zones configured" instead of failing.
+    if (error) return [];
     return (data ?? []) as CountryZone[];
   },
   staleTime: 5 * 60_000,
