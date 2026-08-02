@@ -240,8 +240,8 @@ function CartPage() {
               title="Billing address"
               address={billing}
               onChange={setBilling}
-              countries={zonesQ.data?.map((z) => z.country) ?? []}
-              countriesLoading={zonesQ.isLoading}
+              countries={destinationsQ.data?.map((d) => d.country) ?? []}
+              countriesLoading={destinationsQ.isLoading}
             />
           )}
         </div>
