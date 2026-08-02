@@ -3,11 +3,8 @@ import { Minus, Plus, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
-import {
-  useCountryZones,
-  useShippingRates,
-  calcShippingUSD,
-} from "@/lib/shipping";
+import { useShippingDestinations, useShippingQuote } from "@/lib/shipping";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -52,29 +49,27 @@ function CartPage() {
   const [billingSame, setBillingSame] = useState(true);
   const [billing, setBilling] = useState<Address>(emptyAddress());
 
-  const zonesQ = useCountryZones();
-  const ratesQ = useShippingRates();
+  const destinationsQ = useShippingDestinations();
 
   const totalWeight = useMemo(
     () => detailed.reduce((s, i) => s + (i.product.weight_kg ?? 0) * i.qty, 0),
     [detailed],
   );
 
-  const destinationZone = useMemo(() => {
-    if (!shipping.country || !zonesQ.data) return null;
-    const match = zonesQ.data.find(
-      (z) => z.country.toLowerCase() === shipping.country.trim().toLowerCase(),
-    );
-    return match?.zone ?? null;
-  }, [shipping.country, zonesQ.data]);
+  const quoteQ = useShippingQuote({
+    country: shipping.country,
+    weightKg: Number(totalWeight.toFixed(3)),
+    subtotal,
+    enabled: count > 0,
+  });
 
-  const shippingUSD = useMemo(() => {
-    if (destinationZone == null || !ratesQ.data) return null;
-    return calcShippingUSD(totalWeight, destinationZone, ratesQ.data);
-  }, [destinationZone, ratesQ.data, totalWeight]);
+  const quote = quoteQ.data?.quote ?? null;
+  const quoteMessage = quoteQ.data?.message ?? null;
+  const shippingUSD = quote?.status === "rated" ? quote.total : null;
 
   const shippingKnown = shippingUSD != null;
   const total = subtotal + (shippingUSD ?? 0);
+
 
   const addressComplete =
     shipping.name.trim() &&
@@ -218,8 +213,13 @@ function CartPage() {
             title="Delivery address"
             address={shipping}
             onChange={setShipping}
-            countries={zonesQ.data?.map((z) => z.country) ?? []}
-            countriesLoading={zonesQ.isLoading}
+            countries={
+              destinationsQ.data
+                ?.filter((d) => d.status !== "no_service")
+                .map((d) => d.country) ?? []
+            }
+            countriesLoading={destinationsQ.isLoading}
+
             requireContact
           />
 
@@ -240,8 +240,8 @@ function CartPage() {
               title="Billing address"
               address={billing}
               onChange={setBilling}
-              countries={zonesQ.data?.map((z) => z.country) ?? []}
-              countriesLoading={zonesQ.isLoading}
+              countries={destinationsQ.data?.map((d) => d.country) ?? []}
+              countriesLoading={destinationsQ.isLoading}
             />
           )}
         </div>
@@ -259,25 +259,45 @@ function CartPage() {
               <dd className="tabular-nums">{totalWeight.toFixed(2)} kg</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">Shipping</dt>
+              <dt className="text-muted-foreground">Billable weight</dt>
               <dd className="tabular-nums">
-                {ratesQ.isLoading || zonesQ.isLoading
-                  ? "…"
-                  : !shipping.country
-                    ? "Select country"
-                    : destinationZone == null
-                      ? "Not shippable"
-                      : shippingUSD == null
-                        ? "Contact us — over 25 kg"
-                        : formatPrice(shippingUSD)}
+                {quote ? `${quote.billableWeightKg.toFixed(2)} kg` : "—"}
               </dd>
             </div>
-            {destinationZone != null && (
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Shipping</dt>
+              <dd className="tabular-nums">
+                {!shipping.country
+                  ? "Select country"
+                  : quoteQ.isLoading || destinationsQ.isLoading
+                    ? "…"
+                    : quote?.status === "rated"
+                      ? quote.free
+                        ? "Free"
+                        : formatPrice(quote.total)
+                      : "Not available online"}
+              </dd>
+            </div>
+            {quote?.status === "rated" &&
+              quote.surcharges.map((s) => (
+                <div key={s.label} className="flex justify-between text-xs">
+                  <dt className="text-muted-foreground">{s.label}</dt>
+                  <dd className="tabular-nums">included</dd>
+                </div>
+              ))}
+            {quote?.status === "rated" && (
               <p className="text-xs text-muted-foreground">
-                Zone {destinationZone} rate applied.
+                {quote.carrierName} · up to {quote.tierMaxWeightKg} kg tier.
               </p>
             )}
+            {quote && quote.status !== "rated" && quoteMessage && (
+              <div
+                className="text-xs text-muted-foreground [&_p]:mt-2"
+                dangerouslySetInnerHTML={{ __html: quoteMessage }}
+              />
+            )}
           </dl>
+
           <div className="my-5 rule" />
           <div className="flex justify-between text-base">
             <span>Total</span>
