@@ -213,8 +213,13 @@ function CartPage() {
             title="Delivery address"
             address={shipping}
             onChange={setShipping}
-            countries={zonesQ.data?.map((z) => z.country) ?? []}
-            countriesLoading={zonesQ.isLoading}
+            countries={
+              destinationsQ.data
+                ?.filter((d) => d.status !== "no_service")
+                .map((d) => d.country) ?? []
+            }
+            countriesLoading={destinationsQ.isLoading}
+
             requireContact
           />
 
