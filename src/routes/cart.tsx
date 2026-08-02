@@ -259,25 +259,45 @@ function CartPage() {
               <dd className="tabular-nums">{totalWeight.toFixed(2)} kg</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">Shipping</dt>
+              <dt className="text-muted-foreground">Billable weight</dt>
               <dd className="tabular-nums">
-                {ratesQ.isLoading || zonesQ.isLoading
-                  ? "…"
-                  : !shipping.country
-                    ? "Select country"
-                    : destinationZone == null
-                      ? "Not shippable"
-                      : shippingUSD == null
-                        ? "Contact us — over 25 kg"
-                        : formatPrice(shippingUSD)}
+                {quote ? `${quote.billableWeightKg.toFixed(2)} kg` : "—"}
               </dd>
             </div>
-            {destinationZone != null && (
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Shipping</dt>
+              <dd className="tabular-nums">
+                {!shipping.country
+                  ? "Select country"
+                  : quoteQ.isLoading || destinationsQ.isLoading
+                    ? "…"
+                    : quote?.status === "rated"
+                      ? quote.free
+                        ? "Free"
+                        : formatPrice(quote.total)
+                      : "Not available online"}
+              </dd>
+            </div>
+            {quote?.status === "rated" &&
+              quote.surcharges.map((s) => (
+                <div key={s.label} className="flex justify-between text-xs">
+                  <dt className="text-muted-foreground">{s.label}</dt>
+                  <dd className="tabular-nums">included</dd>
+                </div>
+              ))}
+            {quote?.status === "rated" && (
               <p className="text-xs text-muted-foreground">
-                Zone {destinationZone} rate applied.
+                {quote.carrierName} · up to {quote.tierMaxWeightKg} kg tier.
               </p>
             )}
+            {quote && quote.status !== "rated" && quoteMessage && (
+              <div
+                className="text-xs text-muted-foreground [&_p]:mt-2"
+                dangerouslySetInnerHTML={{ __html: quoteMessage }}
+              />
+            )}
           </dl>
+
           <div className="my-5 rule" />
           <div className="flex justify-between text-base">
             <span>Total</span>
