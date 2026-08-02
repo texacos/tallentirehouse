@@ -49,29 +49,27 @@ function CartPage() {
   const [billingSame, setBillingSame] = useState(true);
   const [billing, setBilling] = useState<Address>(emptyAddress());
 
-  const zonesQ = useCountryZones();
-  const ratesQ = useShippingRates();
+  const destinationsQ = useShippingDestinations();
 
   const totalWeight = useMemo(
     () => detailed.reduce((s, i) => s + (i.product.weight_kg ?? 0) * i.qty, 0),
     [detailed],
   );
 
-  const destinationZone = useMemo(() => {
-    if (!shipping.country || !zonesQ.data) return null;
-    const match = zonesQ.data.find(
-      (z) => z.country.toLowerCase() === shipping.country.trim().toLowerCase(),
-    );
-    return match?.zone ?? null;
-  }, [shipping.country, zonesQ.data]);
+  const quoteQ = useShippingQuote({
+    country: shipping.country,
+    weightKg: Number(totalWeight.toFixed(3)),
+    subtotal,
+    enabled: count > 0,
+  });
 
-  const shippingUSD = useMemo(() => {
-    if (destinationZone == null || !ratesQ.data) return null;
-    return calcShippingUSD(totalWeight, destinationZone, ratesQ.data);
-  }, [destinationZone, ratesQ.data, totalWeight]);
+  const quote = quoteQ.data?.quote ?? null;
+  const quoteMessage = quoteQ.data?.message ?? null;
+  const shippingUSD = quote?.status === "rated" ? quote.total : null;
 
   const shippingKnown = shippingUSD != null;
   const total = subtotal + (shippingUSD ?? 0);
+
 
   const addressComplete =
     shipping.name.trim() &&
