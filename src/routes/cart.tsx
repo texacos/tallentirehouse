@@ -3,11 +3,8 @@ import { Minus, Plus, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
-import {
-  useCountryZones,
-  useShippingRates,
-  calcShippingUSD,
-} from "@/lib/shipping";
+import { useShippingDestinations, useShippingQuote } from "@/lib/shipping";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
