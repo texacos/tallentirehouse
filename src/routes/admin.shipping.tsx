@@ -28,7 +28,11 @@ function ShippingAdmin() {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const { data: carriers = [] } = useCarriers();
-  const defaultCarrier = carriers.find((c) => c.is_default) ?? carriers[0];
+  const [carrierId, setCarrierId] = useState<string | null>(null);
+  const activeCarrier =
+    carriers.find((c) => c.id === carrierId) ??
+    carriers.find((c) => c.is_default) ??
+    carriers[0];
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/login" });
@@ -63,10 +67,65 @@ function ShippingAdmin() {
         </Link>
       </div>
 
-      <div className="mt-10">
-        <h2 className="font-display text-2xl mb-4">Carriers</h2>
-        <CarriersPanel selectedId={defaultCarrier?.id} />
-      </div>
+      {carriers.length > 1 && (
+        <div className="mt-6 flex flex-wrap items-center gap-2">
+          <span className="text-xs uppercase tracking-[0.16em] text-foreground/70">Carrier</span>
+          {carriers.map((c) => (
+            <Button
+              key={c.id}
+              size="sm"
+              variant={c.id === activeCarrier?.id ? "default" : "outline"}
+              onClick={() => setCarrierId(c.id)}
+            >
+              {c.name}
+            </Button>
+          ))}
+        </div>
+      )}
+
+      <Tabs defaultValue="carriers" className="mt-10">
+        <TabsList className="flex h-auto flex-wrap justify-start">
+          <TabsTrigger value="carriers">Carriers</TabsTrigger>
+          <TabsTrigger value="countries">Country rules</TabsTrigger>
+          <TabsTrigger value="rates">Rate groups</TabsTrigger>
+          <TabsTrigger value="surcharges">Surcharges</TabsTrigger>
+          <TabsTrigger value="messages">Messages</TabsTrigger>
+          <TabsTrigger value="import">Import / Export</TabsTrigger>
+          <TabsTrigger value="tester">Rate tester</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="carriers" className="mt-6">
+          <CarriersPanel selectedId={activeCarrier?.id} />
+        </TabsContent>
+
+        {!activeCarrier ? (
+          <p className="mt-6 text-sm text-muted-foreground">
+            Create a carrier first — every other panel belongs to one.
+          </p>
+        ) : (
+          <>
+            <TabsContent value="countries" className="mt-6">
+              <CountryRulesPanel carrierId={activeCarrier.id} />
+            </TabsContent>
+            <TabsContent value="rates" className="mt-6">
+              <RateGroupsPanel carrierId={activeCarrier.id} />
+            </TabsContent>
+            <TabsContent value="surcharges" className="mt-6">
+              <SurchargesPanel carrierId={activeCarrier.id} />
+            </TabsContent>
+            <TabsContent value="messages" className="mt-6">
+              <MessagesPanel carrierId={activeCarrier.id} />
+            </TabsContent>
+            <TabsContent value="import" className="mt-6">
+              <ImportExportPanel carrierId={activeCarrier.id} />
+            </TabsContent>
+            <TabsContent value="tester" className="mt-6">
+              <RateTesterPanel carrier={activeCarrier} />
+            </TabsContent>
+          </>
+        )}
+      </Tabs>
     </div>
   );
+
 }
