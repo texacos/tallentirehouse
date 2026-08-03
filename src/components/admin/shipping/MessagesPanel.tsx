@@ -45,7 +45,7 @@ export function MessagesPanel({ carrierId }: { carrierId: string }) {
         Simple HTML is allowed (paragraphs, links). These messages appear at checkout.
       </p>
       {STATUSES.map(({ status, title, hint }) => {
-        const existing = messages.find((m) => m.status === status);
+        const existing = messages?.find((m) => m.status === status);
         return (
           <div key={status} className="rounded-md border border-border p-5 space-y-3">
             <div>
