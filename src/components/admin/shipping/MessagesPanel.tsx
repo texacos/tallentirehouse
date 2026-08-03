@@ -23,17 +23,19 @@ const STATUSES: { status: ServiceStatus; title: string; hint: string }[] = [
 ];
 
 export function MessagesPanel({ carrierId }: { carrierId: string }) {
-  const { data: messages = [], isLoading } = useShippingMessages(carrierId);
+  const { data: messages, isLoading } = useShippingMessages(carrierId);
   const save = useSaveShippingMessage();
   const [drafts, setDrafts] = useState<Record<string, string>>({});
 
   useEffect(() => {
+    if (!messages) return;
     const next: Record<string, string> = {};
     for (const s of STATUSES) {
       next[s.status] = messages.find((m) => m.status === s.status)?.body_html ?? "";
     }
     setDrafts(next);
   }, [messages]);
+
 
   if (isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
 
