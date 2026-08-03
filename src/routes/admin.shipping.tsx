@@ -1,9 +1,17 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useCarriers } from "@/lib/shipping-admin";
 import { CarriersPanel } from "@/components/admin/shipping/CarriersPanel";
+import { CountryRulesPanel } from "@/components/admin/shipping/CountryRulesPanel";
+import { RateGroupsPanel } from "@/components/admin/shipping/RateGroupsPanel";
+import { SurchargesPanel } from "@/components/admin/shipping/SurchargesPanel";
+import { MessagesPanel } from "@/components/admin/shipping/MessagesPanel";
+import { ImportExportPanel } from "@/components/admin/shipping/ImportExportPanel";
+import { RateTesterPanel } from "@/components/admin/shipping/RateTesterPanel";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+
 
 export const Route = createFileRoute("/admin/shipping")({
   head: () => ({
