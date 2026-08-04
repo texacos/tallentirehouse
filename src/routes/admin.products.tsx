@@ -24,11 +24,16 @@ import {
   type ProductVariant,
 } from "@/lib/products";
 import { productsQueryOptions, useProducts } from "@/lib/products-store";
-import { useSiteSettings, useUpdateSiteSetting } from "@/lib/site-settings";
+import {
+  useSiteSettings,
+  useUpdateSiteSetting,
+  DEFAULT_SHIPPING_NOTE,
+} from "@/lib/site-settings";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
@@ -163,8 +168,12 @@ function AdminProductsPage() {
   const queryClient = useQueryClient();
   const { user, isAdmin, loading, signOut } = useAuth();
   const navigate = useNavigate();
-  const { hideOutOfStock } = useSiteSettings();
+  const { hideOutOfStock, productShippingNote } = useSiteSettings();
   const updateSetting = useUpdateSiteSetting();
+  const [noteDraft, setNoteDraft] = useState(productShippingNote);
+  useEffect(() => setNoteDraft(productShippingNote), [productShippingNote]);
+
+
 
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
@@ -377,6 +386,46 @@ function AdminProductsPage() {
           Hide out-of-stock products from the shop pages
         </Label>
       </div>
+
+      {/* Shared product shipping note */}
+      <div className="mt-4 rounded-md border border-border bg-muted/30 px-4 py-3 space-y-2">
+        <Label htmlFor="shipping-note" className="text-sm">
+          Shipping note shown on every in-stock product page
+        </Label>
+        <Textarea
+          id="shipping-note"
+          rows={2}
+          value={noteDraft}
+          onChange={(e) => setNoteDraft(e.target.value)}
+          placeholder={DEFAULT_SHIPPING_NOTE}
+        />
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            disabled={updateSetting.isPending || noteDraft === productShippingNote}
+            onClick={() =>
+              updateSetting.mutate(
+                { key: "product_shipping_note", value: noteDraft },
+                {
+                  onSuccess: () => toast.success("Shipping note saved"),
+                  onError: (err) =>
+                    toast.error(err instanceof Error ? err.message : "Failed to update"),
+                },
+              )
+            }
+          >
+            Save note
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setNoteDraft(DEFAULT_SHIPPING_NOTE)}
+          >
+            Reset to default
+          </Button>
+        </div>
+      </div>
+
 
 
       {/* Inline create / edit form */}

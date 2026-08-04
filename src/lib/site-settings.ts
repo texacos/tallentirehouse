@@ -3,10 +3,15 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type SiteSettings = {
   hideOutOfStock: boolean;
+  productShippingNote: string;
 };
+
+export const DEFAULT_SHIPPING_NOTE =
+  "Made to order. Ships within 2–3 weeks. Worldwide shipping calculated at checkout.";
 
 const DEFAULTS: SiteSettings = {
   hideOutOfStock: false,
+  productShippingNote: DEFAULT_SHIPPING_NOTE,
 };
 
 async function fetchSiteSettings(): Promise<SiteSettings> {
@@ -16,8 +21,10 @@ async function fetchSiteSettings(): Promise<SiteSettings> {
   if (error) throw new Error(error.message);
   const map = new Map<string, unknown>();
   for (const row of data ?? []) map.set(row.key as string, row.value);
+  const note = map.get("product_shipping_note");
   return {
     hideOutOfStock: Boolean(map.get("hide_out_of_stock") ?? false),
+    productShippingNote: typeof note === "string" ? note : DEFAULT_SHIPPING_NOTE,
   };
 }
 

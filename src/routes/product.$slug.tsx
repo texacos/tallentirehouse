@@ -15,6 +15,7 @@ import { productsQueryOptions, useProduct, useProducts } from "@/lib/products-st
 import { useCart } from "@/lib/cart";
 import { ProductCard } from "@/components/site/ProductCard";
 import { submitRestockRequest } from "@/lib/restock.functions";
+import { useSiteSettings } from "@/lib/site-settings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -34,6 +35,8 @@ function ProductPage() {
   const { slug } = Route.useParams();
   const allProducts = useProducts();
   const product = useProduct(slug);
+  const { productShippingNote: shippingNote } = useSiteSettings();
+
 
   const { add, openDrawer } = useCart();
   const [qty, setQty] = useState(1);
@@ -271,9 +274,11 @@ function ProductPage() {
                       : `Add to basket — ${formatPrice(unitPrice * qty)}`}
                   </button>
                 </div>
-                <p className="mt-5 text-xs text-muted-foreground">
-                  Made to order. Ships within 2–3 weeks. Worldwide shipping calculated at checkout.
-                </p>
+                {shippingNote ? (
+                  <p className="mt-5 text-xs text-muted-foreground whitespace-pre-line">
+                    {shippingNote}
+                  </p>
+                ) : null}
               </>
             ) : (
               <div className="mt-10 border border-border p-6 bg-muted/30">
