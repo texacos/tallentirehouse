@@ -24,11 +24,16 @@ import {
   type ProductVariant,
 } from "@/lib/products";
 import { productsQueryOptions, useProducts } from "@/lib/products-store";
-import { useSiteSettings, useUpdateSiteSetting } from "@/lib/site-settings";
+import {
+  useSiteSettings,
+  useUpdateSiteSetting,
+  DEFAULT_SHIPPING_NOTE,
+} from "@/lib/site-settings";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
