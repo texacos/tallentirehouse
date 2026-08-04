@@ -168,8 +168,12 @@ function AdminProductsPage() {
   const queryClient = useQueryClient();
   const { user, isAdmin, loading, signOut } = useAuth();
   const navigate = useNavigate();
-  const { hideOutOfStock } = useSiteSettings();
+  const { hideOutOfStock, productShippingNote } = useSiteSettings();
   const updateSetting = useUpdateSiteSetting();
+  const [noteDraft, setNoteDraft] = useState(productShippingNote);
+  useEffect(() => setNoteDraft(productShippingNote), [productShippingNote]);
+
+
 
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
