@@ -3,10 +3,15 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type SiteSettings = {
   hideOutOfStock: boolean;
+  productShippingNote: string;
 };
+
+export const DEFAULT_SHIPPING_NOTE =
+  "Made to order. Ships within 2–3 weeks. Worldwide shipping calculated at checkout.";
 
 const DEFAULTS: SiteSettings = {
   hideOutOfStock: false,
+  productShippingNote: DEFAULT_SHIPPING_NOTE,
 };
 
 async function fetchSiteSettings(): Promise<SiteSettings> {
