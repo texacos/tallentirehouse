@@ -35,6 +35,8 @@ function ProductPage() {
   const { slug } = Route.useParams();
   const allProducts = useProducts();
   const product = useProduct(slug);
+  const { productShippingNote: shippingNote } = useSiteSettings();
+
 
   const { add, openDrawer } = useCart();
   const [qty, setQty] = useState(1);
