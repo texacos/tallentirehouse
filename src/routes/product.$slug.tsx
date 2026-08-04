@@ -271,9 +271,11 @@ function ProductPage() {
                       : `Add to basket — ${formatPrice(unitPrice * qty)}`}
                   </button>
                 </div>
-                <p className="mt-5 text-xs text-muted-foreground">
-                  Made to order. Ships within 2–3 weeks. Worldwide shipping calculated at checkout.
-                </p>
+                {shippingNote ? (
+                  <p className="mt-5 text-xs text-muted-foreground whitespace-pre-line">
+                    {shippingNote}
+                  </p>
+                ) : null}
               </>
             ) : (
               <div className="mt-10 border border-border p-6 bg-muted/30">
