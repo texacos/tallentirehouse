@@ -346,14 +346,11 @@ function AddressBlock({
     <div className="space-y-4">
       <h2 className="font-display text-2xl">{title}</h2>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Cell label="Full name">
-          <Input value={address.name} onChange={(e) => update("name", e.target.value)} />
-        </Cell>
-        <Cell label="Country">
+        <Cell label="Country" className="sm:col-span-2">
           <select
             value={address.country}
             onChange={(e) => update("country", e.target.value)}
-            className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+            className="h-9 rounded-md border border-input bg-transparent px-3 text-sm w-full"
           >
             <option value="">
               {countriesLoading ? "Loading…" : "Select country"}
@@ -364,6 +361,9 @@ function AddressBlock({
               </option>
             ))}
           </select>
+        </Cell>
+        <Cell label="Full name" className="sm:col-span-2">
+          <Input value={address.name} onChange={(e) => update("name", e.target.value)} />
         </Cell>
         <Cell label="Address line 1" className="sm:col-span-2">
           <Input value={address.line1} onChange={(e) => update("line1", e.target.value)} />
