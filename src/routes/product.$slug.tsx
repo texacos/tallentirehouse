@@ -15,6 +15,7 @@ import { productsQueryOptions, useProduct, useProducts } from "@/lib/products-st
 import { useCart } from "@/lib/cart";
 import { ProductCard } from "@/components/site/ProductCard";
 import { submitRestockRequest } from "@/lib/restock.functions";
+import { useSiteSettings } from "@/lib/site-settings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
