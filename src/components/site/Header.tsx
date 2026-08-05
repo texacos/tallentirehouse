@@ -33,18 +33,16 @@ export function Header() {
         </button>
 
         <nav className="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.18em] text-foreground/80">
-          <Link to="/shop" className="hover:text-foreground transition-colors">Shop all</Link>
-          <Link to="/about" className="hover:text-foreground transition-colors">Our Story</Link>
           {isAdmin && (
             <Link to="/admin/products" className="hover:text-foreground transition-colors text-foreground/50">Admin</Link>
           )}
-
         </nav>
 
 
-        <Link to="/" className="flex items-baseline gap-3 select-none">
+
+        <Link to="/" className="flex flex-col items-center text-center select-none">
           <span className="font-display text-3xl md:text-4xl tracking-tight text-nowrap">Tallentire House</span>
-          <span className="hidden lg:inline eyebrow text-foreground/60">Fabrics for life</span>
+          <span className="eyebrow text-foreground/60 mt-1">Fabrics for life</span>
         </Link>
 
         <div className="flex items-center gap-1">
@@ -85,9 +83,6 @@ export function Header() {
               {g.label}
             </Link>
           ))}
-          <Link to="/shop" className="hover:text-foreground transition-colors font-medium">
-            All →
-          </Link>
         </div>
       </div>
 
@@ -95,13 +90,6 @@ export function Header() {
       {mobileOpen && (
         <div className="lg:hidden border-t border-border/40 bg-background max-h-[80vh] overflow-y-auto">
           <div className="flex flex-col px-6 py-4 text-sm">
-            <Link
-              to="/shop"
-              onClick={() => setMobileOpen(false)}
-              className="py-2.5 uppercase tracking-[0.18em] border-b border-border/50"
-            >
-              Shop all
-            </Link>
 
             {CATEGORY_GROUPS.map((g) => {
               const isOpen = openGroups.has(g.slug);
@@ -168,13 +156,6 @@ export function Header() {
               </Link>
             ))}
 
-            <Link
-              to="/about"
-              onClick={() => setMobileOpen(false)}
-              className="py-2.5 mt-2 uppercase tracking-[0.18em]"
-            >
-              Our Story
-            </Link>
           </div>
         </div>
       )}
