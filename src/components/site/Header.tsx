@@ -19,7 +19,7 @@ export function Header() {
       next.has(slug) ? next.delete(slug) : next.add(slug);
       return next;
     });
-  const navGroups = CATEGORY_GROUPS.slice(0, 7);
+  const navGroups = CATEGORY_GROUPS;
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
