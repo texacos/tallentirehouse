@@ -83,9 +83,6 @@ export function Header() {
               {g.label}
             </Link>
           ))}
-          <Link to="/shop" className="hover:text-foreground transition-colors font-medium">
-            All →
-          </Link>
         </div>
       </div>
 
@@ -93,13 +90,6 @@ export function Header() {
       {mobileOpen && (
         <div className="lg:hidden border-t border-border/40 bg-background max-h-[80vh] overflow-y-auto">
           <div className="flex flex-col px-6 py-4 text-sm">
-            <Link
-              to="/shop"
-              onClick={() => setMobileOpen(false)}
-              className="py-2.5 uppercase tracking-[0.18em] border-b border-border/50"
-            >
-              Shop all
-            </Link>
 
             {CATEGORY_GROUPS.map((g) => {
               const isOpen = openGroups.has(g.slug);
