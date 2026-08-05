@@ -26,7 +26,7 @@ export function Footer() {
           <div className="eyebrow text-foreground/70 mb-4">House</div>
           <ul className="space-y-2 text-sm">
             <li><Link to="/about" className="hover:opacity-70">Our story</Link></li>
-            <li><a href="mailto:hello@tallentire.example" className="hover:opacity-70">Contact</a></li>
+            <li><Link to="/contact" className="hover:opacity-70">Contact</Link></li>
             <li><Link to="/about" className="hover:opacity-70">Shipping & care</Link></li>
           </ul>
         </div>

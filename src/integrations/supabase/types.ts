@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      contact_messages: {
+        Row: {
+          attempts: number
+          created_at: string
+          delivered_at: string | null
+          email: string
+          email_error: string | null
+          email_status: string
+          id: string
+          ip: string | null
+          message: string
+          name: string
+          phone: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          delivered_at?: string | null
+          email: string
+          email_error?: string | null
+          email_status?: string
+          id?: string
+          ip?: string | null
+          message: string
+          name: string
+          phone?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          delivered_at?: string | null
+          email?: string
+          email_error?: string | null
+          email_status?: string
+          id?: string
+          ip?: string | null
+          message?: string
+          name?: string
+          phone?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           categories: string[]
