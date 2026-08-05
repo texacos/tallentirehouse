@@ -156,13 +156,6 @@ export function Header() {
               </Link>
             ))}
 
-            <Link
-              to="/about"
-              onClick={() => setMobileOpen(false)}
-              className="py-2.5 mt-2 uppercase tracking-[0.18em]"
-            >
-              Our Story
-            </Link>
           </div>
         </div>
       )}
