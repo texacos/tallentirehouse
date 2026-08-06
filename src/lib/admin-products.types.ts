@@ -272,5 +272,5 @@ export type RevisionEntry = {
   actor_label: string;
   action: string;
   created_at: string;
-  snapshot: Record<string, unknown>;
+  snapshotJson: string;
 };

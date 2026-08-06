@@ -17,6 +17,11 @@ import {
 
 type Db = SupabaseClient<any, any, any>;
 
+/** The generated Supabase types reject dynamic row shapes; admin writes are validated with Zod instead. */
+export function loose(client: unknown): Db {
+  return client as Db;
+}
+
 export const PRODUCT_COLUMNS =
   "id,slug,name,sku,barcode,brand,supplier,collection,tags,price,sale_price,cost_price,weight_kg,stock,total_stock,reorder_level,track_inventory,backorders,location,description,seo_title,seo_description,categories,images,image_alts,variants,status,published_at,created_at,updated_at";
 
