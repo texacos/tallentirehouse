@@ -23,11 +23,10 @@ export function Footer() {
         </div>
 
         <div>
-          <div className="eyebrow text-foreground/70 mb-4">House</div>
+          <div className="eyebrow text-foreground/70 mb-4">About Us</div>
           <ul className="space-y-2 text-sm">
             <li><Link to="/about" className="hover:opacity-70">Our story</Link></li>
             <li><Link to="/contact" className="hover:opacity-70">Contact</Link></li>
-            <li><Link to="/about" className="hover:opacity-70">Shipping & care</Link></li>
           </ul>
         </div>
       </div>
