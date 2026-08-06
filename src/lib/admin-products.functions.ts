@@ -20,6 +20,7 @@ import {
   copySlug,
   describeBulk,
   diffFields,
+  loose,
   mapRow,
   parseProductValues,
   PRODUCT_COLUMNS,
@@ -38,8 +39,9 @@ export const adminListProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => listFiltersSchema.parse(input))
   .handler(async ({ data, context }): Promise<{ rows: AdminProduct[]; total: number }> => {
-    await assertAdmin(context.supabase, context.userId);
-    return queryProducts(context.supabase, data);
+    const db = loose(context.supabase);
+    await assertAdmin(db, context.userId);
+    return queryProducts(db, data);
   });
 
 export const adminProductMeta = createServerFn({ method: "POST" })
@@ -48,8 +50,9 @@ export const adminProductMeta = createServerFn({ method: "POST" })
     async ({
       context,
     }): Promise<{ stats: ProductStats; facets: ProductFacets; categories: string[] }> => {
-      await assertAdmin(context.supabase, context.userId);
-      return computeMeta(context.supabase);
+      const db = loose(context.supabase);
+      await assertAdmin(db, context.userId);
+      return computeMeta(db);
     },
   );
 
@@ -57,19 +60,20 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => adminProductSchema.parse(input))
   .handler(async ({ data, context }): Promise<AdminProduct> => {
-    await assertAdmin(context.supabase, context.userId);
+    const db = loose(context.supabase);
+    await assertAdmin(db, context.userId);
     const values = parseProductValues(data);
     const row = toRow(values);
 
-    const { data: existing } = await context.supabase
+    const { data: existing } = await db
       .from("products")
       .select(PRODUCT_COLUMNS)
       .eq("slug", values.slug)
       .maybeSingle();
 
-    let saved: Record<string, unknown> | null = null;
+    let saved: Record<string, unknown>;
     if (existing) {
-      const { data: updated, error } = await context.supabase
+      const { data: updated, error } = await db
         .from("products")
         .update(row)
         .eq("slug", values.slug)
@@ -81,7 +85,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       }
       saved = updated as Record<string, unknown>;
     } else {
-      const { data: inserted, error } = await context.supabase
+      const { data: inserted, error } = await db
         .from("products")
         .insert(row)
         .select(PRODUCT_COLUMNS)
@@ -94,11 +98,8 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
     }
 
     const product = mapRow(saved);
-    const changed = diffFields(
-      existing ? (existing as Record<string, unknown>) : null,
-      row,
-    );
-    await writeRevision(context.supabase, {
+    const changed = diffFields(existing ? (existing as Record<string, unknown>) : null, row);
+    await writeRevision(db, {
       productId: product.id,
       slug: product.slug,
       snapshot: (existing as Record<string, unknown>) ?? {},
@@ -107,7 +108,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       actorLabel: actorLabel(context.claims),
       action: existing ? "update" : "create",
     });
-    await writeAudit(context.supabase, {
+    await writeAudit(db, {
       actorId: context.userId,
       actorLabel: actorLabel(context.claims),
       action: existing ? "product.update" : "product.create",
@@ -134,20 +135,25 @@ export const adminBulkAction = createServerFn({ method: "POST" })
     async ({
       data,
       context,
-    }): Promise<{ affected: number; undo: Array<{ id: string; patch: Record<string, unknown> }> }> => {
-      await assertAdmin(context.supabase, context.userId);
-      const { data: rows, error } = await context.supabase
+    }): Promise<{
+      affected: number;
+      undo: Array<{ id: string; patchJson: string }>;
+      deleted: AdminProduct[];
+    }> => {
+      const db = loose(context.supabase);
+      await assertAdmin(db, context.userId);
+      const { data: rows, error } = await db
         .from("products")
         .select(PRODUCT_COLUMNS)
         .in("id", data.ids);
       if (error) throw new Error("Could not load the selected products");
-      const products = (rows ?? []).map((r) => mapRow(r as Record<string, unknown>));
+      const products = (rows ?? []).map((r: Record<string, unknown>) => mapRow(r));
       const label = actorLabel(context.claims);
-      const undo: Array<{ id: string; patch: Record<string, unknown> }> = [];
+      const undo: Array<{ id: string; patchJson: string }> = [];
 
       if (data.action.type === "delete") {
         for (const p of products) {
-          await writeRevision(context.supabase, {
+          await writeRevision(db, {
             productId: p.id,
             slug: p.slug,
             snapshot: p as unknown as Record<string, unknown>,
@@ -157,24 +163,23 @@ export const adminBulkAction = createServerFn({ method: "POST" })
             action: "delete",
           });
         }
-        const { error: delErr } = await context.supabase
-          .from("products")
-          .delete()
-          .in("id", data.ids);
+        const { error: delErr } = await db.from("products").delete().in("id", data.ids);
         if (delErr) throw new Error("Could not delete the selected products");
-        await writeAudit(context.supabase, {
+        await writeAudit(db, {
           actorId: context.userId,
           actorLabel: label,
           action: "product.delete",
           summary: describeBulk(data.action, products.length),
           details: { slugs: products.map((p) => p.slug) },
         });
-        return { affected: products.length, undo: [] };
+        return { affected: products.length, undo: [], deleted: products };
       }
 
       if (data.action.type === "duplicate") {
-        const { data: allSlugs } = await context.supabase.from("products").select("slug");
-        const taken = new Set((allSlugs ?? []).map((r) => String((r as { slug: string }).slug)));
+        const { data: allSlugs } = await db.from("products").select("slug");
+        const taken = new Set(
+          (allSlugs ?? []).map((r: { slug: string }) => String(r.slug)),
+        );
         const copies = products.map((p) => {
           const slug = copySlug(p.slug, taken);
           taken.add(slug);
@@ -188,15 +193,15 @@ export const adminBulkAction = createServerFn({ method: "POST" })
           });
           return toRow(values);
         });
-        const { error: insErr } = await context.supabase.from("products").insert(copies);
+        const { error: insErr } = await db.from("products").insert(copies);
         if (insErr) throw new Error("Could not duplicate the selected products");
-        await writeAudit(context.supabase, {
+        await writeAudit(db, {
           actorId: context.userId,
           actorLabel: label,
           action: "product.duplicate",
           summary: describeBulk(data.action, copies.length),
         });
-        return { affected: copies.length, undo: [] };
+        return { affected: copies.length, undo: [], deleted: [] };
       }
 
       let affected = 0;
@@ -207,22 +212,19 @@ export const adminBulkAction = createServerFn({ method: "POST" })
         for (const key of Object.keys(patch)) {
           before[key] = (p as unknown as Record<string, unknown>)[key];
         }
-        const { error: upErr } = await context.supabase
-          .from("products")
-          .update(patch)
-          .eq("id", p.id);
+        const { error: upErr } = await db.from("products").update(patch).eq("id", p.id);
         if (upErr) continue;
-        undo.push({ id: p.id, patch: before });
+        undo.push({ id: p.id, patchJson: JSON.stringify(before) });
         affected += 1;
       }
-      await writeAudit(context.supabase, {
+      await writeAudit(db, {
         actorId: context.userId,
         actorLabel: label,
         action: `product.bulk.${data.action.type}`,
         summary: describeBulk(data.action, affected),
         details: { action: data.action },
       });
-      return { affected, undo };
+      return { affected, undo, deleted: [] };
     },
   );
 
@@ -245,7 +247,7 @@ export const adminApplyPatches = createServerFn({ method: "POST" })
     z
       .object({
         patches: z
-          .array(z.object({ id: z.string().uuid(), patch: z.record(z.string(), z.unknown()) }))
+          .array(z.object({ id: z.string().uuid(), patchJson: z.string().max(200_000) }))
           .min(1)
           .max(1000),
         reason: z.string().max(120).default("undo"),
@@ -253,16 +255,26 @@ export const adminApplyPatches = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }): Promise<{ affected: number }> => {
-    await assertAdmin(context.supabase, context.userId);
+    const db = loose(context.supabase);
+    await assertAdmin(db, context.userId);
     let affected = 0;
     for (const item of data.patches) {
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(item.patchJson);
+      } catch {
+        continue;
+      }
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) continue;
       const clean: Record<string, unknown> = {};
-      for (const [k, v] of Object.entries(item.patch)) if (PATCHABLE.has(k)) clean[k] = v;
+      for (const [k, v] of Object.entries(parsed as Record<string, unknown>)) {
+        if (PATCHABLE.has(k)) clean[k] = v;
+      }
       if (!Object.keys(clean).length) continue;
-      const { error } = await context.supabase.from("products").update(clean).eq("id", item.id);
+      const { error } = await db.from("products").update(clean).eq("id", item.id);
       if (!error) affected += 1;
     }
-    await writeAudit(context.supabase, {
+    await writeAudit(db, {
       actorId: context.userId,
       actorLabel: actorLabel(context.claims),
       action: "product.undo",
@@ -277,13 +289,12 @@ export const adminRestoreProducts = createServerFn({ method: "POST" })
     z.object({ products: z.array(adminProductSchema).min(1).max(500) }).parse(input),
   )
   .handler(async ({ data, context }): Promise<{ restored: number }> => {
-    await assertAdmin(context.supabase, context.userId);
+    const db = loose(context.supabase);
+    await assertAdmin(db, context.userId);
     const rows = data.products.map((p) => toRow(parseProductValues(p)));
-    const { error } = await context.supabase
-      .from("products")
-      .upsert(rows, { onConflict: "slug" });
+    const { error } = await db.from("products").upsert(rows, { onConflict: "slug" });
     if (error) throw new Error("Could not restore the products");
-    await writeAudit(context.supabase, {
+    await writeAudit(db, {
       actorId: context.userId,
       actorLabel: actorLabel(context.claims),
       action: "product.restore",
@@ -294,19 +305,26 @@ export const adminRestoreProducts = createServerFn({ method: "POST" })
 
 export const adminProductRevisions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
-    z.object({ productId: z.string().uuid() }).parse(input),
-  )
+  .inputValidator((input: unknown) => z.object({ productId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }): Promise<RevisionEntry[]> => {
-    await assertAdmin(context.supabase, context.userId);
-    const { data: rows, error } = await context.supabase
+    const db = loose(context.supabase);
+    await assertAdmin(db, context.userId);
+    const { data: rows, error } = await db
       .from("product_revisions")
       .select("id,product_slug,changed_fields,actor_label,action,created_at,snapshot")
       .eq("product_id", data.productId)
       .order("created_at", { ascending: false })
       .limit(50);
     if (error) throw new Error("Could not load the change history");
-    return (rows ?? []) as unknown as RevisionEntry[];
+    return (rows ?? []).map((r: Record<string, unknown>) => ({
+      id: String(r["id"]),
+      product_slug: String(r["product_slug"]),
+      changed_fields: Array.isArray(r["changed_fields"]) ? (r["changed_fields"] as string[]) : [],
+      actor_label: String(r["actor_label"] ?? ""),
+      action: String(r["action"] ?? "update"),
+      created_at: String(r["created_at"]),
+      snapshotJson: JSON.stringify(r["snapshot"] ?? {}),
+    }));
   });
 
 export const adminAuditLog = createServerFn({ method: "POST" })
@@ -315,20 +333,29 @@ export const adminAuditLog = createServerFn({ method: "POST" })
     z.object({ limit: z.number().int().min(1).max(200).default(50) }).parse(input ?? {}),
   )
   .handler(async ({ data, context }): Promise<AuditEntry[]> => {
-    await assertAdmin(context.supabase, context.userId);
-    const { data: rows, error } = await context.supabase
+    const db = loose(context.supabase);
+    await assertAdmin(db, context.userId);
+    const { data: rows, error } = await db
       .from("admin_audit_log")
       .select("id,actor_label,action,entity,entity_id,summary,created_at")
       .order("created_at", { ascending: false })
       .limit(data.limit);
     if (error) throw new Error("Could not load the audit log");
-    return (rows ?? []) as unknown as AuditEntry[];
+    return (rows ?? []).map((r: Record<string, unknown>) => ({
+      id: String(r["id"]),
+      actor_label: String(r["actor_label"] ?? ""),
+      action: String(r["action"] ?? ""),
+      entity: String(r["entity"] ?? "product"),
+      entity_id: r["entity_id"] == null ? null : String(r["entity_id"]),
+      summary: String(r["summary"] ?? ""),
+      created_at: String(r["created_at"]),
+    }));
   });
 
 const prefsSchema = z.object({
   visible_columns: z.array(z.string().max(40)).max(40).default([]),
   saved_filters: z
-    .array(z.object({ name: z.string().max(60), filters: z.record(z.string(), z.unknown()) }))
+    .array(z.object({ name: z.string().max(60), filtersJson: z.string().max(8000) }))
     .max(30)
     .default([]),
   favourites: z.array(z.string().max(120)).max(200).default([]),
@@ -340,14 +367,14 @@ export type AdminPrefs = z.infer<typeof prefsSchema>;
 export const adminGetPrefs = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminPrefs | null> => {
-    await assertAdmin(context.supabase, context.userId);
-    const { data, error } = await context.supabase
+    const db = loose(context.supabase);
+    await assertAdmin(db, context.userId);
+    const { data, error } = await db
       .from("admin_preferences")
       .select("visible_columns,saved_filters,favourites,recent_products,page_size")
       .eq("user_id", context.userId)
       .maybeSingle();
-    if (error) return null;
-    if (!data) return null;
+    if (error || !data) return null;
     const parsed = prefsSchema.safeParse(data);
     return parsed.success ? parsed.data : null;
   });
@@ -356,8 +383,9 @@ export const adminSavePrefs = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => prefsSchema.partial().parse(input))
   .handler(async ({ data, context }): Promise<{ ok: true }> => {
-    await assertAdmin(context.supabase, context.userId);
-    const { error } = await context.supabase
+    const db = loose(context.supabase);
+    await assertAdmin(db, context.userId);
+    const { error } = await db
       .from("admin_preferences")
       .upsert({ user_id: context.userId, ...data }, { onConflict: "user_id" });
     if (error) {
@@ -372,44 +400,35 @@ export const adminImportProducts = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z.object({ products: z.array(adminProductSchema).min(1).max(2000) }).parse(input),
   )
-  .handler(
-    async ({ data, context }): Promise<{ created: number; updated: number }> => {
-      await assertAdmin(context.supabase, context.userId);
-      const slugs = data.products.map((p) => p.slug);
-      const { data: existing } = await context.supabase
-        .from("products")
-        .select("slug")
-        .in("slug", slugs);
-      const known = new Set((existing ?? []).map((r) => String((r as { slug: string }).slug)));
-      const rows = data.products.map((p) => toRow(parseProductValues(p)));
-      const { error } = await context.supabase
-        .from("products")
-        .upsert(rows, { onConflict: "slug" });
-      if (error) {
-        console.error("[admin-products] import failed", error);
-        throw new Error("Import failed — no changes were applied");
-      }
-      const updated = slugs.filter((s) => known.has(s)).length;
-      const created = slugs.length - updated;
-      await writeAudit(context.supabase, {
-        actorId: context.userId,
-        actorLabel: actorLabel(context.claims),
-        action: "product.import",
-        summary: `Imported CSV: ${created} created, ${updated} updated`,
-      });
-      return { created, updated };
-    },
-  );
+  .handler(async ({ data, context }): Promise<{ created: number; updated: number }> => {
+    const db = loose(context.supabase);
+    await assertAdmin(db, context.userId);
+    const slugs = data.products.map((p) => p.slug);
+    const { data: existing } = await db.from("products").select("slug").in("slug", slugs);
+    const known = new Set((existing ?? []).map((r: { slug: string }) => String(r.slug)));
+    const rows = data.products.map((p) => toRow(parseProductValues(p)));
+    const { error } = await db.from("products").upsert(rows, { onConflict: "slug" });
+    if (error) {
+      console.error("[admin-products] import failed", error);
+      throw new Error("Import failed — no changes were applied");
+    }
+    const updated = slugs.filter((s) => known.has(s)).length;
+    const created = slugs.length - updated;
+    await writeAudit(db, {
+      actorId: context.userId,
+      actorLabel: actorLabel(context.claims),
+      action: "product.import",
+      summary: `Imported CSV: ${created} created, ${updated} updated`,
+    });
+    return { created, updated };
+  });
 
 export const adminExportProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => listFiltersSchema.parse(input))
   .handler(async ({ data, context }): Promise<AdminProduct[]> => {
-    await assertAdmin(context.supabase, context.userId);
-    const result = await queryProducts(context.supabase, {
-      ...data,
-      page: 1,
-      pageSize: 500,
-    });
+    const db = loose(context.supabase);
+    await assertAdmin(db, context.userId);
+    const result = await queryProducts(db, { ...data, page: 1, pageSize: 500 });
     return result.rows;
   });
