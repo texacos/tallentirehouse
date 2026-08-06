@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_label: string
+          created_at: string
+          details: Json
+          entity: string
+          entity_id: string | null
+          id: string
+          summary: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          actor_label?: string
+          created_at?: string
+          details?: Json
+          entity?: string
+          entity_id?: string | null
+          id?: string
+          summary?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_label?: string
+          created_at?: string
+          details?: Json
+          entity?: string
+          entity_id?: string | null
+          id?: string
+          summary?: string
+        }
+        Relationships: []
+      }
+      admin_preferences: {
+        Row: {
+          created_at: string
+          favourites: string[]
+          page_size: number
+          recent_products: string[]
+          saved_filters: Json
+          updated_at: string
+          user_id: string
+          visible_columns: string[]
+        }
+        Insert: {
+          created_at?: string
+          favourites?: string[]
+          page_size?: number
+          recent_products?: string[]
+          saved_filters?: Json
+          updated_at?: string
+          user_id: string
+          visible_columns?: string[]
+        }
+        Update: {
+          created_at?: string
+          favourites?: string[]
+          page_size?: number
+          recent_products?: string[]
+          saved_filters?: Json
+          updated_at?: string
+          user_id?: string
+          visible_columns?: string[]
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           attempts: number
@@ -59,48 +128,135 @@ export type Database = {
         }
         Relationships: []
       }
+      product_revisions: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_label: string
+          changed_fields: string[]
+          created_at: string
+          id: string
+          product_id: string
+          product_slug: string
+          snapshot: Json
+        }
+        Insert: {
+          action?: string
+          actor_id?: string | null
+          actor_label?: string
+          changed_fields?: string[]
+          created_at?: string
+          id?: string
+          product_id: string
+          product_slug: string
+          snapshot: Json
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_label?: string
+          changed_fields?: string[]
+          created_at?: string
+          id?: string
+          product_id?: string
+          product_slug?: string
+          snapshot?: Json
+        }
+        Relationships: []
+      }
       products: {
         Row: {
+          backorders: boolean
+          barcode: string
+          brand: string
           categories: string[]
+          collection: string
+          cost_price: number | null
           created_at: string
           description: string
           id: string
+          image_alts: string[]
           images: string[]
+          location: string
           name: string
           price: number
+          published_at: string | null
+          reorder_level: number
+          sale_price: number | null
+          seo_description: string
+          seo_title: string
           sku: string
           slug: string
+          status: string
           stock: number
+          supplier: string
+          tags: string[]
+          total_stock: number
+          track_inventory: boolean
           updated_at: string
           variants: Json
           weight_kg: number
         }
         Insert: {
+          backorders?: boolean
+          barcode?: string
+          brand?: string
           categories?: string[]
+          collection?: string
+          cost_price?: number | null
           created_at?: string
           description?: string
           id?: string
+          image_alts?: string[]
           images?: string[]
+          location?: string
           name: string
           price?: number
+          published_at?: string | null
+          reorder_level?: number
+          sale_price?: number | null
+          seo_description?: string
+          seo_title?: string
           sku?: string
           slug: string
+          status?: string
           stock?: number
+          supplier?: string
+          tags?: string[]
+          total_stock?: number
+          track_inventory?: boolean
           updated_at?: string
           variants?: Json
           weight_kg?: number
         }
         Update: {
+          backorders?: boolean
+          barcode?: string
+          brand?: string
           categories?: string[]
+          collection?: string
+          cost_price?: number | null
           created_at?: string
           description?: string
           id?: string
+          image_alts?: string[]
           images?: string[]
+          location?: string
           name?: string
           price?: number
+          published_at?: string | null
+          reorder_level?: number
+          sale_price?: number | null
+          seo_description?: string
+          seo_title?: string
           sku?: string
           slug?: string
+          status?: string
           stock?: number
+          supplier?: string
+          tags?: string[]
+          total_stock?: number
+          track_inventory?: boolean
           updated_at?: string
           variants?: Json
           weight_kg?: number
