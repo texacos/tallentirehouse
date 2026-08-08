@@ -454,7 +454,7 @@ function AdminProductsPage() {
           }
         }}
       >
-        <SheetContent side="right" className="w-full sm:max-w-4xl lg:max-w-5xl overflow-y-auto p-0">
+        <SheetContent side="right" hideClose className="w-full sm:max-w-4xl lg:max-w-5xl overflow-y-auto p-0">
           <ProductEditor
             key={editing?.id ?? "new"}
             className="h-full border-0 bg-transparent rounded-none"
