@@ -631,7 +631,6 @@ function AdminProductsPage() {
         onPick={(p) => {
           setCreating(false);
           setEditing(p);
-          window.scrollTo({ top: 0, behavior: "smooth" });
         }}
       />
     </main>
