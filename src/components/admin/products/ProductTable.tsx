@@ -1,6 +1,5 @@
 import { memo, useMemo, useRef, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { Link } from "@tanstack/react-router";
 import { ArrowDown, ArrowUp, Pencil, Star, Zap, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
