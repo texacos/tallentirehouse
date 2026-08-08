@@ -227,11 +227,11 @@ export function margin(p: Pick<AdminProduct, "price" | "sale_price" | "cost_pric
 export function emptyProduct(): AdminProductValues {
   return adminProductSchema.parse({
     slug: "new-product",
-    name: "",
+    name: "Untitled product",
     price: 0,
     weight_kg: 0.5,
     stock: 0,
-    categories: [],
+    categories: ["cosmetics-purses"],
   });
 }
 
