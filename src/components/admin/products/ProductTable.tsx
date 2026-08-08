@@ -101,7 +101,7 @@ const Row = memo(function Row({
             <button
               type="button"
               onClick={() => onEdit(p)}
-              className="block truncate text-left font-medium underline-offset-4 hover:underline"
+              className="line-clamp-2 w-full text-left font-medium underline-offset-4 hover:underline"
             >
               {p.name}
             </button>
