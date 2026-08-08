@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CATEGORIES } from "@/lib/products";
+import { getCategoryLabel, totalStock } from "@/lib/products";
 import { productsQueryOptions, useProducts } from "@/lib/products-store";
 import { ProductCard } from "@/components/site/ProductCard";
 import heroInterior from "@/assets/hero-interior.jpg";
@@ -22,7 +22,18 @@ export const Route = createFileRoute("/")({
 function Index() {
   const products = useProducts();
   const featured = products.slice(0, 8);
-  const topCategories = CATEGORIES.slice(0, 8);
+  const stockByCategory = new Map<string, number>();
+  for (const p of products) {
+    const units = totalStock(p);
+    if (units <= 0) continue;
+    for (const c of p.categories) {
+      stockByCategory.set(c, (stockByCategory.get(c) ?? 0) + units);
+    }
+  }
+  const topCategories = [...stockByCategory.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+    .map(([slug, count]) => ({ slug, label: getCategoryLabel(slug), count }));
   const ceramicsPick =
     products.find((p) => p.categories.includes("cups") || p.categories.includes("bowls")) ??
     products[1] ??
