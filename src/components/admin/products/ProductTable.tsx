@@ -1,6 +1,5 @@
 import { memo, useMemo, useRef, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { Link } from "@tanstack/react-router";
 import { ArrowDown, ArrowUp, Pencil, Star, Zap, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -99,13 +98,13 @@ const Row = memo(function Row({
       case "name":
         return (
           <div className="min-w-0">
-            <Link
-              to="/product/$slug"
-              params={{ slug: p.slug }}
-              className="block truncate font-medium underline-offset-4 hover:underline"
+            <button
+              type="button"
+              onClick={() => onEdit(p)}
+              className="block truncate text-left font-medium underline-offset-4 hover:underline"
             >
               {p.name}
-            </Link>
+            </button>
             <p className="truncate text-xs text-muted-foreground">
               {p.brand ? `${p.brand} · ` : ""}
               {p.variants.length ? `${p.variants.length} variants` : "Simple product"}
