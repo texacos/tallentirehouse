@@ -529,7 +529,6 @@ function AdminProductsPage() {
           onEdit={(p) => {
             setCreating(false);
             setEditing(p);
-            window.scrollTo({ top: 0, behavior: "smooth" });
           }}
           onQuickSave={quickSave}
           favourites={favourites}
