@@ -73,10 +73,12 @@ export function ProductEditor({
   initial,
   onClose,
   onSaved,
+  className,
 }: {
   initial: AdminProduct | null;
   onClose: () => void;
   onSaved: (values: AdminProductValues) => void;
+  className?: string;
 }) {
   const [values, setValues] = useState<AdminProductValues>(() => toValues(initial));
   const [errors, setErrors] = useState<Record<string, string>>({});
