@@ -11,6 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useAuth } from "@/lib/auth";
 import {
   useSiteSettings,
@@ -444,10 +445,19 @@ function AdminProductsPage() {
         </div>
       </div>
 
-      {(creating || editing) && (
-        <div className="mt-8">
+      <Sheet
+        open={creating || editing !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditing(null);
+            setCreating(false);
+          }
+        }}
+      >
+        <SheetContent side="right" className="w-full sm:max-w-4xl lg:max-w-5xl overflow-y-auto p-0">
           <ProductEditor
             key={editing?.id ?? "new"}
+            className="h-full border-0 bg-transparent rounded-none"
             initial={editing}
             onClose={() => {
               setEditing(null);
@@ -459,8 +469,8 @@ function AdminProductsPage() {
               }
             }}
           />
-        </div>
-      )}
+        </SheetContent>
+      </Sheet>
 
       {showAudit && (
         <div className="mt-8 rounded-md border border-border">
@@ -528,7 +538,6 @@ function AdminProductsPage() {
           onEdit={(p) => {
             setCreating(false);
             setEditing(p);
-            window.scrollTo({ top: 0, behavior: "smooth" });
           }}
           onQuickSave={quickSave}
           favourites={favourites}
@@ -631,7 +640,6 @@ function AdminProductsPage() {
         onPick={(p) => {
           setCreating(false);
           setEditing(p);
-          window.scrollTo({ top: 0, behavior: "smooth" });
         }}
       />
     </main>
