@@ -223,7 +223,7 @@ export function ProductEditor({
   });
 
   return (
-    <section className="rounded-md border border-border bg-card">
+    <section className={cn("rounded-md border border-border bg-card", className)}>
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
         <div>
           <h2 className="font-display text-2xl">
