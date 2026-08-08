@@ -350,7 +350,7 @@ export function ProductTable({
   );
 
   return (
-    <div className="rounded-md border border-border">
+    <div className="overflow-x-auto rounded-md border border-border">
       {header}
       {loading && rows.length === 0 && (
         <p className="px-3 py-10 text-sm text-muted-foreground">Loading products…</p>
