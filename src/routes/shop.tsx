@@ -9,7 +9,6 @@ import {
   getCategoryLabel,
   resolveCategoryFilter,
   isOutOfStock,
-  totalStock,
 } from "@/lib/products";
 import { productsQueryOptions, useProducts } from "@/lib/products-store";
 import { useSiteSettings } from "@/lib/site-settings";
@@ -171,16 +170,17 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
       return next;
     });
 
-  // Live count of pieces actually in stock (sum of units on hand).
+  // Live count of products that are actually in stock within the category.
   const countFor = (slug: string) => {
     const leaves = resolveCategoryFilter(slug);
     if (!leaves) return 0;
-    return allProducts
-      .filter((p) => p.categories.some((c) => leaves.includes(c)))
-      .reduce((n, p) => n + Math.max(0, totalStock(p)), 0);
+    return allProducts.filter(
+      (p) =>
+        !isOutOfStock(p) && p.categories.some((c) => leaves.includes(c)),
+    ).length;
   };
 
-  const allInStock = allProducts.reduce((n, p) => n + Math.max(0, totalStock(p)), 0);
+  const allInStock = allProducts.filter((p) => !isOutOfStock(p)).length;
 
   return (
     <nav aria-label="Categories" className="text-sm">
