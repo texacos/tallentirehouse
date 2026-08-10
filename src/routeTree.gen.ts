@@ -21,6 +21,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as AdminShippingRouteImport } from './routes/admin.shipping'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
+import { Route as AdminHeroRouteImport } from './routes/admin.hero'
 import { Route as ApiPublicProductImagesSplatRouteImport } from './routes/api/public/product-images.$'
 import { Route as ApiPublicHeroImagesSplatRouteImport } from './routes/api/public/hero-images.$'
 
@@ -84,6 +85,11 @@ const AdminProductsRoute = AdminProductsRouteImport.update({
   path: '/admin/products',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminHeroRoute = AdminHeroRouteImport.update({
+  id: '/admin/hero',
+  path: '/admin/hero',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicProductImagesSplatRoute =
   ApiPublicProductImagesSplatRouteImport.update({
     id: '/api/public/product-images/$',
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
+  '/admin/hero': typeof AdminHeroRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/shipping': typeof AdminShippingRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
+  '/admin/hero': typeof AdminHeroRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/shipping': typeof AdminShippingRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
+  '/admin/hero': typeof AdminHeroRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/shipping': typeof AdminShippingRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/shop'
+    | '/admin/hero'
     | '/admin/products'
     | '/admin/shipping'
     | '/product/$slug'
@@ -174,6 +184,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/shop'
+    | '/admin/hero'
     | '/admin/products'
     | '/admin/shipping'
     | '/product/$slug'
@@ -190,6 +201,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/shop'
+    | '/admin/hero'
     | '/admin/products'
     | '/admin/shipping'
     | '/product/$slug'
@@ -207,6 +219,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ShopRoute: typeof ShopRoute
+  AdminHeroRoute: typeof AdminHeroRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminShippingRoute: typeof AdminShippingRoute
   ProductSlugRoute: typeof ProductSlugRoute
@@ -300,6 +313,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/hero': {
+      id: '/admin/hero'
+      path: '/admin/hero'
+      fullPath: '/admin/hero'
+      preLoaderRoute: typeof AdminHeroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/product-images/$': {
       id: '/api/public/product-images/$'
       path: '/api/public/product-images/$'
@@ -327,6 +347,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ShopRoute: ShopRoute,
+  AdminHeroRoute: AdminHeroRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminShippingRoute: AdminShippingRoute,
   ProductSlugRoute: ProductSlugRoute,
