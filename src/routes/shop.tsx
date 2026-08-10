@@ -192,7 +192,7 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
           !activeSlug ? "text-foreground font-medium" : "text-foreground/70 hover:text-foreground"
         }`}
       >
-        All pieces
+        All products
         {allInStock > 0 && (
           <span className="ml-2 text-foreground/40 tabular-nums">{allInStock}</span>
         )}
