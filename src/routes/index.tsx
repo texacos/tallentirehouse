@@ -17,12 +17,18 @@ export const Route = createFileRoute("/")({
       { name: "twitter:image", content: heroInterior },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(productsQueryOptions),
+  loader: async ({ context }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(productsQueryOptions),
+      context.queryClient.ensureQueryData(heroConfigQueryOptions),
+    ]);
+  },
   component: Index,
 });
 
 function Index() {
   const products = useProducts();
+  const heroConfig = useHeroConfig();
   const featured = products.slice(0, 8);
   const stockByCategory = new Map<string, number>();
   for (const p of products) {
@@ -80,12 +86,11 @@ function Index() {
             </div>
           </div>
           <div className="lg:col-span-7 order-1 lg:order-2">
-            <img
-              src={heroInterior}
-              alt="Sustainable luxury bedroom with hand-blocked indigo cushions"
-              width={1600}
-              height={1100}
-              className="h-[60vh] lg:h-[90vh] w-full object-cover"
+            <HeroSlider
+              config={heroConfig}
+              fallbackImage={heroInterior}
+              fallbackAlt="Sustainable luxury bedroom with hand-blocked indigo cushions"
+              className="h-[60vh] lg:h-[90vh]"
             />
           </div>
         </div>
