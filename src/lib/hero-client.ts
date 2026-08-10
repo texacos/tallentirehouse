@@ -14,7 +14,28 @@ import {
   adminHeroUpdate,
   getHeroConfig,
 } from "./hero.functions";
-import type { HeroConfig } from "./hero";
+import type { HeroConfig, HeroSettings, HeroTransition } from "./hero";
+
+type HeroAsset = { w: number; h: number; mime: string; base64: string };
+
+export type HeroCreateInput = {
+  replaceSlideId?: string;
+  altText: string;
+  title: string;
+  filename: string;
+  fileSize: number;
+  master: HeroAsset;
+  derivatives: HeroAsset[];
+};
+
+export type HeroUpdateInput = {
+  id: string;
+  title?: string;
+  altText?: string;
+  isActive?: boolean;
+  duration?: number | null;
+  transition?: HeroTransition | null;
+};
 
 export const heroConfigQueryOptions = queryOptions({
   queryKey: ["hero", "public"],
@@ -50,16 +71,12 @@ function useHeroMutation<TArgs, TResult>(fn: (args: TArgs) => Promise<TResult>) 
 
 export function useHeroCreate() {
   const fn = useServerFn(adminHeroCreate);
-  return useHeroMutation((data: Parameters<typeof adminHeroCreate>[0]["data"]) =>
-    fn({ data }),
-  );
+  return useHeroMutation((data: HeroCreateInput) => fn({ data }));
 }
 
 export function useHeroUpdate() {
   const fn = useServerFn(adminHeroUpdate);
-  return useHeroMutation((data: Parameters<typeof adminHeroUpdate>[0]["data"]) =>
-    fn({ data }),
-  );
+  return useHeroMutation((data: HeroUpdateInput) => fn({ data }));
 }
 
 export function useHeroReorder() {
@@ -74,9 +91,7 @@ export function useHeroDelete() {
 
 export function useHeroSettingsSave() {
   const fn = useServerFn(adminHeroSaveSettings);
-  return useHeroMutation((data: Parameters<typeof adminHeroSaveSettings>[0]["data"]) =>
-    fn({ data }),
-  );
+  return useHeroMutation((data: HeroSettings) => fn({ data }));
 }
 
 /** Turns a thrown server error into an admin-friendly sentence. */
