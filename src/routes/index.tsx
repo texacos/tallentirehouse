@@ -90,7 +90,7 @@ function Index() {
               config={heroConfig}
               fallbackImage={heroInterior}
               fallbackAlt="Sustainable luxury bedroom with hand-blocked indigo cushions"
-              className="h-[60vh] lg:h-[90vh]"
+              className="aspect-[16/9] lg:aspect-auto lg:h-[90vh]"
             />
           </div>
         </div>
