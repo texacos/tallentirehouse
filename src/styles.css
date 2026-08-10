@@ -123,11 +123,11 @@
 
 /* Hero slider — GPU-friendly gentle Ken Burns zoom. */
 @keyframes hero-zoom-in {
-  from { transform: scale(1); }
+  from { transform: scale(1.005); }
   to { transform: scale(1.07); }
 }
 .hero-zoom > picture > img {
-  animation: hero-zoom-in 9s ease-out forwards;
+  animation: hero-zoom-in 16s cubic-bezier(0.33, 0, 0.2, 1) forwards;
   transform-origin: center;
 }
 @media (prefers-reduced-motion: reduce) {
