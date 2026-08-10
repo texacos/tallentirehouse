@@ -9,7 +9,9 @@ import {
   type HeroTransition,
 } from "@/lib/hero";
 
-const SIZES = "100vw";
+// The hero occupies the full viewport width below lg and ~58% of it from lg up,
+// so the browser can pick a much smaller derivative on phones/tablets.
+const SIZES = "(min-width: 1024px) 58vw, 100vw";
 
 function useReducedMotion(): boolean {
   const [reduced, setReduced] = useState(false);
