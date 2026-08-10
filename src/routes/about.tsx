@@ -44,28 +44,21 @@ function About() {
       <section className="mx-auto max-w-3xl px-6 py-20 lg:py-28">
         <div className="space-y-10 text-base leading-relaxed text-foreground/85">
           <div>
-            <p className="eyebrow text-foreground/60 mb-3">Our mission</p>
+            <p className="eyebrow text-foreground/60 mb-3">Our approach</p>
             <p>
-              We commission and curate sustainable homewares — fabrics, ceramics, lounging,
-              travel pieces — from small workshops we've worked with for years. Each piece
-              is paid for fairly, made without rush, and built to be passed on, not replaced.
+              Lindsay is a textile designer and weaver by training, with a particular instinct for colour, pattern and the possibilities of cloth. Working directly with weavers, printers and embroiderers, she combines her own designs and eye for colour with skills often passed down through generations. It is a genuinely collaborative process: designer and maker learning from one another, experimenting together and creating pieces that are truly individual.
             </p>
           </div>
           <div>
             <p className="eyebrow text-foreground/60 mb-3">Slow by design</p>
             <p>
-              Our collections move in seasons, not weeks. When a piece sells out, it's gone
-              until the workshop has time to make more. This is the only way we know how
-              to work — and the only way that lets the people who make our pieces work
-              the way they want to.
+              Our collections are made slowly, in small quantities and never driven by trends. The clothing collection, developed by Lindsay with her sister Fiona, follows the same philosophy. Rather than reinventing the collection each season, we return to favourite shapes — refining them and making them again in different fabrics, prints and colours. We believe in buying less, buying better, and making things that will be loved and worn for years.
             </p>
           </div>
           <div>
             <p className="eyebrow text-foreground/60 mb-3">Where we make</p>
             <p>
-              From block-printers in Bagru and Jaipur, to handloom weavers in Tamil Nadu,
-              to potters in Jingdezhen — every piece carries the fingerprint of the maker
-              and a quiet variation no machine can give it.
+              Our collections are made across India and Sri Lanka, from family-run workshops and looms in the homes of artisans in the small villages of Kutch, to our own workshop in Sri Lanka. We work directly with the people who make our pieces, building relationships that in many cases go back decades. Knowing where something is made, how it is made and who made it is fundamental to Tallentire House.
             </p>
           </div>
         </div>
