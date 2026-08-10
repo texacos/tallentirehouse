@@ -1,7 +1,7 @@
 // Thin server-function wrappers for the Hero Slider.
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
-import { assetSchema, createSchema, updateSchema, settingsSchema } from "./hero.schemas";
+import { createSchema, updateSchema, settingsSchema } from "./hero.schemas";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   MAX_SLIDES,
