@@ -128,6 +128,66 @@ export type Database = {
         }
         Relationships: []
       }
+      hero_slides: {
+        Row: {
+          alt_text: string
+          base_path: string
+          created_at: string
+          display_duration: number | null
+          file_size: number
+          height: number
+          id: string
+          is_active: boolean
+          master_path: string
+          mime_type: string
+          original_filename: string | null
+          sort_order: number
+          title: string
+          transition: string | null
+          updated_at: string
+          variants: Json
+          width: number
+        }
+        Insert: {
+          alt_text?: string
+          base_path: string
+          created_at?: string
+          display_duration?: number | null
+          file_size: number
+          height: number
+          id?: string
+          is_active?: boolean
+          master_path: string
+          mime_type: string
+          original_filename?: string | null
+          sort_order?: number
+          title?: string
+          transition?: string | null
+          updated_at?: string
+          variants?: Json
+          width: number
+        }
+        Update: {
+          alt_text?: string
+          base_path?: string
+          created_at?: string
+          display_duration?: number | null
+          file_size?: number
+          height?: number
+          id?: string
+          is_active?: boolean
+          master_path?: string
+          mime_type?: string
+          original_filename?: string | null
+          sort_order?: number
+          title?: string
+          transition?: string | null
+          updated_at?: string
+          variants?: Json
+          width?: number
+        }
+        Relationships: []
+      }
       product_revisions: {
         Row: {
           action: string

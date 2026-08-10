@@ -34,7 +34,10 @@ export function Header() {
 
         <nav className="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.18em] text-foreground/80">
           {isAdmin && (
-            <Link to="/admin/products" className="hover:text-foreground transition-colors text-foreground/50">Admin</Link>
+            <>
+              <Link to="/admin/products" className="hover:text-foreground transition-colors text-foreground/50">Admin</Link>
+              <Link to="/admin/hero" className="hover:text-foreground transition-colors text-foreground/50">Hero</Link>
+            </>
           )}
         </nav>
 

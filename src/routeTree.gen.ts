@@ -21,7 +21,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as AdminShippingRouteImport } from './routes/admin.shipping'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
+import { Route as AdminHeroRouteImport } from './routes/admin.hero'
 import { Route as ApiPublicProductImagesSplatRouteImport } from './routes/api/public/product-images.$'
+import { Route as ApiPublicHeroImagesSplatRouteImport } from './routes/api/public/hero-images.$'
 
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
@@ -83,10 +85,21 @@ const AdminProductsRoute = AdminProductsRouteImport.update({
   path: '/admin/products',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminHeroRoute = AdminHeroRouteImport.update({
+  id: '/admin/hero',
+  path: '/admin/hero',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicProductImagesSplatRoute =
   ApiPublicProductImagesSplatRouteImport.update({
     id: '/api/public/product-images/$',
     path: '/api/public/product-images/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHeroImagesSplatRoute =
+  ApiPublicHeroImagesSplatRouteImport.update({
+    id: '/api/public/hero-images/$',
+    path: '/api/public/hero-images/$',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -100,9 +113,11 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
+  '/admin/hero': typeof AdminHeroRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/shipping': typeof AdminShippingRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/api/public/hero-images/$': typeof ApiPublicHeroImagesSplatRoute
   '/api/public/product-images/$': typeof ApiPublicProductImagesSplatRoute
 }
 export interface FileRoutesByTo {
@@ -115,9 +130,11 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
+  '/admin/hero': typeof AdminHeroRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/shipping': typeof AdminShippingRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/api/public/hero-images/$': typeof ApiPublicHeroImagesSplatRoute
   '/api/public/product-images/$': typeof ApiPublicProductImagesSplatRoute
 }
 export interface FileRoutesById {
@@ -131,9 +148,11 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
+  '/admin/hero': typeof AdminHeroRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/shipping': typeof AdminShippingRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/api/public/hero-images/$': typeof ApiPublicHeroImagesSplatRoute
   '/api/public/product-images/$': typeof ApiPublicProductImagesSplatRoute
 }
 export interface FileRouteTypes {
@@ -148,9 +167,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/shop'
+    | '/admin/hero'
     | '/admin/products'
     | '/admin/shipping'
     | '/product/$slug'
+    | '/api/public/hero-images/$'
     | '/api/public/product-images/$'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -163,9 +184,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/shop'
+    | '/admin/hero'
     | '/admin/products'
     | '/admin/shipping'
     | '/product/$slug'
+    | '/api/public/hero-images/$'
     | '/api/public/product-images/$'
   id:
     | '__root__'
@@ -178,9 +201,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/shop'
+    | '/admin/hero'
     | '/admin/products'
     | '/admin/shipping'
     | '/product/$slug'
+    | '/api/public/hero-images/$'
     | '/api/public/product-images/$'
   fileRoutesById: FileRoutesById
 }
@@ -194,9 +219,11 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ShopRoute: typeof ShopRoute
+  AdminHeroRoute: typeof AdminHeroRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminShippingRoute: typeof AdminShippingRoute
   ProductSlugRoute: typeof ProductSlugRoute
+  ApiPublicHeroImagesSplatRoute: typeof ApiPublicHeroImagesSplatRoute
   ApiPublicProductImagesSplatRoute: typeof ApiPublicProductImagesSplatRoute
 }
 
@@ -286,11 +313,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/hero': {
+      id: '/admin/hero'
+      path: '/admin/hero'
+      fullPath: '/admin/hero'
+      preLoaderRoute: typeof AdminHeroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/product-images/$': {
       id: '/api/public/product-images/$'
       path: '/api/public/product-images/$'
       fullPath: '/api/public/product-images/$'
       preLoaderRoute: typeof ApiPublicProductImagesSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hero-images/$': {
+      id: '/api/public/hero-images/$'
+      path: '/api/public/hero-images/$'
+      fullPath: '/api/public/hero-images/$'
+      preLoaderRoute: typeof ApiPublicHeroImagesSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -306,9 +347,11 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ShopRoute: ShopRoute,
+  AdminHeroRoute: AdminHeroRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminShippingRoute: AdminShippingRoute,
   ProductSlugRoute: ProductSlugRoute,
+  ApiPublicHeroImagesSplatRoute: ApiPublicHeroImagesSplatRoute,
   ApiPublicProductImagesSplatRoute: ApiPublicProductImagesSplatRoute,
 }
 export const routeTree = rootRouteImport

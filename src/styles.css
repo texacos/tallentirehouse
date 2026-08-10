@@ -120,3 +120,16 @@
     background: color-mix(in oklab, var(--ink) 25%, transparent);
   }
 }
+
+/* Hero slider — GPU-friendly gentle Ken Burns zoom. */
+@keyframes hero-zoom-in {
+  from { transform: scale(1); }
+  to { transform: scale(1.07); }
+}
+.hero-zoom > picture > img {
+  animation: hero-zoom-in 9s ease-out forwards;
+  transform-origin: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-zoom > picture > img { animation: none; }
+}
