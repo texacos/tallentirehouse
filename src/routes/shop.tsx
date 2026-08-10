@@ -9,6 +9,7 @@ import {
   getCategoryLabel,
   resolveCategoryFilter,
   isOutOfStock,
+  totalStock,
 } from "@/lib/products";
 import { productsQueryOptions, useProducts } from "@/lib/products-store";
 import { useSiteSettings } from "@/lib/site-settings";
@@ -170,11 +171,16 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
       return next;
     });
 
+  // Live count of pieces actually in stock (sum of units on hand).
   const countFor = (slug: string) => {
     const leaves = resolveCategoryFilter(slug);
     if (!leaves) return 0;
-    return allProducts.filter((p) => p.categories.some((c) => leaves.includes(c))).length;
+    return allProducts
+      .filter((p) => p.categories.some((c) => leaves.includes(c)))
+      .reduce((n, p) => n + Math.max(0, totalStock(p)), 0);
   };
+
+  const allInStock = allProducts.reduce((n, p) => n + Math.max(0, totalStock(p)), 0);
 
   return (
     <nav aria-label="Categories" className="text-sm">
@@ -187,7 +193,9 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
         }`}
       >
         All pieces
-        <span className="ml-2 text-foreground/40 tabular-nums">{allProducts.length}</span>
+        {allInStock > 0 && (
+          <span className="ml-2 text-foreground/40 tabular-nums">{allInStock}</span>
+        )}
       </Link>
 
       <ul className="mt-1">
@@ -209,9 +217,11 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
                   }`}
                 >
                   {g.label}
-                  <span className="ml-2 text-foreground/40 tabular-nums text-xs">
-                    {groupCount}
-                  </span>
+                  {groupCount > 0 && (
+                    <span className="ml-2 text-foreground/40 tabular-nums text-xs">
+                      {groupCount}
+                    </span>
+                  )}
                 </Link>
                 <button
                   type="button"
@@ -245,9 +255,11 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
                           }`}
                         >
                           {leaf.label}
-                          <span className="ml-2 text-foreground/40 tabular-nums text-xs">
-                            {countFor(leafSlug)}
-                          </span>
+                          {countFor(leafSlug) > 0 && (
+                            <span className="ml-2 text-foreground/40 tabular-nums text-xs">
+                              {countFor(leafSlug)}
+                            </span>
+                          )}
                         </Link>
                       </li>
                     );
@@ -273,9 +285,11 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
                 }`}
               >
                 {c.label}
-                <span className="ml-2 text-foreground/40 tabular-nums text-xs">
-                  {countFor(c.slug)}
-                </span>
+                {countFor(c.slug) > 0 && (
+                  <span className="ml-2 text-foreground/40 tabular-nums text-xs">
+                    {countFor(c.slug)}
+                  </span>
+                )}
               </Link>
             </li>
           );
