@@ -18,14 +18,11 @@ function About() {
   return (
     <div>
       <section className="mx-auto max-w-3xl px-6 py-20 lg:py-28 text-center">
-        <p className="eyebrow text-foreground/60">Our story</p>
-        <h1 className="mt-5 font-display text-5xl md:text-7xl leading-[0.95]">
-          A small studio, in love with <em className="text-clay">slow things.</em>
-        </h1>
+        <p className="text-base text-muted-foreground leading-relaxed">
+          Tallentire House grew from a lifelong love of textiles, colour and craftsmanship and more than 25 years of working closely with skilled artisans in India and Sri Lanka.
+        </p>
         <p className="mt-8 text-base text-muted-foreground leading-relaxed">
-          Tallentire House began in 2015 with a single trip to a block-printer's workshop
-          in Rajasthan and the long-held belief that the best things in a home are the ones
-          made by hand, in small batches, by people whose names we know.
+          Everything begins with the design, not the finished product. A colour, a pattern, a cloth or a traditional technique becomes the starting point for a process of experimentation and collaboration between Lindsay and the craftspeople she works with.
         </p>
       </section>
 
