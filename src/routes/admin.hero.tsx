@@ -67,6 +67,12 @@ export const Route = createFileRoute("/admin/hero")({
 const PREVIEW_WIDTHS = { desktop: 1200, tablet: 820, mobile: 390 } as const;
 type PreviewDevice = keyof typeof PREVIEW_WIDTHS;
 
+function nameFromFilename(filename: string) {
+  const base = filename.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim();
+  if (!base) return "";
+  return (base.charAt(0).toUpperCase() + base.slice(1)).slice(0, 120);
+}
+
 function AdminHeroPage() {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
@@ -130,12 +136,17 @@ function AdminHeroPage() {
     );
   }
 
-  async function handleUpload(prepared: PreparedHeroImage, replaceSlideId?: string) {
+  async function handleUpload(
+    prepared: PreparedHeroImage,
+    replaceSlideId?: string,
+    existing?: { title: string; altText: string },
+  ) {
+    const derived = nameFromFilename(prepared.filename);
     try {
       await create.mutateAsync({
         replaceSlideId,
-        altText: "",
-        title: "",
+        altText: existing?.altText?.trim() ? existing.altText : derived,
+        title: existing?.title?.trim() ? existing.title : derived,
         filename: prepared.filename,
         fileSize: prepared.fileSize,
         master: prepared.master,
@@ -233,7 +244,12 @@ function AdminHeroPage() {
                     onError: (err) => toast.error(heroErrorMessage(err)),
                   })
                 }
-                onReplace={(prepared) => handleUpload(prepared, slide.id)}
+                onReplace={(prepared) =>
+                  handleUpload(prepared, slide.id, {
+                    title: slide.title,
+                    altText: slide.altText,
+                  })
+                }
                 dragHandlers={{
                   draggable: true,
                   onDragStart: () => {
