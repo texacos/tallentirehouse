@@ -122,21 +122,30 @@ export function HeroSlider({
     >
       {slides.map((slide, i) => {
         const active = i === index;
+        const outgoing = !active && i === prev;
         const transition = (reduced ? "dissolve" : slide.transition ?? effective) as HeroTransition;
         const base =
-          "absolute inset-0 will-change-[opacity,transform] transition-[opacity,transform] duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)]";
+          "absolute inset-0 will-change-[opacity,transform] transition-[opacity,transform] duration-[1600ms] ease-[cubic-bezier(0.45,0,0.25,1)]";
+        // The outgoing slide stays fully opaque underneath while the incoming one
+        // fades in on top — this avoids the brightness dip of a double cross-fade.
+        const visible = active || outgoing;
         const state =
           transition === "slide"
             ? active
               ? "opacity-100 translate-x-0"
-              : "opacity-0 translate-x-[4%]"
-            : active
+              : outgoing
+                ? "opacity-100 translate-x-0"
+                : "opacity-0 translate-x-[4%]"
+            : visible
               ? "opacity-100"
               : "opacity-0";
+        const layer = active ? "z-[2]" : outgoing ? "z-[1]" : "z-0";
         return (
           <div
             key={slide.id}
-            className={`${base} ${state} ${transition === "zoom" && active && !reduced ? "hero-zoom" : ""}`}
+            className={`${base} ${state} ${layer} ${
+              transition === "zoom" && visible && !reduced ? "hero-zoom" : ""
+            }`}
             aria-hidden={!active}
           >
             <SlideImage slide={slide} priority={i === 0} render={ready.has(i)} />
