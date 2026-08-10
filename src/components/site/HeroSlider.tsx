@@ -74,8 +74,19 @@ export function HeroSlider({
 
   const reduced = useReducedMotion();
   const [index, setIndex] = useState(0);
+  const [prev, setPrev] = useState<number | null>(null);
+  const [cycle, setCycle] = useState(0);
   const [ready, setReady] = useState<Set<number>>(() => new Set([0, 1]));
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const goTo = (next: number) => {
+    setIndex((cur) => {
+      if (cur === next) return cur;
+      setPrev(cur);
+      setCycle((c) => c + 1);
+      return next;
+    });
+  };
 
   useEffect(() => {
     setReady((prev) => new Set([...prev, index, index + 1]));
@@ -85,10 +96,11 @@ export function HeroSlider({
     if (slides.length < 2) return;
     const current = slides[index];
     const seconds = current?.duration ?? settings.duration;
-    timer.current = setTimeout(
-      () => setIndex((i) => (i + 1) % slides.length),
-      Math.max(2, seconds) * 1000,
-    );
+    timer.current = setTimeout(() => {
+      setPrev(index);
+      setCycle((c) => c + 1);
+      setIndex((i) => (i + 1) % slides.length);
+    }, Math.max(2, seconds) * 1000);
     return () => {
       if (timer.current) clearTimeout(timer.current);
     };
@@ -121,21 +133,37 @@ export function HeroSlider({
     >
       {slides.map((slide, i) => {
         const active = i === index;
+        const outgoing = !active && i === prev;
         const transition = (reduced ? "dissolve" : slide.transition ?? effective) as HeroTransition;
         const base =
-          "absolute inset-0 will-change-[opacity,transform] transition-[opacity,transform] duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)]";
+          "absolute inset-0 will-change-[opacity,transform] transition-[opacity,transform] duration-[1600ms] ease-[cubic-bezier(0.45,0,0.25,1)]";
+        // The outgoing slide stays fully opaque underneath while the incoming one
+        // fades in on top — this avoids the brightness dip of a double cross-fade.
+        const visible = active || outgoing;
         const state =
           transition === "slide"
             ? active
               ? "opacity-100 translate-x-0"
-              : "opacity-0 translate-x-[4%]"
-            : active
+              : outgoing
+                ? "opacity-100 translate-x-0"
+                : "opacity-0 translate-x-[4%]"
+            : visible
               ? "opacity-100"
               : "opacity-0";
+        const layer = active ? "z-[2]" : outgoing ? "z-[1]" : "z-0";
+        // Alternate the zoom class per activation so the Ken Burns animation
+        // restarts cleanly instead of snapping back mid-fade.
+        const zoomParity = active ? cycle % 2 : (cycle + 1) % 2;
+        const zoom =
+          transition === "zoom" && visible && !reduced
+            ? zoomParity === 0
+              ? "hero-zoom-a"
+              : "hero-zoom-b"
+            : "";
         return (
           <div
             key={slide.id}
-            className={`${base} ${state} ${transition === "zoom" && active && !reduced ? "hero-zoom" : ""}`}
+            className={`${base} ${state} ${layer} ${zoom}`}
             aria-hidden={!active}
           >
             <SlideImage slide={slide} priority={i === 0} render={ready.has(i)} />
@@ -149,7 +177,7 @@ export function HeroSlider({
             <button
               key={slide.id}
               type="button"
-              onClick={() => setIndex(i)}
+              onClick={() => goTo(i)}
               aria-label={`Show hero slide ${i + 1}${slide.title ? `: ${slide.title}` : ""}`}
               aria-current={i === index}
               className={`h-2 w-2 rounded-full border border-white/80 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${

@@ -123,13 +123,32 @@
 
 /* Hero slider — GPU-friendly gentle Ken Burns zoom. */
 @keyframes hero-zoom-in {
-  from { transform: scale(1); }
+  from { transform: scale(1.005); }
   to { transform: scale(1.07); }
 }
 .hero-zoom > picture > img {
-  animation: hero-zoom-in 9s ease-out forwards;
+  animation: hero-zoom-in 16s cubic-bezier(0.33, 0, 0.2, 1) forwards;
   transform-origin: center;
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-zoom > picture > img { animation: none; }
+}
+
+/* Alternating zoom classes so the Ken Burns animation restarts on each
+   activation without the outgoing slide snapping back to scale 1. */
+.hero-zoom-a > picture > img {
+  animation: hero-zoom-in 16s cubic-bezier(0.33, 0, 0.2, 1) forwards;
+  transform-origin: center;
+}
+.hero-zoom-b > picture > img {
+  animation: hero-zoom-in-alt 16s cubic-bezier(0.33, 0, 0.2, 1) forwards;
+  transform-origin: center;
+}
+@keyframes hero-zoom-in-alt {
+  from { transform: scale(1.005); }
+  to { transform: scale(1.07); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-zoom-a > picture > img,
+  .hero-zoom-b > picture > img { animation: none; }
 }
