@@ -77,7 +77,7 @@ function Shop() {
       <section className="border-b border-border">
         <div className="mx-auto max-w-7xl px-6 lg:px-10 py-14 lg:py-20 text-center">
           <p className="eyebrow text-foreground/60">
-            {category ? "Category" : `${allProducts.length} pieces`}
+            {category ? "Category" : `${allProducts.length} products`}
           </p>
           <h1 className="mt-4 font-display text-5xl md:text-6xl">{heading}</h1>
           <p className="mx-auto mt-5 max-w-xl text-sm text-muted-foreground leading-relaxed">
