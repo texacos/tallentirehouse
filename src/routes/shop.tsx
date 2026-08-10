@@ -9,7 +9,6 @@ import {
   getCategoryLabel,
   resolveCategoryFilter,
   isOutOfStock,
-  totalStock,
 } from "@/lib/products";
 import { productsQueryOptions, useProducts } from "@/lib/products-store";
 import { useSiteSettings } from "@/lib/site-settings";
