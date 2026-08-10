@@ -151,12 +151,19 @@ export function HeroSlider({
               ? "opacity-100"
               : "opacity-0";
         const layer = active ? "z-[2]" : outgoing ? "z-[1]" : "z-0";
+        // Alternate the zoom class per activation so the Ken Burns animation
+        // restarts cleanly instead of snapping back mid-fade.
+        const zoomParity = active ? cycle % 2 : (cycle + 1) % 2;
+        const zoom =
+          transition === "zoom" && visible && !reduced
+            ? zoomParity === 0
+              ? "hero-zoom-a"
+              : "hero-zoom-b"
+            : "";
         return (
           <div
             key={slide.id}
-            className={`${base} ${state} ${layer} ${
-              transition === "zoom" && visible && !reduced ? "hero-zoom" : ""
-            }`}
+            className={`${base} ${state} ${layer} ${zoom}`}
             aria-hidden={!active}
           >
             <SlideImage slide={slide} priority={i === 0} render={ready.has(i)} />
@@ -170,7 +177,7 @@ export function HeroSlider({
             <button
               key={slide.id}
               type="button"
-              onClick={() => setIndex(i)}
+              onClick={() => goTo(i)}
               aria-label={`Show hero slide ${i + 1}${slide.title ? `: ${slide.title}` : ""}`}
               aria-current={i === index}
               className={`h-2 w-2 rounded-full border border-white/80 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${
