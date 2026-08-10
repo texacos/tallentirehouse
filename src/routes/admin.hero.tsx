@@ -44,7 +44,7 @@ import type { PreparedHeroImage } from "@/lib/hero-image";
 import { HeroSlideCard } from "@/components/admin/hero/HeroSlideCard";
 import { HeroUpload } from "@/components/admin/hero/HeroUpload";
 import { HeroSlider } from "@/components/site/HeroSlider";
-import heroInterior from "@/assets/hero-interior.jpg";
+import heroInterior from "@/assets/hero-interior.jpg.asset.json";
 
 export const Route = createFileRoute("/admin/hero")({
   head: () => ({
@@ -383,7 +383,7 @@ function AdminHeroPage() {
             >
               <HeroSlider
                 config={previewConfig}
-                fallbackImage={heroInterior}
+                fallbackImage={heroInterior.url}
                 fallbackAlt=""
                 className="aspect-video"
               />
