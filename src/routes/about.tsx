@@ -18,7 +18,11 @@ function About() {
   return (
     <div>
       <section className="mx-auto max-w-3xl px-6 py-20 lg:py-28 text-center">
-        <p className="text-base text-muted-foreground leading-relaxed">
+        <p className="eyebrow text-foreground/60">Our story</p>
+        <h1 className="mt-5 font-display text-5xl md:text-7xl leading-[0.95]">
+          A small studio, in love with <em className="text-clay">slow things.</em>
+        </h1>
+        <p className="mt-8 text-base text-muted-foreground leading-relaxed">
           Tallentire House grew from a lifelong love of textiles, colour and craftsmanship and more than 25 years of working closely with skilled artisans in India and Sri Lanka.
         </p>
         <p className="mt-8 text-base text-muted-foreground leading-relaxed">
