@@ -98,7 +98,7 @@ function Shop() {
           <div>
             <CategoryBreadcrumbs activeSlug={category} />
             <p className="eyebrow text-foreground/60 mb-6 mt-4">
-              {filtered.length} {filtered.length === 1 ? "piece" : "pieces"}
+              {filtered.length} {filtered.length === 1 ? "product" : "products"}
             </p>
             {items.length === 0 ? (
               <div className="text-center py-24">
