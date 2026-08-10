@@ -75,8 +75,18 @@ export function HeroSlider({
   const reduced = useReducedMotion();
   const [index, setIndex] = useState(0);
   const [prev, setPrev] = useState<number | null>(null);
+  const [cycle, setCycle] = useState(0);
   const [ready, setReady] = useState<Set<number>>(() => new Set([0, 1]));
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const goTo = (next: number) => {
+    setIndex((cur) => {
+      if (cur === next) return cur;
+      setPrev(cur);
+      setCycle((c) => c + 1);
+      return next;
+    });
+  };
 
   useEffect(() => {
     setReady((prev) => new Set([...prev, index, index + 1]));
