@@ -86,10 +86,10 @@ export function HeroSlider({
     if (slides.length < 2) return;
     const current = slides[index];
     const seconds = current?.duration ?? settings.duration;
-    timer.current = setTimeout(
-      () => setIndex((i) => (i + 1) % slides.length),
-      Math.max(2, seconds) * 1000,
-    );
+    timer.current = setTimeout(() => {
+      setPrev(index);
+      setIndex((i) => (i + 1) % slides.length);
+    }, Math.max(2, seconds) * 1000);
     return () => {
       if (timer.current) clearTimeout(timer.current);
     };
