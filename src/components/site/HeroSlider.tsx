@@ -61,7 +61,7 @@ export function HeroSlider({
   config,
   fallbackImage,
   fallbackAlt = "",
-  className = "h-[60vh] lg:h-[90vh]",
+  className = "aspect-[16/9] lg:aspect-auto lg:h-[90vh]",
 }: {
   config: HeroConfig | undefined;
   fallbackImage: string;
