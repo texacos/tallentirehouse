@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import heroInterior from "@/assets/hero-interior.jpg";
+import heroInterior from "@/assets/hero-interior.jpg.asset.json";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -8,7 +8,7 @@ export const Route = createFileRoute("/about")({
       { name: "description", content: "Tallentire House is a sustainable luxury homeware brand commissioning slow-craft pieces from small workshops around the world." },
       { property: "og:title", content: "Our story — Tallentire House" },
       { property: "og:description", content: "Slow-craft homewares, made with the workshops we love." },
-      { property: "og:image", content: heroInterior },
+      { property: "og:image", content: heroInterior.url },
     ],
   }),
   component: About,
@@ -31,7 +31,7 @@ function About() {
 
       <section className="border-y border-border">
         <img
-          src={heroInterior}
+          src={heroInterior.url}
           alt="Tallentire House interior"
           width={1600}
           height={1100}

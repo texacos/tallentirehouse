@@ -4,7 +4,7 @@ import { productsQueryOptions, useProducts } from "@/lib/products-store";
 import { heroConfigQueryOptions, useHeroConfig } from "@/lib/hero-client";
 import { HeroSlider } from "@/components/site/HeroSlider";
 import { ProductCard } from "@/components/site/ProductCard";
-import heroInterior from "@/assets/hero-interior.jpg";
+import heroInterior from "@/assets/hero-interior.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -13,8 +13,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Hand-blocked cushions, hand-loomed silk and slow-craft textiles from our Sri Lankan workshop. Made to last." },
       { property: "og:title", content: "Tallentire House — Sustainable luxury homewares" },
       { property: "og:description", content: "Slow-craft homewares from our Sri Lankan workshop." },
-      { property: "og:image", content: heroInterior },
-      { name: "twitter:image", content: heroInterior },
+      { property: "og:image", content: heroInterior.url },
+      { name: "twitter:image", content: heroInterior.url },
     ],
   }),
   loader: async ({ context }) => {
@@ -88,8 +88,8 @@ function Index() {
           <div className="lg:col-span-7 order-1 lg:order-2">
             <HeroSlider
               config={heroConfig}
-              fallbackImage={heroInterior}
-              fallbackAlt="Sustainable luxury bedroom with hand-blocked indigo cushions"
+              fallbackImage={heroInterior.url}
+              fallbackAlt="Bright Mexican bedroom with handcrafted textiles"
               className="aspect-[16/9] lg:aspect-auto lg:h-[90vh]"
             />
           </div>
