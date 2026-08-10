@@ -17,7 +17,7 @@ export const Route = createFileRoute("/about")({
 function About() {
   return (
     <div>
-      <section className="mx-auto max-w-3xl px-6 py-20 lg:py-28 text-center">
+      <section className="mx-auto max-w-3xl px-6 pt-20 lg:pt-28 pb-8 text-center">
         <p className="eyebrow text-foreground/60">Our story</p>
         <h1 className="mt-5 font-display text-5xl md:text-7xl leading-[0.95]">
           A small studio, in love with <em className="text-clay">slow things.</em>
