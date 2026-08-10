@@ -193,7 +193,9 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
         }`}
       >
         All pieces
-        <span className="ml-2 text-foreground/40 tabular-nums">{allProducts.length}</span>
+        {allInStock > 0 && (
+          <span className="ml-2 text-foreground/40 tabular-nums">{allInStock}</span>
+        )}
       </Link>
 
       <ul className="mt-1">
@@ -215,9 +217,11 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
                   }`}
                 >
                   {g.label}
-                  <span className="ml-2 text-foreground/40 tabular-nums text-xs">
-                    {groupCount}
-                  </span>
+                  {groupCount > 0 && (
+                    <span className="ml-2 text-foreground/40 tabular-nums text-xs">
+                      {groupCount}
+                    </span>
+                  )}
                 </Link>
                 <button
                   type="button"
@@ -251,9 +255,11 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
                           }`}
                         >
                           {leaf.label}
-                          <span className="ml-2 text-foreground/40 tabular-nums text-xs">
-                            {countFor(leafSlug)}
-                          </span>
+                          {countFor(leafSlug) > 0 && (
+                            <span className="ml-2 text-foreground/40 tabular-nums text-xs">
+                              {countFor(leafSlug)}
+                            </span>
+                          )}
                         </Link>
                       </li>
                     );
@@ -279,9 +285,11 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
                 }`}
               >
                 {c.label}
-                <span className="ml-2 text-foreground/40 tabular-nums text-xs">
-                  {countFor(c.slug)}
-                </span>
+                {countFor(c.slug) > 0 && (
+                  <span className="ml-2 text-foreground/40 tabular-nums text-xs">
+                    {countFor(c.slug)}
+                  </span>
+                )}
               </Link>
             </li>
           );
