@@ -244,7 +244,12 @@ function AdminHeroPage() {
                     onError: (err) => toast.error(heroErrorMessage(err)),
                   })
                 }
-                onReplace={(prepared) => handleUpload(prepared, slide.id)}
+                onReplace={(prepared) =>
+                  handleUpload(prepared, slide.id, {
+                    title: slide.title,
+                    altText: slide.altText,
+                  })
+                }
                 dragHandlers={{
                   draggable: true,
                   onDragStart: () => {

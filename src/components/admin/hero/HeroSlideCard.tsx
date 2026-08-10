@@ -135,8 +135,8 @@ export function HeroSlideCard({
             </div>
           </dl>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
               <Label className="text-xs" htmlFor={`title-${slide.id}`}>
                 Internal name
               </Label>
@@ -150,7 +150,7 @@ export function HeroSlideCard({
                 placeholder="e.g. Summer collection"
               />
             </div>
-            <div>
+            <div className="space-y-1.5">
               <Label className="text-xs" htmlFor={`alt-${slide.id}`}>
                 Alt text (leave empty if decorative)
               </Label>
@@ -164,59 +164,64 @@ export function HeroSlideCard({
                 placeholder="Describe the image for screen readers"
               />
             </div>
-            <div>
-              <Label className="text-xs" htmlFor={`dur-${slide.id}`}>
-                Display duration (seconds)
-              </Label>
-              <Input
-                id={`dur-${slide.id}`}
-                type="number"
-                min={MIN_DURATION}
-                max={MAX_DURATION}
-                step={1}
-                disabled={busy}
-                value={slide.duration ?? ""}
-                placeholder={`Default (${defaultDuration})`}
-                onChange={(e) => {
-                  const raw = e.target.value;
-                  if (raw === "") return onUpdate({ id: slide.id, duration: null });
-                  const n = Number(raw);
-                  if (!Number.isFinite(n)) return;
-                  onUpdate({
-                    id: slide.id,
-                    duration: Math.min(MAX_DURATION, Math.max(MIN_DURATION, Math.round(n))),
-                  });
-                }}
-              />
-            </div>
-            <div>
-              <Label className="text-xs">Transition</Label>
-              <Select
-                value={slide.transition ?? "default"}
-                disabled={busy}
-                onValueChange={(v) =>
-                  onUpdate({
-                    id: slide.id,
-                    transition: v === "default" ? null : (v as HeroTransition),
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="default">
-                    Default ({TRANSITIONS.find((t) => t.value === defaultTransition)?.label})
-                  </SelectItem>
-                  {TRANSITIONS.map((t) => (
-                    <SelectItem key={t.value} value={t.value}>
-                      {t.label}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label className="text-xs" htmlFor={`dur-${slide.id}`}>
+                  Display duration (seconds)
+                </Label>
+                <Input
+                  id={`dur-${slide.id}`}
+                  type="number"
+                  min={MIN_DURATION}
+                  max={MAX_DURATION}
+                  step={1}
+                  disabled={busy}
+                  value={slide.duration ?? ""}
+                  placeholder={`Default (${defaultDuration})`}
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    if (raw === "") return onUpdate({ id: slide.id, duration: null });
+                    const n = Number(raw);
+                    if (!Number.isFinite(n)) return;
+                    onUpdate({
+                      id: slide.id,
+                      duration: Math.min(MAX_DURATION, Math.max(MIN_DURATION, Math.round(n))),
+                    });
+                  }}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs" htmlFor={`trans-${slide.id}`}>
+                  Transition
+                </Label>
+                <Select
+                  value={slide.transition ?? "default"}
+                  disabled={busy}
+                  onValueChange={(v) =>
+                    onUpdate({
+                      id: slide.id,
+                      transition: v === "default" ? null : (v as HeroTransition),
+                    })
+                  }
+                >
+                  <SelectTrigger id={`trans-${slide.id}`} className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">
+                      Default ({TRANSITIONS.find((t) => t.value === defaultTransition)?.label})
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    {TRANSITIONS.map((t) => (
+                      <SelectItem key={t.value} value={t.value}>
+                        {t.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
+
 
           <div className="flex flex-wrap gap-2">
             <Button
