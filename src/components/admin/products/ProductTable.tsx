@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { formatPrice, getCategoryLabel } from "@/lib/products";
 import {
+import { ProductImage } from "@/components/site/ProductImage";
   COLUMNS,
   SORT_FIELDS,
   STATUS_LABEL,
@@ -86,10 +87,10 @@ const Row = memo(function Row({
         return (
           <div className="h-10 w-10 overflow-hidden rounded bg-muted">
             {p.images[0] && (
-              <img
+              <ProductImage
                 src={p.images[0]}
                 alt={p.image_alts[0] ?? ""}
-                loading="lazy"
+                sizes="40px"
                 className="h-full w-full object-cover"
               />
             )}
