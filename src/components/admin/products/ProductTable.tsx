@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { formatPrice, getCategoryLabel } from "@/lib/products";
-import {
 import { ProductImage } from "@/components/site/ProductImage";
+import {
   COLUMNS,
   SORT_FIELDS,
   STATUS_LABEL,
