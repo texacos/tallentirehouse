@@ -1,12 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
   Loader2,
   Plus,
   Trash2,
-  Upload,
   X,
-  GripVertical,
   Copy,
   RotateCcw,
   Save,
@@ -17,7 +15,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { CATEGORIES, formatPrice, slugify } from "@/lib/products";
 import {

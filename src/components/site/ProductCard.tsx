@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { ProductImage } from "@/components/site/ProductImage";
 import { formatPrice, isVariable, displayPrice, isOutOfStock, type Product } from "@/lib/products";
 
 export function ProductCard({ product }: { product: Product }) {
@@ -12,12 +13,10 @@ export function ProductCard({ product }: { product: Product }) {
       className="group block"
     >
       <div className="relative overflow-hidden bg-muted aspect-square">
-        <img
+        <ProductImage
           src={product.images[0]}
           alt={product.name}
-          width={900}
-          height={900}
-          loading="lazy"
+          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
           className={`h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04] ${oos ? "opacity-70" : ""}`}
         />
         {oos && (
