@@ -18,6 +18,7 @@ import { submitRestockRequest } from "@/lib/restock.functions";
 import { useSiteSettings } from "@/lib/site-settings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ProductImage } from "@/components/site/ProductImage";
 
 export const Route = createFileRoute("/product/$slug")({
   head: ({ params }) => ({
@@ -140,11 +141,11 @@ function ProductPage() {
           {/* Images */}
           <div>
             <div className="relative bg-muted aspect-square overflow-hidden">
-              <img
+              <ProductImage
                 src={product.images[activeImg]}
                 alt={product.name}
-                width={1200}
-                height={1200}
+                priority
+                sizes="(min-width: 1024px) 50vw, 100vw"
                 className={`h-full w-full object-cover ${productOutOfStock ? "opacity-80" : ""}`}
               />
               {productOutOfStock && (
@@ -161,7 +162,12 @@ function ProductPage() {
                     onClick={() => setActiveImg(i)}
                     className={`aspect-square overflow-hidden border ${i === activeImg ? "border-foreground" : "border-transparent opacity-70 hover:opacity-100"}`}
                   >
-                    <img src={src} alt="" className="h-full w-full object-cover" />
+                    <ProductImage
+                      src={src}
+                      alt=""
+                      sizes="120px"
+                      className="h-full w-full object-cover"
+                    />
                   </button>
                 ))}
               </div>

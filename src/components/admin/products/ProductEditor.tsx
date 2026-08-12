@@ -1,12 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
   Loader2,
   Plus,
   Trash2,
-  Upload,
   X,
-  GripVertical,
   Copy,
   RotateCcw,
   Save,
@@ -17,7 +15,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { CATEGORIES, formatPrice, slugify } from "@/lib/products";
 import {
@@ -32,9 +29,7 @@ import {
   type AdminVariant,
 } from "@/lib/admin-products.types";
 import { useRevisions, useSaveProduct } from "@/lib/admin-products-client";
-
-const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
-const ALLOWED_MIME = ["image/jpeg", "image/png", "image/webp", "image/avif"];
+import { ImageUploader } from "@/components/admin/products/ImageUploader";
 
 function toValues(p: AdminProduct | null): AdminProductValues {
   if (!p) return emptyProduct();
@@ -83,11 +78,9 @@ export function ProductEditor({
   const [values, setValues] = useState<AdminProductValues>(() => toValues(initial));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [dirty, setDirty] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [autosave, setAutosave] = useState(!!initial);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [slugTouched, setSlugTouched] = useState(!!initial);
-  const dragIndex = useRef<number | null>(null);
   const save = useSaveProduct();
   const revisions = useRevisions(initial?.id ?? null);
 
@@ -152,64 +145,6 @@ export function ProductEditor({
     () => [...CATEGORIES].sort((a, b) => a.label.localeCompare(b.label)),
     [],
   );
-
-  async function uploadFiles(files: FileList | null) {
-    if (!files?.length) return;
-    setUploading(true);
-    const added: string[] = [];
-    try {
-      for (const file of Array.from(files)) {
-        if (!ALLOWED_MIME.includes(file.type)) {
-          toast.error(`${file.name}: only JPEG, PNG, WebP or AVIF are allowed`);
-          continue;
-        }
-        if (file.size > MAX_IMAGE_BYTES) {
-          toast.error(`${file.name} is larger than 8 MB`);
-          continue;
-        }
-        const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-        const key = `${crypto.randomUUID()}.${ext}`;
-        const { error } = await supabase.storage
-          .from("product-images")
-          .upload(key, file, {
-            cacheControl: "31536000",
-            upsert: false,
-            contentType: file.type,
-          });
-        if (error) {
-          toast.error(`Upload failed: ${error.message}`);
-          continue;
-        }
-        added.push(`/api/public/product-images/${key}`);
-      }
-      if (added.length) {
-        patch({
-          images: [...(values.images ?? []), ...added],
-          image_alts: [...(values.image_alts ?? []), ...added.map(() => "")],
-        });
-        toast.success(`Uploaded ${added.length} image${added.length === 1 ? "" : "s"}`);
-      }
-    } finally {
-      setUploading(false);
-    }
-  }
-
-  function moveImage(from: number, to: number) {
-    const images = [...(values.images ?? [])];
-    const alts = [...(values.image_alts ?? [])];
-    const [img] = images.splice(from, 1);
-    const [alt] = alts.splice(from, 1);
-    images.splice(to, 0, img);
-    alts.splice(to, 0, alt ?? "");
-    patch({ images, image_alts: alts });
-  }
-
-  function removeImage(i: number) {
-    patch({
-      images: (values.images ?? []).filter((_, idx) => idx !== i),
-      image_alts: (values.image_alts ?? []).filter((_, idx) => idx !== i),
-    });
-  }
 
   const variants = (values.variants ?? []) as AdminVariant[];
   const setVariants = (next: AdminVariant[]) => patch({ variants: next });
@@ -560,80 +495,12 @@ export function ProductEditor({
 
         {/* IMAGES */}
         <TabsContent value="images" className="space-y-4 pt-4">
-          <div
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => {
-              e.preventDefault();
-              void uploadFiles(e.dataTransfer.files);
-            }}
-            className="rounded-md border border-dashed border-border p-6 text-center"
-          >
-            <p className="text-sm text-muted-foreground">
-              Drag &amp; drop images here, or
-            </p>
-            <label className="mt-3 inline-flex">
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp,image/avif"
-                multiple
-                className="hidden"
-                onChange={(e) => void uploadFiles(e.target.files)}
-              />
-              <span className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border border-input px-4 text-sm">
-                {uploading ? <Loader2 className="animate-spin" size={15} /> : <Upload size={15} />}
-                Choose files
-              </span>
-            </label>
-            <p className="mt-2 text-xs text-muted-foreground">
-              JPEG, PNG, WebP or AVIF · up to 8 MB each
-            </p>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {(values.images ?? []).map((src, i) => (
-              <div
-                key={`${src}-${i}`}
-                draggable
-                onDragStart={() => (dragIndex.current = i)}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={() => {
-                  if (dragIndex.current != null && dragIndex.current !== i) {
-                    moveImage(dragIndex.current, i);
-                  }
-                  dragIndex.current = null;
-                }}
-                className="space-y-2 rounded-md border border-border p-2"
-              >
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <GripVertical size={12} /> {i === 0 ? "Cover" : `Image ${i + 1}`}
-                  </span>
-                  <button
-                    type="button"
-                    aria-label={`Remove image ${i + 1}`}
-                    onClick={() => removeImage(i)}
-                    className="text-muted-foreground hover:text-destructive"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-                <div className="aspect-square overflow-hidden rounded bg-muted">
-                  <img src={src} alt="" loading="lazy" className="size-full object-cover" />
-                </div>
-                <Input
-                  value={(values.image_alts ?? [])[i] ?? ""}
-                  placeholder="Alt text"
-                  aria-label={`Alt text for image ${i + 1}`}
-                  onChange={(e) => {
-                    const alts = [...(values.image_alts ?? [])];
-                    while (alts.length < (values.images ?? []).length) alts.push("");
-                    alts[i] = e.target.value;
-                    patch({ image_alts: alts });
-                  }}
-                />
-              </div>
-            ))}
-          </div>
+          <ImageUploader
+            images={values.images ?? []}
+            alts={values.image_alts ?? []}
+            onChange={(images, image_alts) => patch({ images, image_alts })}
+            max={30}
+          />
         </TabsContent>
 
         {/* VARIANTS */}
@@ -743,14 +610,19 @@ export function ProductEditor({
                   onChange={(e) => updateVariant(i, { length: e.target.value })}
                 />
               </Field>
-              <Field label="Image URL" htmlFor={`v-image-${i}`}>
-                <Input
-                  id={`v-image-${i}`}
-                  value={v.image}
-                  placeholder="/api/public/product-images/…"
-                  onChange={(e) => updateVariant(i, { image: e.target.value })}
-                />
-              </Field>
+              <div className="sm:col-span-2 lg:col-span-3">
+                <Label>Variant image</Label>
+                <div className="mt-1.5">
+                  <ImageUploader
+                    images={v.image ? [v.image] : []}
+                    onChange={(imgs) => updateVariant(i, { image: imgs[0] ?? "" })}
+                    max={1}
+                    withAlts={false}
+                    compact
+                    label="Drop a variant image here, or"
+                  />
+                </div>
+              </div>
               <div className="flex items-end gap-2">
                 <Button
                   type="button"
