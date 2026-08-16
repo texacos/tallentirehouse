@@ -23,7 +23,7 @@ export function loose(client: unknown): Db {
 }
 
 export const PRODUCT_COLUMNS =
-  "id,slug,name,sku,barcode,brand,supplier,collection,tags,price,sale_price,cost_price,weight_kg,stock,total_stock,reorder_level,track_inventory,backorders,location,description,care_instructions,dimensions,seo_title,seo_description,categories,images,image_alts,variants,status,published_at,created_at,updated_at";
+  "id,slug,name,sku,barcode,brand,supplier,collection,tags,price,sale_price,cost_price,weight_kg,stock,total_stock,reorder_level,track_inventory,backorders,location,description,care_instructions,dimensions,how_we_make_it,seo_title,seo_description,categories,images,image_alts,variants,status,published_at,created_at,updated_at";
 
 /** Throws when the caller is not an admin. Never trust the client. */
 export async function assertAdmin(supabase: Db, userId: string): Promise<void> {
@@ -97,6 +97,7 @@ export function mapRow(row: Record<string, unknown>): AdminProduct {
     description: str(row["description"]),
     care_instructions: str(row["care_instructions"]),
     dimensions: str(row["dimensions"]),
+    how_we_make_it: str(row["how_we_make_it"]),
     seo_title: str(row["seo_title"]),
     seo_description: str(row["seo_description"]),
     categories: Array.isArray(row["categories"]) ? (row["categories"] as string[]) : [],
@@ -138,6 +139,7 @@ export function toRow(values: AdminProductValues): Record<string, unknown> {
     description: values.description,
     care_instructions: values.care_instructions,
     dimensions: values.dimensions,
+    how_we_make_it: values.how_we_make_it,
     seo_title: values.seo_title,
     seo_description: values.seo_description,
     categories: values.categories,

@@ -221,6 +221,9 @@ function ProductPage() {
                 {product.dimensions?.trim() && (
                   <TabsTrigger value="dimensions">SIZE &amp; WEIGHT</TabsTrigger>
                 )}
+                {product.how_we_make_it?.trim() && (
+                  <TabsTrigger value="how">HOW WE MAKE IT</TabsTrigger>
+                )}
               </TabsList>
               <TabsContent
                 value="description"
@@ -239,6 +242,12 @@ function ProductPage() {
                 className="pt-4 text-sm leading-relaxed text-foreground/85 whitespace-pre-line"
               >
                 {product.dimensions}
+              </TabsContent>
+              <TabsContent
+                value="how"
+                className="pt-4 text-sm leading-relaxed text-foreground/85 whitespace-pre-line"
+              >
+                {product.how_we_make_it}
               </TabsContent>
             </Tabs>
 

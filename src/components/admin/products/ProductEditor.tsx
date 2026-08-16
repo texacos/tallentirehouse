@@ -321,6 +321,7 @@ export function ProductEditor({
                 <TabsTrigger value="desc">DESCRIPTION</TabsTrigger>
                 <TabsTrigger value="care">CARE</TabsTrigger>
                 <TabsTrigger value="dims">SIZE &amp; WEIGHT</TabsTrigger>
+                <TabsTrigger value="how">HOW WE MAKE IT</TabsTrigger>
               </TabsList>
               <TabsContent value="desc" className="pt-3">
                 <Field
@@ -366,6 +367,22 @@ export function ProductEditor({
                     maxLength={8000}
                     value={values.dimensions ?? ""}
                     onChange={(e) => patch({ dimensions: e.target.value })}
+                  />
+                </Field>
+              </TabsContent>
+              <TabsContent value="how" className="pt-3">
+                <Field
+                  label="How we make it"
+                  hint="Production process, craftsmanship story, materials origin"
+                  error={errors.how_we_make_it}
+                  htmlFor="p-how"
+                >
+                  <Textarea
+                    id="p-how"
+                    rows={6}
+                    maxLength={8000}
+                    value={values.how_we_make_it ?? ""}
+                    onChange={(e) => patch({ how_we_make_it: e.target.value })}
                   />
                 </Field>
               </TabsContent>

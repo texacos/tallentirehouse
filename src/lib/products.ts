@@ -18,6 +18,7 @@ export type Product = {
   description: string;
   care_instructions: string;
   dimensions: string;
+  how_we_make_it: string;
   categories: string[];
   images: string[];
   variants: ProductVariant[]; // empty = simple product
