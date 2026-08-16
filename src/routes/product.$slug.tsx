@@ -8,7 +8,6 @@ import {
   getCategory,
   isVariable,
   displayPrice,
-  SIZE_OPTIONS,
   isOutOfStock,
 } from "@/lib/products";
 import { productsQueryOptions, useProduct, useProducts } from "@/lib/products-store";
