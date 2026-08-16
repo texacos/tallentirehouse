@@ -10,7 +10,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Tallentire House — Sustainable luxury homewares" },
-      { name: "description", content: "Hand-blocked cushions, hand-loomed silk and slow-craft textiles from our Sri Lankan workshop. Made to last." },
+      { name: "description", content: "Hand-blocked, hand-embroidered, hand-loomed, hand-woven slow-craft textiles from our Sri Lankan workshop. Made to last." },
       { property: "og:title", content: "Tallentire House — Sustainable luxury homewares" },
       { property: "og:description", content: "Slow-craft homewares from our Sri Lankan workshop." },
       { property: "og:image", content: heroInterior.url },
@@ -65,7 +65,7 @@ function Index() {
                 Fabrics<br/>for a life<br/><em className="text-clay">slowly lived.</em>
               </h1>
               <p className="mt-6 text-base text-muted-foreground leading-relaxed">
-                Hand-blocked cushions, hand-loomed silk and slow-craft textiles —
+                Hand-blocked, hand-embroidered, hand-loomed, hand-woven slow-craft textiles —
                 made in small batches in our workshop, by the people we've known
                 for years, for the homes that will love them for many more.
               </p>
