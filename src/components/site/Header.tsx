@@ -48,8 +48,10 @@ export function Header() {
           <span className="eyebrow text-foreground/60 mt-1">Fabrics for life</span>
         </Link>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 md:gap-3">
+          <SearchBox />
           {user && (
+
             <Link
               to="/account"
               aria-label="Account"
