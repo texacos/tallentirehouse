@@ -184,8 +184,8 @@ function ProductPage() {
               )}
               {formatPrice(variable ? displayPrice(product) : product.price)}
             </div>
-            {(activeVariant?.sku || product.sku) && (
-              <p className="mt-2 text-xs text-muted-foreground">SKU: {activeVariant?.sku || product.sku}</p>
+            {!variable && product.sku && (
+              <p className="mt-2 text-xs text-muted-foreground">SKU: {product.sku}</p>
             )}
 
             {/* Stock indicator (simple products only) */}
