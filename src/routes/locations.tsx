@@ -80,7 +80,7 @@ function Locations() {
                 ))}
               </address>
 
-              <div className="mt-6 border border-border bg-secondary/30">
+              <div className="mt-6 brand-map border border-border bg-secondary/30 shadow-sm">
                 <iframe
                   src={mapEmbedSrc(p)}
                   title={p.mapTitle}
@@ -95,7 +95,7 @@ function Locations() {
                 href={mapLink(p)}
                 target="_blank"
                 rel="noopener noreferrer external"
-                className="mt-4 inline-block text-xs uppercase tracking-[0.22em] underline underline-offset-4 hover:opacity-70"
+                className="mt-5 inline-flex items-center justify-center w-full bg-clay text-cream px-6 py-3 text-xs uppercase tracking-[0.22em] transition-opacity hover:opacity-80"
               >
                 Open in Google Maps
               </a>
