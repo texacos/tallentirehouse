@@ -391,7 +391,7 @@ function AdminProductsPage() {
       )}
 
       {/* Shop-wide settings */}
-      <div className="mt-8 grid gap-4 lg:grid-cols-2">
+      <div className="mt-8">
         <div className="flex items-center gap-3 rounded-md border border-border bg-muted/30 px-4 py-3">
           <Checkbox
             id="hide-oos"
@@ -411,39 +411,8 @@ function AdminProductsPage() {
             Hide out-of-stock products from the shop pages
           </Label>
         </div>
-        <div className="space-y-2 rounded-md border border-border bg-muted/30 px-4 py-3">
-          <Label htmlFor="shipping-note" className="text-sm">
-            Shipping note shown on every in-stock product page
-          </Label>
-          <Textarea
-            id="shipping-note"
-            rows={2}
-            value={noteDraft}
-            onChange={(e) => setNoteDraft(e.target.value)}
-            placeholder={DEFAULT_SHIPPING_NOTE}
-          />
-          <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              disabled={updateSetting.isPending || noteDraft === productShippingNote}
-              onClick={() =>
-                updateSetting.mutate(
-                  { key: "product_shipping_note", value: noteDraft },
-                  {
-                    onSuccess: () => toast.success("Shipping note saved"),
-                    onError: () => toast.error("Could not save the note"),
-                  },
-                )
-              }
-            >
-              Save note
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => setNoteDraft(DEFAULT_SHIPPING_NOTE)}>
-              Reset to default
-            </Button>
-          </div>
-        </div>
       </div>
+
 
       <Sheet
         open={creating || editing !== null}
