@@ -120,6 +120,14 @@ function SearchPage() {
                 )}
               </div>
             )}
+            <div className="mt-14 flex justify-center">
+              <Link
+                to="/shop"
+                className="border border-foreground px-6 py-3 text-xs uppercase tracking-[0.22em] hover:bg-foreground hover:text-background transition"
+              >
+                Back to the shop
+              </Link>
+            </div>
           </>
         )}
       </section>
