@@ -8,6 +8,8 @@ import {
   Copy,
   RotateCcw,
   Save,
+  ExternalLink,
+
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -141,6 +143,22 @@ export function ProductEditor({
     onClose();
   };
 
+  const preview = async () => {
+    // Open synchronously so the popup blocker allows it.
+    const win = window.open("", "_blank");
+    const ok = await commit(true);
+    if (!ok) {
+      win?.close();
+      toast.error("Please fix the highlighted fields before previewing");
+      return;
+    }
+    const url = `${window.location.origin}/product/${values.slug}`;
+    if (win) win.location.href = url;
+    else window.open(url, "_blank");
+  };
+
+
+
   const sortedCategories = useMemo(
     () => [...CATEGORIES].sort((a, b) => a.label.localeCompare(b.label)),
     [],
@@ -179,6 +197,10 @@ export function ProductEditor({
           <Button onClick={() => void commit()} disabled={save.isPending}>
             {save.isPending ? <Loader2 className="animate-spin" /> : <Save />} Save
           </Button>
+          <Button variant="outline" onClick={() => void preview()} disabled={save.isPending}>
+            <ExternalLink /> Preview
+          </Button>
+
           <Button variant="ghost" size="icon" aria-label="Close editor" onClick={attemptClose}>
             <X />
           </Button>
