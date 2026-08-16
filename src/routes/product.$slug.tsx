@@ -8,7 +8,6 @@ import {
   getCategory,
   isVariable,
   displayPrice,
-  SIZE_OPTIONS,
   isOutOfStock,
 } from "@/lib/products";
 import { productsQueryOptions, useProduct, useProducts } from "@/lib/products-store";
@@ -256,7 +255,6 @@ function ProductPage() {
                 <p className="eyebrow text-foreground/60 mb-3">Size</p>
                 <div className="flex flex-wrap gap-2">
                   {product.variants.map((v) => {
-                    const label = SIZE_OPTIONS.find((s) => s.value === v.size)?.label ?? v.size;
                     const active = selectedSize === v.size;
                     const vOOS = (v.stock ?? 0) <= 0;
                     return (
@@ -271,7 +269,6 @@ function ProductPage() {
                         } ${vOOS ? "opacity-60" : ""}`}
                       >
                         <span className="font-medium">{v.size}</span>
-                        <span className="ml-1 opacity-70">· {label}</span>
                         <span className="ml-2 text-[10px] opacity-70">
                           {vOOS ? "· out" : `· ${v.stock} left`}
                         </span>
