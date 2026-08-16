@@ -143,6 +143,22 @@ export function ProductEditor({
     onClose();
   };
 
+  const preview = async () => {
+    // Open synchronously so the popup blocker allows it.
+    const win = window.open("", "_blank");
+    const ok = await commit(true);
+    if (!ok) {
+      win?.close();
+      toast.error("Please fix the highlighted fields before previewing");
+      return;
+    }
+    const url = `${window.location.origin}/product/${values.slug}`;
+    if (win) win.location.href = url;
+    else window.open(url, "_blank");
+  };
+
+
+
   const sortedCategories = useMemo(
     () => [...CATEGORIES].sort((a, b) => a.label.localeCompare(b.label)),
     [],
