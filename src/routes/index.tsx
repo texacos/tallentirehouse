@@ -90,7 +90,7 @@ function Index() {
               config={heroConfig}
               fallbackImage={heroInterior.url}
               fallbackAlt="Bright Mexican bedroom with handcrafted textiles"
-              className="aspect-[16/9] lg:aspect-auto lg:h-[90vh]"
+              className="aspect-[16/9] lg:max-h-[90vh]"
             />
           </div>
         </div>
