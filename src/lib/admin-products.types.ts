@@ -61,6 +61,8 @@ export const adminProductSchema = z.object({
   backorders: z.boolean().default(false),
   location: z.string().trim().max(80).default(""),
   description: z.string().trim().max(8000).default(""),
+  care_instructions: z.string().trim().max(8000).default(""),
+  dimensions: z.string().trim().max(8000).default(""),
   seo_title: z.string().trim().max(160).default(""),
   seo_description: z.string().trim().max(320).default(""),
   categories: z.array(z.string().min(1).max(80)).min(1, "Pick at least one category"),

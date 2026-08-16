@@ -229,11 +229,13 @@ export type Database = {
           backorders: boolean
           barcode: string
           brand: string
+          care_instructions: string
           categories: string[]
           collection: string
           cost_price: number | null
           created_at: string
           description: string
+          dimensions: string
           id: string
           image_alts: string[]
           images: string[]
@@ -261,11 +263,13 @@ export type Database = {
           backorders?: boolean
           barcode?: string
           brand?: string
+          care_instructions?: string
           categories?: string[]
           collection?: string
           cost_price?: number | null
           created_at?: string
           description?: string
+          dimensions?: string
           id?: string
           image_alts?: string[]
           images?: string[]
@@ -293,11 +297,13 @@ export type Database = {
           backorders?: boolean
           barcode?: string
           brand?: string
+          care_instructions?: string
           categories?: string[]
           collection?: string
           cost_price?: number | null
           created_at?: string
           description?: string
+          dimensions?: string
           id?: string
           image_alts?: string[]
           images?: string[]

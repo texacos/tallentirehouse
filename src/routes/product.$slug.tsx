@@ -19,6 +19,7 @@ import { useSiteSettings } from "@/lib/site-settings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ProductImage } from "@/components/site/ProductImage";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/product/$slug")({
   head: ({ params }) => ({
@@ -211,9 +212,35 @@ function ProductPage() {
 
             <div className="my-8 rule" />
 
-            <p className="text-sm leading-relaxed text-foreground/85 whitespace-pre-line">
-              {product.description}
-            </p>
+            <Tabs defaultValue="description">
+              <TabsList className="flex flex-wrap">
+                <TabsTrigger value="description">Description</TabsTrigger>
+                {product.care_instructions?.trim() && (
+                  <TabsTrigger value="care">Care</TabsTrigger>
+                )}
+                {product.dimensions?.trim() && (
+                  <TabsTrigger value="dimensions">Size &amp; dimensions</TabsTrigger>
+                )}
+              </TabsList>
+              <TabsContent
+                value="description"
+                className="pt-4 text-sm leading-relaxed text-foreground/85 whitespace-pre-line"
+              >
+                {product.description}
+              </TabsContent>
+              <TabsContent
+                value="care"
+                className="pt-4 text-sm leading-relaxed text-foreground/85 whitespace-pre-line"
+              >
+                {product.care_instructions}
+              </TabsContent>
+              <TabsContent
+                value="dimensions"
+                className="pt-4 text-sm leading-relaxed text-foreground/85 whitespace-pre-line"
+              >
+                {product.dimensions}
+              </TabsContent>
+            </Tabs>
 
             {variable && (
               <div className="mt-8">
