@@ -58,7 +58,7 @@ function Index() {
       {/* HERO */}
       <section className="relative">
         <div className="grid lg:grid-cols-12 gap-0 items-stretch">
-          <div className="lg:col-span-5 flex items-center px-6 lg:px-14 py-16 lg:py-32 order-2 lg:order-1">
+          <div className="lg:col-span-5 flex items-center px-6 lg:px-14 py-16 lg:py-20 order-2 lg:order-1">
             <div className="max-w-md">
               <p className="eyebrow text-foreground/60">From our Sri Lankan workshop</p>
               <h1 className="mt-5 font-display text-5xl md:text-6xl lg:text-7xl leading-[0.95]">
