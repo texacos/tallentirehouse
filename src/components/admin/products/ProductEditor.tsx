@@ -318,9 +318,9 @@ export function ProductEditor({
             <Label>Description</Label>
             <Tabs defaultValue="desc">
               <TabsList className="flex flex-wrap">
-                <TabsTrigger value="desc">Description</TabsTrigger>
-                <TabsTrigger value="care">Care instructions</TabsTrigger>
-                <TabsTrigger value="dims">Size &amp; dimensions</TabsTrigger>
+                <TabsTrigger value="desc">DESCRIPTION</TabsTrigger>
+                <TabsTrigger value="care">CARE</TabsTrigger>
+                <TabsTrigger value="dims">SIZE &amp; WEIGHT</TabsTrigger>
               </TabsList>
               <TabsContent value="desc" className="pt-3">
                 <Field
