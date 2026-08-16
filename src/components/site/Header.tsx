@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import { CATEGORIES, CATEGORY_GROUPS } from "@/lib/products";
+import { SearchBox } from "@/components/site/SearchBox";
+
 
 const GROUPED_LEAVES = new Set(CATEGORY_GROUPS.flatMap((g) => g.children));
 const UNGROUPED = CATEGORIES.filter((c) => !GROUPED_LEAVES.has(c.slug));
