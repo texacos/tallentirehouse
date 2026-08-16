@@ -179,35 +179,26 @@ function ProductPage() {
             {primaryCategory && <p className="eyebrow text-foreground/60">{primaryCategory.label}</p>}
             <h1 className="mt-4 font-display text-4xl md:text-5xl leading-[1.05]">{product.name}</h1>
             <div className="mt-5 text-xl tabular-nums">
-              {variable && !activeVariant && (
+              {variable && (
                 <span className="text-xs uppercase tracking-[0.18em] mr-2 text-foreground/60">from</span>
               )}
-              {formatPrice(unitPrice)}
+              {formatPrice(variable ? displayPrice(product) : product.price)}
             </div>
             {(activeVariant?.sku || product.sku) && (
               <p className="mt-2 text-xs text-muted-foreground">SKU: {activeVariant?.sku || product.sku}</p>
             )}
 
-            {/* Stock indicator */}
-            <div className="mt-3 text-xs uppercase tracking-[0.18em]">
-              {productOutOfStock ? (
-                <span className="text-destructive">Out of stock</span>
-              ) : variable ? (
-                activeVariant ? (
-                  variantOutOfStock ? (
-                    <span className="text-destructive">Out of stock in {activeVariant.size}</span>
-                  ) : (
-                    <span className="text-foreground/70">
-                      {activeVariant.stock} in stock ({activeVariant.size})
-                    </span>
-                  )
+            {/* Stock indicator (simple products only) */}
+            {!variable && (
+              <div className="mt-3 text-xs uppercase tracking-[0.18em]">
+                {productOutOfStock ? (
+                  <span className="text-destructive">Out of stock</span>
                 ) : (
-                  <span className="text-foreground/60">Select a size to see stock</span>
-                )
-              ) : (
-                <span className="text-foreground/70">{currentStock} in stock</span>
-              )}
-            </div>
+                  <span className="text-foreground/70">{currentStock} in stock</span>
+                )}
+              </div>
+            )}
+
 
             <div className="my-8 rule" />
 
