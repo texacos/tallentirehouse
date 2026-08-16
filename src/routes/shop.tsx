@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, SlidersHorizontal } from "lucide-react";
 import { z } from "zod";
 import {
   CATEGORIES,
@@ -54,6 +54,7 @@ const UNGROUPED_CATEGORIES = CATEGORIES.filter((c) => !GROUPED_LEAVES.has(c.slug
 
 function Shop() {
   const { category, colour, page = 1 } = Route.useSearch();
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const allProductsRaw = useProducts();
   const { hideOutOfStock } = useSiteSettings();
 
@@ -98,12 +99,36 @@ function Shop() {
         <div className="grid lg:grid-cols-[240px_1fr] gap-10 lg:gap-14">
           {/* SIDEBAR / MOBILE ACCORDION */}
           <aside className="lg:sticky lg:top-28 lg:self-start">
-            <CategoryHierarchy activeSlug={category} activeColour={colour} />
-            <ColourFilter
-              products={byCategory}
-              activeCategory={category}
-              activeColour={colour}
-            />
+            <div className="lg:hidden">
+              <button
+                type="button"
+                onClick={() => setFiltersOpen((v) => !v)}
+                aria-expanded={filtersOpen}
+                aria-controls="shop-filters"
+                className="inline-flex items-center gap-2 text-[12px] uppercase tracking-[0.18em] text-foreground/80 hover:text-foreground transition"
+              >
+                <SlidersHorizontal size={16} strokeWidth={1.5} />
+                {filtersOpen ? "Close filters" : "Filters"}
+              </button>
+              {filtersOpen && (
+                <div id="shop-filters" className="mt-6">
+                  <CategoryHierarchy activeSlug={category} activeColour={colour} />
+                  <ColourFilter
+                    products={byCategory}
+                    activeCategory={category}
+                    activeColour={colour}
+                  />
+                </div>
+              )}
+            </div>
+            <div className="hidden lg:block">
+              <CategoryHierarchy activeSlug={category} activeColour={colour} />
+              <ColourFilter
+                products={byCategory}
+                activeCategory={category}
+                activeColour={colour}
+              />
+            </div>
           </aside>
 
           {/* GRID */}
