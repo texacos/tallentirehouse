@@ -152,3 +152,35 @@
   .hero-zoom-a > picture > img,
   .hero-zoom-b > picture > img { animation: none; }
 }
+
+/* Branded map styling — warm tint over keyless Google Maps embeds so the
+   maps read as part of the Tallentire House palette rather than default Google styling. */
+.brand-map {
+  position: relative;
+  overflow: hidden;
+}
+
+.brand-map iframe {
+  filter: sepia(0.25) saturate(0.75) hue-rotate(-8deg) contrast(0.96) brightness(0.97);
+  transition: filter 0.3s ease;
+}
+
+.brand-map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--clay);
+  mix-blend-mode: soft-light;
+  opacity: 0.26;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.brand-map:hover iframe {
+  filter: sepia(0.12) saturate(0.9) hue-rotate(-4deg) contrast(1) brightness(1);
+}
+
+.brand-map:hover::after {
+  opacity: 0.12;
+}
+
