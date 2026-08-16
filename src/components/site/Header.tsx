@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import { CATEGORIES, CATEGORY_GROUPS } from "@/lib/products";
+import { SearchBox } from "@/components/site/SearchBox";
+
 
 const GROUPED_LEAVES = new Set(CATEGORY_GROUPS.flatMap((g) => g.children));
 const UNGROUPED = CATEGORIES.filter((c) => !GROUPED_LEAVES.has(c.slug));
@@ -48,8 +50,10 @@ export function Header() {
           <span className="eyebrow text-foreground/60 mt-1">Fabrics for life</span>
         </Link>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 md:gap-3">
+          <SearchBox />
           {user && (
+
             <Link
               to="/account"
               aria-label="Account"
