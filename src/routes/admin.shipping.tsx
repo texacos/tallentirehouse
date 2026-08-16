@@ -11,6 +11,14 @@ import { ImportExportPanel } from "@/components/admin/shipping/ImportExportPanel
 import { RateTesterPanel } from "@/components/admin/shipping/RateTesterPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import {
+  useSiteSettings,
+  useUpdateSiteSetting,
+  DEFAULT_SHIPPING_NOTE,
+} from "@/lib/site-settings";
 
 
 export const Route = createFileRoute("/admin/shipping")({
@@ -29,6 +37,10 @@ function ShippingAdmin() {
   const navigate = useNavigate();
   const { data: carriers = [] } = useCarriers();
   const [carrierId, setCarrierId] = useState<string | null>(null);
+  const { productShippingNote } = useSiteSettings();
+  const updateSetting = useUpdateSiteSetting();
+  const [noteDraft, setNoteDraft] = useState(productShippingNote);
+  useEffect(() => setNoteDraft(productShippingNote), [productShippingNote]);
   const activeCarrier =
     carriers.find((c) => c.id === carrierId) ??
     carriers.find((c) => c.is_default) ??
@@ -82,6 +94,39 @@ function ShippingAdmin() {
           ))}
         </div>
       )}
+
+      <div className="mt-8 max-w-2xl space-y-2 rounded-md border border-border bg-muted/30 px-4 py-3">
+        <Label htmlFor="shipping-note" className="text-sm">
+          Shipping note shown on every in-stock product page
+        </Label>
+        <Textarea
+          id="shipping-note"
+          rows={2}
+          value={noteDraft}
+          onChange={(e) => setNoteDraft(e.target.value)}
+          placeholder={DEFAULT_SHIPPING_NOTE}
+        />
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            disabled={updateSetting.isPending || noteDraft === productShippingNote}
+            onClick={() =>
+              updateSetting.mutate(
+                { key: "product_shipping_note", value: noteDraft },
+                {
+                  onSuccess: () => toast.success("Shipping note saved"),
+                  onError: () => toast.error("Could not save the note"),
+                },
+              )
+            }
+          >
+            Save note
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => setNoteDraft(DEFAULT_SHIPPING_NOTE)}>
+            Reset to default
+          </Button>
+        </div>
+      </div>
 
       <Tabs defaultValue="carriers" className="mt-10">
         <TabsList className="flex h-auto flex-wrap justify-start">
