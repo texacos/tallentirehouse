@@ -27,6 +27,7 @@ const PAGE_SIZE = 48;
 
 const searchSchema = z.object({
   category: z.string().optional(),
+  colour: z.string().optional(),
   page: z.coerce.number().int().min(1).optional(),
 });
 
@@ -52,7 +53,7 @@ const GROUPED_LEAVES = new Set(CATEGORY_GROUPS.flatMap((g) => g.children));
 const UNGROUPED_CATEGORIES = CATEGORIES.filter((c) => !GROUPED_LEAVES.has(c.slug));
 
 function Shop() {
-  const { category, page = 1 } = Route.useSearch();
+  const { category, colour, page = 1 } = Route.useSearch();
   const allProductsRaw = useProducts();
   const { hideOutOfStock } = useSiteSettings();
 
@@ -61,11 +62,17 @@ function Shop() {
     [allProductsRaw, hideOutOfStock],
   );
 
-  const filtered = useMemo(() => {
+  const byCategory = useMemo(() => {
     const leaves = resolveCategoryFilter(category);
     if (!leaves) return allProducts;
     return allProducts.filter((p) => p.categories.some((c) => leaves.includes(c)));
   }, [category, allProducts]);
+
+  const filtered = useMemo(() => {
+    if (!colour) return byCategory;
+    const want = colour.trim().toLowerCase();
+    return byCategory.filter((p) => (p.colour ?? "").trim().toLowerCase() === want);
+  }, [byCategory, colour]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const current = Math.min(page, pageCount);
@@ -91,7 +98,12 @@ function Shop() {
         <div className="grid lg:grid-cols-[240px_1fr] gap-10 lg:gap-14">
           {/* SIDEBAR / MOBILE ACCORDION */}
           <aside className="lg:sticky lg:top-28 lg:self-start">
-            <CategoryHierarchy activeSlug={category} />
+            <CategoryHierarchy activeSlug={category} activeColour={colour} />
+            <ColourFilter
+              products={byCategory}
+              activeCategory={category}
+              activeColour={colour}
+            />
           </aside>
 
           {/* GRID */}
@@ -117,7 +129,7 @@ function Shop() {
                     {current > 1 && (
                       <Link
                         to="/shop"
-                        search={{ category, page: current - 1 }}
+                        search={{ category, colour, page: current - 1 }}
                         className="border border-foreground/30 px-4 py-2 hover:border-foreground"
                       >
                         Prev
@@ -129,7 +141,7 @@ function Shop() {
                     {current < pageCount && (
                       <Link
                         to="/shop"
-                        search={{ category, page: current + 1 }}
+                        search={{ category, colour, page: current + 1 }}
                         className="border border-foreground/30 px-4 py-2 hover:border-foreground"
                       >
                         Next
@@ -146,7 +158,13 @@ function Shop() {
   );
 }
 
-function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
+function CategoryHierarchy({
+  activeSlug,
+  activeColour,
+}: {
+  activeSlug?: string;
+  activeColour?: string;
+}) {
   const allProducts = useProducts();
 
   // A group is initially expanded if it's selected, or contains the selected leaf.
@@ -188,6 +206,7 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
 
       <Link
         to="/shop"
+        search={{ colour: activeColour }}
         className={`block py-2 border-b border-border/50 ${
           !activeSlug ? "text-foreground font-medium" : "text-foreground/70 hover:text-foreground"
         }`}
@@ -209,7 +228,7 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
               <div className="flex items-stretch">
                 <Link
                   to="/shop"
-                  search={{ category: g.slug }}
+                  search={{ category: g.slug, colour: activeColour }}
                   className={`flex-1 py-2.5 pr-2 text-left ${
                     isActiveGroup
                       ? "text-foreground font-medium"
@@ -247,7 +266,7 @@ function CategoryHierarchy({ activeSlug }: { activeSlug?: string }) {
                       <li key={leafSlug}>
                         <Link
                           to="/shop"
-                          search={{ category: leafSlug }}
+                          search={{ category: leafSlug, colour: activeColour }}
                           className={`block py-1 text-[13px] border-l pl-3 ${
                             isActive
                               ? "border-foreground text-foreground font-medium"
