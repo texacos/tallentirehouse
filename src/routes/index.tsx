@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { getCategoryLabel, totalStock } from "@/lib/products";
+import { CATEGORY_GROUPS, totalStock } from "@/lib/products";
 import { productsQueryOptions, useProducts } from "@/lib/products-store";
 import { heroConfigQueryOptions, useHeroConfig } from "@/lib/hero-client";
 import { HeroSlider } from "@/components/site/HeroSlider";
