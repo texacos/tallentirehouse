@@ -214,12 +214,12 @@ function ProductPage() {
 
             <Tabs defaultValue="description">
               <TabsList className="flex flex-wrap">
-                <TabsTrigger value="description">Description</TabsTrigger>
+                <TabsTrigger value="description">DESCRIPTION</TabsTrigger>
                 {product.care_instructions?.trim() && (
-                  <TabsTrigger value="care">Care</TabsTrigger>
+                  <TabsTrigger value="care">CARE</TabsTrigger>
                 )}
                 {product.dimensions?.trim() && (
-                  <TabsTrigger value="dimensions">Size &amp; dimensions</TabsTrigger>
+                  <TabsTrigger value="dimensions">SIZE &amp; WEIGHT</TabsTrigger>
                 )}
               </TabsList>
               <TabsContent
