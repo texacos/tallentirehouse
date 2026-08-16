@@ -34,6 +34,7 @@ export const CSV_COLUMNS = [
   "description",
   "care_instructions",
   "dimensions",
+  "how_we_make_it",
   "variants",
 ] as const;
 
@@ -68,6 +69,7 @@ export function productToCsvRow(p: AdminProduct): Record<CsvColumn, string> {
     description: p.description,
     care_instructions: p.care_instructions,
     dimensions: p.dimensions,
+    how_we_make_it: p.how_we_make_it,
     variants: p.variants.length ? JSON.stringify(p.variants) : "",
   };
 }
@@ -184,6 +186,7 @@ export function validateRows(
       description: (get(row, "description") ?? "").trim(),
       care_instructions: (get(row, "care_instructions") ?? "").trim(),
       dimensions: (get(row, "dimensions") ?? "").trim(),
+      how_we_make_it: (get(row, "how_we_make_it") ?? "").trim(),
       seo_title: (get(row, "seo_title") ?? "").trim(),
       seo_description: (get(row, "seo_description") ?? "").trim(),
       categories: list(get(row, "categories")),
