@@ -158,6 +158,67 @@ function Shop() {
   );
 }
 
+function ColourFilter({
+  products,
+  activeCategory,
+  activeColour,
+}: {
+  products: Array<{ colour?: string }>;
+  activeCategory?: string;
+  activeColour?: string;
+}) {
+  const colours = useMemo(() => {
+    const map = new Map<string, { label: string; count: number }>();
+    for (const p of products) {
+      const label = (p.colour ?? "").trim();
+      if (!label) continue;
+      const key = label.toLowerCase();
+      const entry = map.get(key);
+      if (entry) entry.count += 1;
+      else map.set(key, { label, count: 1 });
+    }
+    return [...map.values()].sort((a, b) => a.label.localeCompare(b.label));
+  }, [products]);
+
+  if (colours.length === 0) return null;
+
+  return (
+    <nav aria-label="Colours" className="mt-10 text-sm">
+      <p className="eyebrow text-foreground/60 mb-4">Colour</p>
+      <ul>
+        <li className="border-b border-border/50">
+          <Link
+            to="/shop"
+            search={{ category: activeCategory }}
+            className={`block py-2 ${
+              !activeColour ? "text-foreground font-medium" : "text-foreground/70 hover:text-foreground"
+            }`}
+          >
+            All colours
+          </Link>
+        </li>
+        {colours.map((c) => {
+          const isActive = (activeColour ?? "").toLowerCase() === c.label.toLowerCase();
+          return (
+            <li key={c.label} className="border-b border-border/50">
+              <Link
+                to="/shop"
+                search={{ category: activeCategory, colour: c.label }}
+                className={`block py-2 ${
+                  isActive ? "text-foreground font-medium" : "text-foreground/70 hover:text-foreground"
+                }`}
+              >
+                {c.label}
+                <span className="ml-2 text-foreground/40 tabular-nums text-xs">{c.count}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  );
+}
+
 function CategoryHierarchy({
   activeSlug,
   activeColour,
@@ -296,7 +357,7 @@ function CategoryHierarchy({
             <li key={c.slug} className="border-b border-border/50">
               <Link
                 to="/shop"
-                search={{ category: c.slug }}
+                search={{ category: c.slug, colour: activeColour }}
                 className={`block py-2.5 ${
                   isActive
                     ? "text-foreground font-medium"
