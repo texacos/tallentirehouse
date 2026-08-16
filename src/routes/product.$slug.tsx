@@ -271,7 +271,6 @@ function ProductPage() {
                         } ${vOOS ? "opacity-60" : ""}`}
                       >
                         <span className="font-medium">{v.size}</span>
-                        <span className="ml-1 opacity-70">· {label}</span>
                         <span className="ml-2 text-[10px] opacity-70">
                           {vOOS ? "· out" : `· ${v.stock} left`}
                         </span>
