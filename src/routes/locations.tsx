@@ -85,8 +85,8 @@ function Locations() {
                   src={mapEmbedSrc(p)}
                   title={p.mapTitle}
                   loading="lazy"
-                  referrerPolicy="no-referrer"
-                  sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
+                  referrerPolicy="origin-when-cross-origin"
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
                   className="block h-[320px] w-full border-0"
                 />
               </div>
