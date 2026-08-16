@@ -130,7 +130,7 @@ export function SearchBox() {
         aria-controls={listId}
         aria-autocomplete="list"
         aria-activedescendant={active >= 0 ? `${listId}-opt-${active}` : undefined}
-        className="w-full border-b border-border bg-transparent py-1.5 pl-1 pr-8 text-[13px] tracking-[0.04em] text-foreground placeholder:text-foreground/40 outline-none transition-colors focus:border-foreground"
+        className="w-full border-b border-transparent bg-transparent py-1.5 pl-1 pr-8 text-[13px] tracking-[0.04em] text-foreground placeholder:text-foreground/40 outline-none transition-colors focus:border-border"
       />
       <button
         type="submit"
