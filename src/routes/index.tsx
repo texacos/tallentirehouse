@@ -108,7 +108,7 @@ function Index() {
             >
               <span className="font-display text-xl leading-tight">{c.label}</span>
               <span className="eyebrow text-foreground/60 group-hover:text-clay text-[10px]">
-                {c.count} pieces
+                {c.count} {c.count === 1 ? "product" : "products"}
               </span>
             </Link>
           ))}
