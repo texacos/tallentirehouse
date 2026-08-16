@@ -291,6 +291,15 @@ export function ProductEditor({
               onChange={(e) => patch({ collection: e.target.value })}
             />
           </Field>
+          <Field label="Colour" htmlFor="p-colour">
+            <Input
+              id="p-colour"
+              value={values.colour ?? ""}
+              maxLength={60}
+              placeholder="e.g. Misty Rose"
+              onChange={(e) => patch({ colour: e.target.value })}
+            />
+          </Field>
           <Field label="Supplier" htmlFor="p-supplier">
             <Input
               id="p-supplier"
