@@ -460,7 +460,15 @@ function AdminProductsPage() {
         <FiltersBar
           filters={filters}
           onChange={patchFilters}
-          facets={meta.data?.facets ?? { brands: [], collections: [], suppliers: [], tags: [] }}
+          facets={
+            meta.data?.facets ?? {
+              brands: [],
+              collections: [],
+              colours: [],
+              suppliers: [],
+              tags: [],
+            }
+          }
           categories={meta.data?.categories ?? []}
           savedFilters={savedFilters}
           onSaveFilter={(name) => {

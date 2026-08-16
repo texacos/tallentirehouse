@@ -21,7 +21,7 @@ export const fetchAllProducts = createServerFn({ method: "GET" }).handler(
     const { data, error } = await supabase
       .from("products")
       .select(
-        "slug,name,sku,price,weight_kg,description,care_instructions,dimensions,how_we_make_it,categories,images,variants,stock,created_at",
+        "slug,name,sku,price,weight_kg,colour,description,care_instructions,dimensions,how_we_make_it,categories,images,variants,stock,created_at",
       )
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
@@ -31,6 +31,7 @@ export const fetchAllProducts = createServerFn({ method: "GET" }).handler(
       sku: (row.sku as string | null) ?? "",
       price: Number(row.price ?? 0),
       weight_kg: Number(row.weight_kg ?? 0.5),
+      colour: (row.colour as string | null) ?? "",
       description: (row.description as string | null) ?? "",
       care_instructions: (row.care_instructions as string | null) ?? "",
       dimensions: (row.dimensions as string | null) ?? "",

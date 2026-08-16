@@ -50,6 +50,7 @@ export const adminProductSchema = z.object({
   brand: z.string().trim().max(80).default(""),
   supplier: z.string().trim().max(80).default(""),
   collection: z.string().trim().max(80).default(""),
+  colour: z.string().trim().max(60).default(""),
   tags: z.array(z.string().trim().min(1).max(40)).max(50).default([]),
   price: z.coerce.number().min(0, "Price must be 0 or more").max(1_000_000),
   sale_price: z.coerce.number().min(0).max(1_000_000).nullable().default(null),
@@ -108,6 +109,7 @@ export const listFiltersSchema = z.object({
   categories: z.array(z.string().max(80)).max(40).default([]),
   brands: z.array(z.string().max(80)).max(40).default([]),
   collections: z.array(z.string().max(80)).max(40).default([]),
+  colours: z.array(z.string().max(60)).max(60).default([]),
   suppliers: z.array(z.string().max(80)).max(40).default([]),
   tags: z.array(z.string().max(40)).max(40).default([]),
   stockStatus: z.enum(["any", "in", "low", "out"]).default("any"),
@@ -254,6 +256,7 @@ export type ProductStats = {
 export type ProductFacets = {
   brands: string[];
   collections: string[];
+  colours: string[];
   suppliers: string[];
   tags: string[];
 };
