@@ -179,6 +179,10 @@ export function ProductEditor({
           <Button onClick={() => void commit()} disabled={save.isPending}>
             {save.isPending ? <Loader2 className="animate-spin" /> : <Save />} Save
           </Button>
+          <Button variant="outline" onClick={() => void preview()} disabled={save.isPending}>
+            <ExternalLink /> Preview
+          </Button>
+
           <Button variant="ghost" size="icon" aria-label="Close editor" onClick={attemptClose}>
             <X />
           </Button>
