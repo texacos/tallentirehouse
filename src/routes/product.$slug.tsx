@@ -256,7 +256,6 @@ function ProductPage() {
                 <p className="eyebrow text-foreground/60 mb-3">Size</p>
                 <div className="flex flex-wrap gap-2">
                   {product.variants.map((v) => {
-                    const label = SIZE_OPTIONS.find((s) => s.value === v.size)?.label ?? v.size;
                     const active = selectedSize === v.size;
                     const vOOS = (v.stock ?? 0) <= 0;
                     return (
