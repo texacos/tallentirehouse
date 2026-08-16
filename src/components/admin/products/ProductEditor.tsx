@@ -314,16 +314,62 @@ export function ProductEditor({
               }
             />
           </Field>
-          <div className="md:col-span-2">
-            <Field label="Description" error={errors.description} htmlFor="p-desc">
-              <Textarea
-                id="p-desc"
-                rows={6}
-                maxLength={8000}
-                value={values.description ?? ""}
-                onChange={(e) => patch({ description: e.target.value })}
-              />
-            </Field>
+          <div className="md:col-span-2 space-y-2">
+            <Label>Description</Label>
+            <Tabs defaultValue="desc">
+              <TabsList className="flex flex-wrap">
+                <TabsTrigger value="desc">Description</TabsTrigger>
+                <TabsTrigger value="care">Care instructions</TabsTrigger>
+                <TabsTrigger value="dims">Size &amp; dimensions</TabsTrigger>
+              </TabsList>
+              <TabsContent value="desc" className="pt-3">
+                <Field
+                  label="Product description"
+                  error={errors.description}
+                  htmlFor="p-desc"
+                >
+                  <Textarea
+                    id="p-desc"
+                    rows={6}
+                    maxLength={8000}
+                    value={values.description ?? ""}
+                    onChange={(e) => patch({ description: e.target.value })}
+                  />
+                </Field>
+              </TabsContent>
+              <TabsContent value="care" className="pt-3">
+                <Field
+                  label="Care instructions"
+                  hint="Washing, drying and general care guidance"
+                  error={errors.care_instructions}
+                  htmlFor="p-care"
+                >
+                  <Textarea
+                    id="p-care"
+                    rows={6}
+                    maxLength={8000}
+                    value={values.care_instructions ?? ""}
+                    onChange={(e) => patch({ care_instructions: e.target.value })}
+                  />
+                </Field>
+              </TabsContent>
+              <TabsContent value="dims" className="pt-3">
+                <Field
+                  label="Size & dimensions"
+                  hint="Measurements, fit and materials"
+                  error={errors.dimensions}
+                  htmlFor="p-dims"
+                >
+                  <Textarea
+                    id="p-dims"
+                    rows={6}
+                    maxLength={8000}
+                    value={values.dimensions ?? ""}
+                    onChange={(e) => patch({ dimensions: e.target.value })}
+                  />
+                </Field>
+              </TabsContent>
+            </Tabs>
           </div>
           <div className="md:col-span-2">
             <Field
