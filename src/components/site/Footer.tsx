@@ -7,7 +7,7 @@ export function Footer() {
         <div className="md:col-span-2 max-w-md">
           <div className="font-display text-3xl">Tallentire House</div>
           <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-            A sustainable luxury homeware brand. We commission slow-craft pieces from
+            A sustainable luxury textile & homeware brand. We commission slow-craft pieces from
             small workshops and bring them home to the people who will love them for years.
           </p>
         </div>
