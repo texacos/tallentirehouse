@@ -1,0 +1,11 @@
+CREATE SCHEMA IF NOT EXISTS extensions;
+DROP INDEX IF EXISTS public.products_name_trgm_idx;
+DROP INDEX IF EXISTS public.products_description_trgm_idx;
+DROP INDEX IF EXISTS public.products_sku_trgm_idx;
+DROP INDEX IF EXISTS public.products_colour_trgm_idx;
+DROP EXTENSION IF EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA extensions;
+CREATE INDEX IF NOT EXISTS products_name_trgm_idx ON public.products USING gin (name extensions.gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS products_description_trgm_idx ON public.products USING gin (description extensions.gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS products_sku_trgm_idx ON public.products USING gin (sku extensions.gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS products_colour_trgm_idx ON public.products USING gin (colour extensions.gin_trgm_ops);
