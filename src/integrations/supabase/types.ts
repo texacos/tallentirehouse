@@ -232,6 +232,7 @@ export type Database = {
           care_instructions: string
           categories: string[]
           collection: string
+          colour: string
           cost_price: number | null
           created_at: string
           description: string
@@ -267,6 +268,7 @@ export type Database = {
           care_instructions?: string
           categories?: string[]
           collection?: string
+          colour?: string
           cost_price?: number | null
           created_at?: string
           description?: string
@@ -302,6 +304,7 @@ export type Database = {
           care_instructions?: string
           categories?: string[]
           collection?: string
+          colour?: string
           cost_price?: number | null
           created_at?: string
           description?: string
