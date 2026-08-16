@@ -24,8 +24,8 @@ export const Route = createFileRoute("/locations")({
 type Place = {
   name: string;
   lines: string[];
-  lat: number;
-  lng: number;
+  /** Exact search query Google resolves to the real place. */
+  query: string;
   mapTitle: string;
 };
 
@@ -33,27 +33,26 @@ const PLACES: Place[] = [
   {
     name: "The Studio",
     lines: ["Mihiripenna", "Meegahawaththa Rd,", "Unawatuna 80600", "Sri Lanka"],
-    lat: 6.0281,
-    lng: 80.2625,
+    query: "Tallentire House, Meegahawaththa Rd, Mihiripenna, Unawatuna 80600, Sri Lanka",
     mapTitle: "Map showing the Tallentire House studio in Unawatuna, Sri Lanka",
   },
   {
     name: "The Shop",
     lines: ["10 Leyn Baan Street", "Galle Fort", "Galle 80000", "Sri Lanka"],
-    lat: 6.0258,
-    lng: 80.2160,
+    query: "Tallentire House, 10 Leyn Baan Street, Galle Fort, Galle 80000, Sri Lanka",
     mapTitle: "Map showing the Tallentire House shop in Galle Fort, Sri Lanka",
   },
 ];
 
 function mapEmbedSrc(p: Place) {
   // Keyless Google Maps embed — no API key is exposed to the browser.
-  return `https://www.google.com/maps?q=${p.lat},${p.lng}&z=16&hl=en&output=embed`;
+  return `https://maps.google.com/maps?q=${encodeURIComponent(p.query)}&z=17&hl=en&output=embed`;
 }
 
 function mapLink(p: Place) {
-  return `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.query)}`;
 }
+
 
 function Locations() {
   return (
@@ -86,8 +85,8 @@ function Locations() {
                   src={mapEmbedSrc(p)}
                   title={p.mapTitle}
                   loading="lazy"
-                  referrerPolicy="no-referrer"
-                  sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
+                  referrerPolicy="origin-when-cross-origin"
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
                   className="block h-[320px] w-full border-0"
                 />
               </div>
