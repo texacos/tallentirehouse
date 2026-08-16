@@ -54,6 +54,7 @@ const UNGROUPED_CATEGORIES = CATEGORIES.filter((c) => !GROUPED_LEAVES.has(c.slug
 
 function Shop() {
   const { category, colour, page = 1 } = Route.useSearch();
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const allProductsRaw = useProducts();
   const { hideOutOfStock } = useSiteSettings();
 
