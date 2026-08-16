@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { getCategoryLabel, totalStock } from "@/lib/products";
+import { CATEGORY_GROUPS, totalStock } from "@/lib/products";
 import { productsQueryOptions, useProducts } from "@/lib/products-store";
 import { heroConfigQueryOptions, useHeroConfig } from "@/lib/hero-client";
 import { HeroSlider } from "@/components/site/HeroSlider";
@@ -30,18 +30,18 @@ function Index() {
   const products = useProducts();
   const heroConfig = useHeroConfig();
   const featured = products.slice(0, 8);
-  const stockByCategory = new Map<string, number>();
-  for (const p of products) {
-    const units = totalStock(p);
-    if (units <= 0) continue;
-    for (const c of p.categories) {
-      stockByCategory.set(c, (stockByCategory.get(c) ?? 0) + units);
-    }
-  }
-  const topCategories = [...stockByCategory.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 8)
-    .map(([slug, count]) => ({ slug, label: getCategoryLabel(slug), count }));
+  // Count in-stock PRODUCTS (not units) per category group.
+  const topCategories = CATEGORY_GROUPS.map((g) => {
+    const children = new Set(g.children);
+    const count = products.filter(
+      (p) => totalStock(p) > 0 && p.categories.some((c) => children.has(c)),
+    ).length;
+    return { slug: g.slug, label: g.label, count };
+  })
+    .filter((g) => g.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
+
   const ceramicsPick =
     products.find((p) => p.categories.includes("cups") || p.categories.includes("bowls")) ??
     products[1] ??
@@ -108,7 +108,7 @@ function Index() {
             >
               <span className="font-display text-xl leading-tight">{c.label}</span>
               <span className="eyebrow text-foreground/60 group-hover:text-clay text-[10px]">
-                {c.count} pieces
+                {c.count} {c.count === 1 ? "product" : "products"}
               </span>
             </Link>
           ))}
