@@ -5,7 +5,9 @@ import type { Product } from "./products";
 export const productsQueryOptions = queryOptions({
   queryKey: ["products"],
   queryFn: () => fetchAllProducts(),
-  staleTime: 30_000,
+  staleTime: 5_000,
+  refetchOnWindowFocus: true,
+  refetchOnMount: "always",
 });
 
 /** Suspense-friendly — use inside route components that prefetch in the loader. */
