@@ -165,12 +165,24 @@ export const adminBulkAction = createServerFn({ method: "POST" })
         }
         const { error: delErr } = await db.from("products").delete().in("id", data.ids);
         if (delErr) throw new Error("Could not delete the selected products");
+
+        // Purge stored image folders (master + derivatives) for the deleted
+        // products, keeping any image still referenced by a surviving product.
+        const { purgeManagedImages } = await import("./product-images.server");
+        const { data: remaining } = await db.from("products").select("images");
+        const keep = (remaining ?? []).flatMap((r: { images: string[] | null }) => r.images ?? []);
+        const purged = await purgeManagedImages(
+          db,
+          products.flatMap((p) => p.images ?? []),
+          keep,
+        );
+
         await writeAudit(db, {
           actorId: context.userId,
           actorLabel: label,
           action: "product.delete",
           summary: describeBulk(data.action, products.length),
-          details: { slugs: products.map((p) => p.slug) },
+          details: { slugs: products.map((p) => p.slug), imagesPurged: purged.length },
         });
         return { affected: products.length, undo: [], deleted: products };
       }

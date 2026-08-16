@@ -3,6 +3,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { decodeBase64, inspectImage } from "./hero.server";
 import {
+  managedImageId,
   MAX_PRODUCT_IMAGE_BYTES,
   PRODUCT_IMAGE_BUCKET,
   PRODUCT_IMAGE_SIZE,
@@ -111,4 +112,32 @@ export async function removeProductImage(db: Db, imageId: string): Promise<void>
     for (const entry of data ?? []) paths.push(`${safe}/${folder}/${entry.name}`);
   }
   if (paths.length) await db.storage.from(PRODUCT_IMAGE_BUCKET).remove(paths);
+}
+
+/**
+ * Deletes every managed image folder referenced by `urls`, skipping ids that
+ * are still referenced by another product (`keepUrls`). Legacy/static URLs are
+ * ignored. Never throws — image cleanup must not fail a product deletion.
+ */
+export async function purgeManagedImages(
+  db: Db,
+  urls: string[],
+  keepUrls: string[] = [],
+): Promise<string[]> {
+  const keep = new Set(
+    keepUrls.map((u) => managedImageId(u)).filter((id): id is string => Boolean(id)),
+  );
+  const targets = new Set(
+    urls.map((u) => managedImageId(u)).filter((id): id is string => Boolean(id) && !keep.has(id!)),
+  );
+  const removed: string[] = [];
+  for (const id of targets) {
+    try {
+      await removeProductImage(db, id);
+      removed.push(id);
+    } catch {
+      // ignore: orphaned objects are cleaned up separately
+    }
+  }
+  return removed;
 }

@@ -185,12 +185,17 @@ function AdminProductsPage() {
       if (action.type === "delete" && res.deleted.length) {
         const deleted = res.deleted;
         toast.success(`Deleted ${deleted.length} products`, {
+          description: "Their uploaded images were permanently removed too.",
           action: {
             label: "Undo",
             onClick: () => {
               restore
                 .mutateAsync(deleted)
-                .then(() => toast.success("Products restored"))
+                .then(() =>
+                  toast.success("Products restored", {
+                    description: "Images were deleted and need re-uploading.",
+                  }),
+                )
                 .catch(() => toast.error("Could not restore the products"));
             },
           },
