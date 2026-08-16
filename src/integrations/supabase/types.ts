@@ -236,6 +236,7 @@ export type Database = {
           created_at: string
           description: string
           dimensions: string
+          how_we_make_it: string
           id: string
           image_alts: string[]
           images: string[]
@@ -270,6 +271,7 @@ export type Database = {
           created_at?: string
           description?: string
           dimensions?: string
+          how_we_make_it?: string
           id?: string
           image_alts?: string[]
           images?: string[]
@@ -304,6 +306,7 @@ export type Database = {
           created_at?: string
           description?: string
           dimensions?: string
+          how_we_make_it?: string
           id?: string
           image_alts?: string[]
           images?: string[]
