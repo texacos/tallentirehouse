@@ -20,7 +20,9 @@ export const fetchAllProducts = createServerFn({ method: "GET" }).handler(
     );
     const { data, error } = await supabase
       .from("products")
-      .select("slug,name,sku,price,weight_kg,description,categories,images,variants,stock,created_at")
+      .select(
+        "slug,name,sku,price,weight_kg,description,care_instructions,dimensions,categories,images,variants,stock,created_at",
+      )
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return (data ?? []).map((row: Record<string, unknown>) => ({

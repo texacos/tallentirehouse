@@ -32,6 +32,8 @@ export const CSV_COLUMNS = [
   "seo_title",
   "seo_description",
   "description",
+  "care_instructions",
+  "dimensions",
   "variants",
 ] as const;
 
@@ -64,6 +66,8 @@ export function productToCsvRow(p: AdminProduct): Record<CsvColumn, string> {
     seo_title: p.seo_title,
     seo_description: p.seo_description,
     description: p.description,
+    care_instructions: p.care_instructions,
+    dimensions: p.dimensions,
     variants: p.variants.length ? JSON.stringify(p.variants) : "",
   };
 }
@@ -178,6 +182,8 @@ export function validateRows(
       backorders: bool(get(row, "backorders"), false),
       location: (get(row, "location") ?? "").trim(),
       description: (get(row, "description") ?? "").trim(),
+      care_instructions: (get(row, "care_instructions") ?? "").trim(),
+      dimensions: (get(row, "dimensions") ?? "").trim(),
       seo_title: (get(row, "seo_title") ?? "").trim(),
       seo_description: (get(row, "seo_description") ?? "").trim(),
       categories: list(get(row, "categories")),
