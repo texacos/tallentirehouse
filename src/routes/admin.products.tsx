@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { Plus, Columns3, History, Loader2, Command as CommandIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Popover,
@@ -13,11 +12,7 @@ import {
 } from "@/components/ui/popover";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useAuth } from "@/lib/auth";
-import {
-  useSiteSettings,
-  useUpdateSiteSetting,
-  DEFAULT_SHIPPING_NOTE,
-} from "@/lib/site-settings";
+import { useSiteSettings, useUpdateSiteSetting } from "@/lib/site-settings";
 import {
   COLUMNS,
   DEFAULT_COLUMNS,
@@ -98,10 +93,8 @@ function AdminProductsPage() {
   const saveProduct = useSaveProduct();
   const exporter = useExportProducts();
   const audit = useAuditLog(enabled && showAudit);
-  const { hideOutOfStock, productShippingNote } = useSiteSettings();
+  const { hideOutOfStock } = useSiteSettings();
   const updateSetting = useUpdateSiteSetting();
-  const [noteDraft, setNoteDraft] = useState(productShippingNote);
-  useEffect(() => setNoteDraft(productShippingNote), [productShippingNote]);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/login" });
