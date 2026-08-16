@@ -23,7 +23,7 @@ export function loose(client: unknown): Db {
 }
 
 export const PRODUCT_COLUMNS =
-  "id,slug,name,sku,barcode,brand,supplier,collection,tags,price,sale_price,cost_price,weight_kg,stock,total_stock,reorder_level,track_inventory,backorders,location,description,care_instructions,dimensions,how_we_make_it,seo_title,seo_description,categories,images,image_alts,variants,status,published_at,created_at,updated_at";
+  "id,slug,name,sku,barcode,brand,supplier,collection,colour,tags,price,sale_price,cost_price,weight_kg,stock,total_stock,reorder_level,track_inventory,backorders,location,description,care_instructions,dimensions,how_we_make_it,seo_title,seo_description,categories,images,image_alts,variants,status,published_at,created_at,updated_at";
 
 /** Throws when the caller is not an admin. Never trust the client. */
 export async function assertAdmin(supabase: Db, userId: string): Promise<void> {
@@ -83,6 +83,7 @@ export function mapRow(row: Record<string, unknown>): AdminProduct {
     brand: str(row["brand"]),
     supplier: str(row["supplier"]),
     collection: str(row["collection"]),
+    colour: str(row["colour"]),
     tags: Array.isArray(row["tags"]) ? (row["tags"] as string[]) : [],
     price: num(row["price"]),
     sale_price: row["sale_price"] == null ? null : num(row["sale_price"]),
@@ -126,6 +127,7 @@ export function toRow(values: AdminProductValues): Record<string, unknown> {
     brand: values.brand,
     supplier: values.supplier,
     collection: values.collection,
+    colour: values.colour,
     tags: values.tags,
     price: values.price,
     sale_price: values.sale_price,
@@ -173,6 +175,7 @@ export async function queryProducts(
   if (f.tags.length) q = q.overlaps("tags", f.tags);
   if (f.brands.length) q = q.in("brand", f.brands);
   if (f.collections.length) q = q.in("collection", f.collections);
+  if (f.colours.length) q = q.in("colour", f.colours);
   if (f.suppliers.length) q = q.in("supplier", f.suppliers);
   if (f.priceMin != null) q = q.gte("price", f.priceMin);
   if (f.priceMax != null) q = q.lte("price", f.priceMax);
@@ -197,6 +200,7 @@ export async function queryProducts(
         `barcode.ilike.${like}`,
         `brand.ilike.${like}`,
         `collection.ilike.${like}`,
+        `colour.ilike.${like}`,
         `supplier.ilike.${like}`,
         `description.ilike.${like}`,
       ].join(","),
@@ -223,7 +227,7 @@ export async function computeMeta(
   const { data, error } = await supabase
     .from("products")
     .select(
-      "slug,name,status,price,cost_price,total_stock,reorder_level,brand,collection,supplier,tags,categories,created_at,updated_at",
+      "slug,name,status,price,cost_price,total_stock,reorder_level,brand,collection,colour,supplier,tags,categories,created_at,updated_at",
     );
   if (error) {
     console.error("[admin-products] meta failed", error);
@@ -232,6 +236,7 @@ export async function computeMeta(
   const rows = (data ?? []) as Array<Record<string, unknown>>;
   const brands = new Set<string>();
   const collections = new Set<string>();
+  const colours = new Set<string>();
   const suppliers = new Set<string>();
   const tags = new Set<string>();
   const categories = new Set<string>();
@@ -259,6 +264,7 @@ export async function computeMeta(
     priceSum += price;
     if (r["brand"]) brands.add(String(r["brand"]));
     if (r["collection"]) collections.add(String(r["collection"]));
+    if (r["colour"]) colours.add(String(r["colour"]));
     if (r["supplier"]) suppliers.add(String(r["supplier"]));
     for (const t of (r["tags"] as string[] | null) ?? []) tags.add(t);
     for (const c of (r["categories"] as string[] | null) ?? []) categories.add(c);
@@ -295,6 +301,7 @@ export async function computeMeta(
     facets: {
       brands: [...brands].sort(),
       collections: [...collections].sort(),
+      colours: [...colours].sort(),
       suppliers: [...suppliers].sort(),
       tags: [...tags].sort(),
     },

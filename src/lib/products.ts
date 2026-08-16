@@ -16,6 +16,7 @@ export type Product = {
   price: number; // USD — base price (used when variants is empty)
   weight_kg: number; // shipping weight in kg
   description: string;
+  colour: string;
   care_instructions: string;
   dimensions: string;
   how_we_make_it: string;
