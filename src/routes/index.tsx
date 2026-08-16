@@ -85,7 +85,7 @@ function Index() {
               </div>
             </div>
           </div>
-          <div className="lg:col-span-7 order-1 lg:order-2">
+          <div className="lg:col-span-7 order-1 lg:order-2 lg:self-center">
             <HeroSlider
               config={heroConfig}
               fallbackImage={heroInterior.url}
