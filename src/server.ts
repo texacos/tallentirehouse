@@ -79,6 +79,7 @@ const SECURITY_HEADERS: Record<string, string> = {
     "style-src 'self' 'unsafe-inline' https:",
     "font-src 'self' data: https:",
     "connect-src 'self' https: wss:",
+    "frame-src 'self' https://www.google.com https://www.google.com/maps https://*.google.com",
     "frame-ancestors 'self' https://lovable.dev https://*.lovable.app https://*.lovableproject.com",
     "base-uri 'self'",
     "form-action 'self'",
