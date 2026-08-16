@@ -32,6 +32,8 @@ export const fetchAllProducts = createServerFn({ method: "GET" }).handler(
       price: Number(row.price ?? 0),
       weight_kg: Number(row.weight_kg ?? 0.5),
       description: (row.description as string | null) ?? "",
+      care_instructions: (row.care_instructions as string | null) ?? "",
+      dimensions: (row.dimensions as string | null) ?? "",
       categories: ((row.categories as string[] | null) ?? []) as string[],
       images: ((row.images as string[] | null) ?? []) as string[],
       variants: (Array.isArray(row.variants) ? row.variants : []) as ProductVariant[],
