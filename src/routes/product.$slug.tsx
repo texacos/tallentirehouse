@@ -9,6 +9,7 @@ import {
   isVariable,
   displayPrice,
   isOutOfStock,
+  type Product,
 } from "@/lib/products";
 import { productsQueryOptions, useProduct, useProducts } from "@/lib/products-store";
 import { useCart } from "@/lib/cart";
@@ -31,6 +32,93 @@ export const Route = createFileRoute("/product/$slug")({
 });
 
 const emailSchema = z.string().trim().toLowerCase().email();
+
+function ProductInfoTabs({ product }: { product: Product }) {
+  const sections = [
+    { id: "description", label: "DESCRIPTION", content: product.description },
+    { id: "care", label: "CARE", content: product.care_instructions },
+    { id: "dimensions", label: "SIZE & WEIGHT", content: product.dimensions },
+    { id: "how", label: "HOW WE MAKE IT", content: product.how_we_make_it },
+  ].filter((s) => s.content?.trim());
+
+  const [openMobile, setOpenMobile] = useState<string[]>(["description"]);
+
+  const toggleMobile = (id: string) => {
+    setOpenMobile((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
+
+  return (
+    <>
+      {/* Desktop / tablet: traditional tab bar */}
+      <div className="hidden sm:block">
+        <Tabs defaultValue="description">
+          <TabsList className="flex flex-wrap">
+            <TabsTrigger value="description">DESCRIPTION</TabsTrigger>
+            {product.care_instructions?.trim() && (
+              <TabsTrigger value="care">CARE</TabsTrigger>
+            )}
+            {product.dimensions?.trim() && (
+              <TabsTrigger value="dimensions">SIZE &amp; WEIGHT</TabsTrigger>
+            )}
+            {product.how_we_make_it?.trim() && (
+              <TabsTrigger value="how">HOW WE MAKE IT</TabsTrigger>
+            )}
+          </TabsList>
+          <TabsContent
+            value="description"
+            className="pt-4 text-sm leading-relaxed text-foreground/85 whitespace-pre-line"
+          >
+            {product.description}
+          </TabsContent>
+          <TabsContent
+            value="care"
+            className="pt-4 text-sm leading-relaxed text-foreground/85 whitespace-pre-line"
+          >
+            {product.care_instructions}
+          </TabsContent>
+          <TabsContent
+            value="dimensions"
+            className="pt-4 text-sm leading-relaxed text-foreground/85 whitespace-pre-line"
+          >
+            {product.dimensions}
+          </TabsContent>
+          <TabsContent
+            value="how"
+            className="pt-4 text-sm leading-relaxed text-foreground/85 whitespace-pre-line"
+          >
+            {product.how_we_make_it}
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      {/* Mobile: accordion with DESCRIPTION open by default */}
+      <div className="sm:hidden divide-y divide-border border-t border-border">
+        {sections.map((section) => {
+          const isOpen = openMobile.includes(section.id);
+          return (
+            <div key={section.id}>
+              <button
+                onClick={() => toggleMobile(section.id)}
+                className="flex w-full items-center justify-between py-3.5 text-left text-xs uppercase tracking-[0.22em]"
+                aria-expanded={isOpen}
+              >
+                <span>{section.label}</span>
+                {isOpen ? <Minus size={14} /> : <Plus size={14} />}
+              </button>
+              {isOpen && (
+                <div className="pb-4 text-sm leading-relaxed text-foreground/85 whitespace-pre-line">
+                  {section.content}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+}
 
 function ProductPage() {
   const { slug } = Route.useParams();
@@ -202,44 +290,7 @@ function ProductPage() {
 
             <div className="my-8 rule" />
 
-            <Tabs defaultValue="description">
-              <TabsList className="flex flex-wrap">
-                <TabsTrigger value="description">DESCRIPTION</TabsTrigger>
-                {product.care_instructions?.trim() && (
-                  <TabsTrigger value="care">CARE</TabsTrigger>
-                )}
-                {product.dimensions?.trim() && (
-                  <TabsTrigger value="dimensions">SIZE &amp; WEIGHT</TabsTrigger>
-                )}
-                {product.how_we_make_it?.trim() && (
-                  <TabsTrigger value="how">HOW WE MAKE IT</TabsTrigger>
-                )}
-              </TabsList>
-              <TabsContent
-                value="description"
-                className="pt-4 text-sm leading-relaxed text-foreground/85 whitespace-pre-line"
-              >
-                {product.description}
-              </TabsContent>
-              <TabsContent
-                value="care"
-                className="pt-4 text-sm leading-relaxed text-foreground/85 whitespace-pre-line"
-              >
-                {product.care_instructions}
-              </TabsContent>
-              <TabsContent
-                value="dimensions"
-                className="pt-4 text-sm leading-relaxed text-foreground/85 whitespace-pre-line"
-              >
-                {product.dimensions}
-              </TabsContent>
-              <TabsContent
-                value="how"
-                className="pt-4 text-sm leading-relaxed text-foreground/85 whitespace-pre-line"
-              >
-                {product.how_we_make_it}
-              </TabsContent>
-            </Tabs>
+            <ProductInfoTabs product={product} />
 
             {variable && (
               <div className="mt-8">
