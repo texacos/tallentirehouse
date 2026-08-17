@@ -9,6 +9,7 @@ import {
   isVariable,
   displayPrice,
   isOutOfStock,
+  type Product,
 } from "@/lib/products";
 import { productsQueryOptions, useProduct, useProducts } from "@/lib/products-store";
 import { useCart } from "@/lib/cart";
@@ -202,44 +203,7 @@ function ProductPage() {
 
             <div className="my-8 rule" />
 
-            <Tabs defaultValue="description">
-              <TabsList className="flex flex-wrap">
-                <TabsTrigger value="description">DESCRIPTION</TabsTrigger>
-                {product.care_instructions?.trim() && (
-                  <TabsTrigger value="care">CARE</TabsTrigger>
-                )}
-                {product.dimensions?.trim() && (
-                  <TabsTrigger value="dimensions">SIZE &amp; WEIGHT</TabsTrigger>
-                )}
-                {product.how_we_make_it?.trim() && (
-                  <TabsTrigger value="how">HOW WE MAKE IT</TabsTrigger>
-                )}
-              </TabsList>
-              <TabsContent
-                value="description"
-                className="pt-4 text-sm leading-relaxed text-foreground/85 whitespace-pre-line"
-              >
-                {product.description}
-              </TabsContent>
-              <TabsContent
-                value="care"
-                className="pt-4 text-sm leading-relaxed text-foreground/85 whitespace-pre-line"
-              >
-                {product.care_instructions}
-              </TabsContent>
-              <TabsContent
-                value="dimensions"
-                className="pt-4 text-sm leading-relaxed text-foreground/85 whitespace-pre-line"
-              >
-                {product.dimensions}
-              </TabsContent>
-              <TabsContent
-                value="how"
-                className="pt-4 text-sm leading-relaxed text-foreground/85 whitespace-pre-line"
-              >
-                {product.how_we_make_it}
-              </TabsContent>
-            </Tabs>
+            <ProductInfoTabs product={product} />
 
             {variable && (
               <div className="mt-8">
