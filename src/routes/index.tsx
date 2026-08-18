@@ -43,12 +43,12 @@ function Index() {
     .slice(0, 8);
 
   const ceramicsPick =
-    products.find((p) => p.categories.includes("cups") || p.categories.includes("bowls")) ??
+    products.find((p) => p.categories.includes("ceramics-tableware")) ??
     products[1] ??
     products[0];
   const loungingPick =
     products.find(
-      (p) => p.categories.includes("dressing-gowns") || p.categories.includes("camisole-tops"),
+      (p) => p.categories.includes("women") || p.categories.includes("men"),
     ) ??
     products[2] ??
     products[0];
@@ -147,7 +147,7 @@ function Index() {
       {ceramicsPick && loungingPick && (
         <section className="mx-auto max-w-7xl px-6 lg:px-10 py-24">
           <div className="grid lg:grid-cols-2 gap-10">
-            <Link to="/shop" search={{ category: "cups" }} className="group block">
+            <Link to="/shop" search={{ category: "ceramics-tableware" }} className="group block">
               <div className="overflow-hidden bg-muted aspect-[4/5]">
                 <img
                   src={ceramicsPick.images[0]}
@@ -161,7 +161,7 @@ function Index() {
                 <h3 className="font-display text-3xl mt-2">Slow-thrown stoneware</h3>
               </div>
             </Link>
-            <Link to="/shop" search={{ category: "dressing-gowns" }} className="group block">
+            <Link to="/shop" search={{ category: "group-clothing" }} className="group block">
               <div className="overflow-hidden bg-muted aspect-[4/5]">
                 <img
                   src={loungingPick.images[0]}
