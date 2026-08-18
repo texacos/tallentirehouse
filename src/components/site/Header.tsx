@@ -25,32 +25,35 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10">
-        <button
-          aria-label="Menu"
-          className="lg:hidden -ml-2 p-2 text-foreground"
-          onClick={() => setMobileOpen((v) => !v)}
-        >
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+      <div className="mx-auto grid h-20 max-w-7xl grid-cols-3 items-center px-6 lg:px-10">
+        {/* Left column */}
+        <div className="flex items-center justify-start">
+          <button
+            aria-label="Menu"
+            className="lg:hidden -ml-2 p-2 text-foreground"
+            onClick={() => setMobileOpen((v) => !v)}
+          >
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
 
-        <nav className="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.18em] text-foreground/80">
-          {isAdmin && (
-            <>
-              <Link to="/admin/products" className="hover:text-foreground transition-colors text-foreground/50">Admin</Link>
-              <Link to="/admin/hero" className="hover:text-foreground transition-colors text-foreground/50">Hero</Link>
-            </>
-          )}
-        </nav>
+          <nav className="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.18em] text-foreground/80">
+            {isAdmin && (
+              <>
+                <Link to="/admin/products" className="hover:text-foreground transition-colors text-foreground/50">Admin</Link>
+                <Link to="/admin/hero" className="hover:text-foreground transition-colors text-foreground/50">Hero</Link>
+              </>
+            )}
+          </nav>
+        </div>
 
-
-
+        {/* Center column */}
         <Link to="/" className="flex flex-col items-center text-center select-none">
           <span className="font-display text-3xl md:text-4xl tracking-tight text-nowrap">Tallentire House</span>
           <span className="eyebrow text-foreground/60 mt-1">Fabrics for life</span>
         </Link>
 
-        <div className="flex items-center gap-1 md:gap-3">
+        {/* Right column */}
+        <div className="flex items-center justify-end gap-1 md:gap-3">
           <SearchBox />
           {user && (
 
