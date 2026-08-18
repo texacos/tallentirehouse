@@ -79,7 +79,7 @@ export function Header() {
 
       {/* Secondary nav (top-level groups) */}
       <div className="hidden lg:block border-t border-border/40">
-        <div className="mx-auto flex max-w-7xl items-center justify-start gap-8 px-10 py-2 text-[11px] uppercase tracking-[0.22em] text-foreground/70">
+        <div className="mx-auto flex max-w-7xl items-center justify-center gap-8 px-10 py-2 text-[11px] uppercase tracking-[0.22em] text-foreground/70">
           {navGroups.map((g) => (
             <Link
               key={g.slug}
