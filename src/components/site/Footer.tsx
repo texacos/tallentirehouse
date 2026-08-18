@@ -16,9 +16,9 @@ export function Footer() {
           <div className="eyebrow text-foreground/70 mb-4">Shop</div>
           <ul className="space-y-2 text-sm">
             <li><Link to="/shop" className="hover:opacity-70">All pieces</Link></li>
-            <li><Link to="/shop" search={{ category: "group-home" }} className="hover:opacity-70">Cushions</Link></li>
-            <li><Link to="/shop" search={{ category: "group-home" }} className="hover:opacity-70">Ceramics</Link></li>
-            <li><Link to="/shop" search={{ category: "group-home" }} className="hover:opacity-70">Fabrics</Link></li>
+            <li><Link to="/shop" search={{ category: "cushions" }} className="hover:opacity-70">Cushions</Link></li>
+            <li><Link to="/shop" search={{ category: "ceramics-tableware" }} className="hover:opacity-70">Ceramics</Link></li>
+            <li><Link to="/shop" search={{ category: "fabric-by-the-metre" }} className="hover:opacity-70">Fabrics</Link></li>
           </ul>
         </div>
 
