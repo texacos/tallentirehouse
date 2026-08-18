@@ -33,6 +33,11 @@ export const Route = createFileRoute("/product/$slug")({
 
 const emailSchema = z.string().trim().toLowerCase().email();
 
+function stockUnit(product: Product, stock: number): string {
+  const isFabric = product.categories.includes("fabric-by-the-metre");
+  return `${stock}${isFabric ? "m" : ""}`;
+}
+
 function ProductInfoTabs({ product }: { product: Product }) {
   const sections = [
     { id: "description", label: "DESCRIPTION", content: product.description },
