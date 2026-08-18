@@ -272,9 +272,6 @@ function ProductPage() {
               )}
               {formatPrice(variable ? displayPrice(product) : product.price)}
             </div>
-            {!variable && product.sku && (
-              <p className="mt-2 text-xs text-muted-foreground">SKU: {product.sku}</p>
-            )}
 
             {/* Stock indicator (simple products only) */}
             {!variable && (
