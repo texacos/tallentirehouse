@@ -284,7 +284,7 @@ function ProductPage() {
                 {productOutOfStock ? (
                   <span className="text-destructive">Out of stock</span>
                 ) : (
-                  <span className="text-foreground/70">{currentStock} in stock</span>
+                  <span className="text-foreground/70">{stockUnit(product, currentStock)} in stock</span>
                 )}
               </div>
             )}
@@ -314,7 +314,7 @@ function ProductPage() {
                       >
                         <span className="font-medium">{v.size}</span>
                         <span className="ml-2 text-[10px] opacity-70">
-                          {vOOS ? "· out" : `· ${v.stock} left`}
+                          {vOOS ? "· out" : `· ${stockUnit(product, v.stock ?? 0)} left`}
                         </span>
                       </button>
                     );
