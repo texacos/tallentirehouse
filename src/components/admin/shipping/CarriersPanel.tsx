@@ -103,7 +103,17 @@ export function CarriersPanel({ selectedId }: { selectedId?: string }) {
                     {c.free_shipping_threshold == null ? "—" : c.free_shipping_threshold}
                   </td>
                   <td className="px-4 py-3">{c.is_active ? "Active" : "Disabled"}</td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-4 py-3 text-right whitespace-nowrap">
+                    {onSelect && (
+                      <Button
+                        variant={c.id === selectedId ? "secondary" : "outline"}
+                        size="sm"
+                        className="mr-2"
+                        onClick={() => onSelect(c.id)}
+                      >
+                        {c.id === selectedId ? "Selected" : "Select"}
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="icon"
@@ -119,6 +129,7 @@ export function CarriersPanel({ selectedId }: { selectedId?: string }) {
                       <Trash2 size={16} />
                     </Button>
                   </td>
+
                 </tr>
               ))}
             </tbody>
