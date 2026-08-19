@@ -53,10 +53,12 @@ export function CarriersPanel({
     save.mutate(
       { ...draft, code: draft.code.trim().toLowerCase(), name: draft.name.trim() },
       {
-        onSuccess: () => {
+        onSuccess: (saved) => {
           toast.success("Carrier saved.");
           setDraft(null);
+          if (saved?.id) onSelect?.(saved.id);
         },
+
         onError: (e) => toast.error(e.message),
       },
     );
