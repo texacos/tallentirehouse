@@ -8,7 +8,7 @@ import {
   type ContactSubmission,
 } from "./contact-schema";
 
-const CONTACT_TO = "carsten@tallentirehouse.com";
+const CONTACT_TO = "info@tallentirehouse.com";
 const RATE_LIMIT_WINDOW_MINUTES = 60;
 const MAX_PER_IP = 5;
 const MAX_PER_EMAIL = 3;
