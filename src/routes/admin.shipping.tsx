@@ -113,22 +113,24 @@ function ShippingAdmin() {
       </div>
 
       {carriers.length > 0 && (
-        <div className="mt-6 flex flex-wrap items-center gap-2">
-          <span className="text-xs uppercase tracking-[0.16em] text-foreground/70">Carrier</span>
-          {carriers.map((c) => (
-            <Button
-              key={c.id}
-              size="sm"
-              variant={c.id === activeCarrier?.id ? "default" : "outline"}
-              onClick={() => setCarrierId(c.id)}
-            >
-              {c.name}
-            </Button>
-          ))}
-          <span className="text-xs text-muted-foreground">
+        <div className="mt-6 space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs uppercase tracking-[0.16em] text-foreground/70">Carrier</span>
+            {carriers.map((c) => (
+              <Button
+                key={c.id}
+                size="sm"
+                variant={c.id === activeCarrier?.id ? "default" : "outline"}
+                onClick={() => setCarrierId(c.id)}
+              >
+                {c.name}
+              </Button>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">
             Country rules, rate groups, surcharges, messages and CSV import/export below apply
             only to {activeCarrier?.name ?? "the selected carrier"}.
-          </span>
+          </p>
         </div>
       )}
 
