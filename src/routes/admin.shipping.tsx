@@ -135,7 +135,7 @@ function ShippingAdmin() {
 
       <Tabs defaultValue="carriers" className="mt-10">
         <TabsList className="flex h-auto flex-wrap justify-start">
-          <TabsTrigger value="carriers">Carriers</TabsTrigger>
+          <TabsTrigger value="carriers">{activeCarrier?.name ?? "Carriers"}</TabsTrigger>
           <TabsTrigger value="countries">Country rules</TabsTrigger>
           <TabsTrigger value="rates">Rate groups</TabsTrigger>
           <TabsTrigger value="surcharges">Surcharges</TabsTrigger>
