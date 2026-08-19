@@ -67,8 +67,12 @@ export function CarriersPanel({
       {
         onSuccess: (saved) => {
           toast.success("Carrier saved.");
-          setDraft(null);
-          if (saved?.id) onSelect?.(saved.id);
+          if (saved?.id) {
+            loadedFor.current = null;
+            onSelect?.(saved.id);
+          } else {
+            setDraft(null);
+          }
         },
 
         onError: (e) => toast.error(e.message),
