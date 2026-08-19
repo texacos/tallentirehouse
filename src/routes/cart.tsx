@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Minus, Plus, X } from "lucide-react";
+import { AlertTriangle, Minus, Plus, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
@@ -352,6 +352,19 @@ function CartPage() {
                     </label>
                   ))}
                 </div>
+                {rated.some((o) => o.carrierCode === "local-pickup") && (
+                  <div className="mt-3 border border-accent bg-accent/10 p-3 text-sm text-foreground">
+                    <p className="flex items-center gap-2 font-semibold">
+                      <AlertTriangle size={16} className="shrink-0" />
+                      Local Pick-up is in-store collection only
+                    </p>
+                    <p className="mt-1">
+                      Orders placed with Local Pick-up must be collected from our shop at{" "}
+                      <strong>10 Leyn Baan Street, Galle Fort, Sri Lanka</strong>. Please do
+                      not choose this option unless you can visit the store in person.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
             {quote && quote.status !== "rated" && quoteMessage && (
