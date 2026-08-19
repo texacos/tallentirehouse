@@ -27,20 +27,23 @@ export function useShippingDestinations() {
   return useQuery(shippingDestinationsQuery);
 }
 
-/** Live shipping quote for the current destination + basket weight. */
+/** Live shipping quote for a destination + basket weight. Optionally scoped to one carrier. */
 export function useShippingQuote(params: {
   country: string;
   weightKg: number;
   subtotal: number;
+  carrierCode?: string;
   enabled?: boolean;
 }) {
-  const { country, weightKg, subtotal, enabled = true } = params;
+  const { country, weightKg, subtotal, carrierCode, enabled = true } = params;
   return useQuery({
-    queryKey: ["shipping_quote", country, weightKg, subtotal],
+    queryKey: ["shipping_quote", carrierCode ?? "default", country, weightKg, subtotal],
     enabled: enabled && !!country.trim() && weightKg >= 0,
     staleTime: 60_000,
     queryFn: (): Promise<ShippingQuoteResult> =>
-      quoteShipping({ data: { country: country.trim(), weightKg, subtotal } }),
+      quoteShipping({
+        data: { country: country.trim(), weightKg, subtotal, carrierCode: carrierCode?.trim() },
+      }),
   });
 }
 
