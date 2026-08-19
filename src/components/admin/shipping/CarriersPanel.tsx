@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Plus, Trash2, Star, Loader2 } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   useCarriers,
@@ -35,7 +35,7 @@ export function CarriersPanel({
   onSelect?: (id: string) => void;
 }) {
 
-  const { data: carriers = [], isLoading } = useCarriers();
+  const { data: carriers = [] } = useCarriers();
   const save = useSaveCarrier();
   const del = useDeleteCarrier();
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -50,11 +50,6 @@ export function CarriersPanel({
     loadedFor.current = selectedId;
     setDraft({ ...selected });
   }, [selectedId, carriers]);
-
-  function edit(c: Carrier) {
-    loadedFor.current = c.id;
-    setDraft({ ...c });
-  }
 
   function submit() {
     if (!draft) return;
@@ -92,79 +87,8 @@ export function CarriersPanel({
         </Button>
       </div>
 
-      {isLoading ? (
-        <p className="order-3 text-sm text-muted-foreground">Loading…</p>
-      ) : (
-        <div className="order-3 overflow-x-auto rounded-md border border-border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/40 text-left text-xs uppercase tracking-[0.14em] text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3">Carrier</th>
-                <th className="px-4 py-3">Origin</th>
-                <th className="px-4 py-3">Currency</th>
-                <th className="px-4 py-3">Max kg</th>
-                <th className="px-4 py-3">Interval</th>
-                <th className="px-4 py-3">Free over</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {carriers.map((c) => (
-                <tr key={c.id} className={c.id === selectedId ? "bg-secondary/40" : ""}>
-                  <td className="px-4 py-3">
-                    <button className="font-medium hover:underline" onClick={() => edit(c)}>
-                      {c.name}
-                    </button>
-                    <span className="ml-2 text-xs text-muted-foreground">{c.code}</span>
-                    {c.is_default && (
-                      <Star size={12} className="ml-2 inline fill-current text-foreground/60" />
-                    )}
-                  </td>
-                  <td className="px-4 py-3">{c.origin_country}</td>
-                  <td className="px-4 py-3">{c.currency}</td>
-                  <td className="px-4 py-3 tabular-nums">{c.max_weight_kg}</td>
-                  <td className="px-4 py-3 tabular-nums">{c.weight_interval_kg}</td>
-                  <td className="px-4 py-3 tabular-nums">
-                    {c.free_shipping_threshold == null ? "—" : c.free_shipping_threshold}
-                  </td>
-                  <td className="px-4 py-3">{c.is_active ? "Active" : "Disabled"}</td>
-                  <td className="px-4 py-3 text-right whitespace-nowrap">
-                    {onSelect && (
-                      <Button
-                        variant={c.id === selectedId ? "secondary" : "outline"}
-                        size="sm"
-                        className="mr-2"
-                        onClick={() => onSelect(c.id)}
-                      >
-                        {c.id === selectedId ? "Selected" : "Select"}
-                      </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label={`Delete ${c.name}`}
-                      onClick={() => {
-                        if (!confirm(`Delete ${c.name} and all of its shipping data?`)) return;
-                        del.mutate(c.id, {
-                          onSuccess: () => toast.success("Carrier deleted."),
-                          onError: (e) => toast.error(e.message),
-                        });
-                      }}
-                    >
-                      <Trash2 size={16} />
-                    </Button>
-                  </td>
-
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
       {draft && (
-        <div className="order-2 rounded-md border border-border p-5 space-y-4">
+        <div className="rounded-md border border-border p-5 space-y-4">
           <h3 className="font-display text-xl">
             {draft.id ? `${draft.name || "Carrier"} — general settings` : "New carrier"}
           </h3>
@@ -249,6 +173,26 @@ export function CarriersPanel({
               checked={!!draft.is_default}
               onChange={(v) => setDraft({ ...draft, is_default: v })}
             />
+            {draft.id && (
+              <Check
+                label="Delete carrier"
+                checked={false}
+                onChange={(v) => {
+                  if (!v || !draft.id) return;
+                  if (!confirm(`Delete ${draft.name} and all of its shipping data?`)) return;
+                  del.mutate(draft.id, {
+                    onSuccess: () => {
+                      toast.success("Carrier deleted.");
+                      loadedFor.current = null;
+                      setDraft(null);
+                      const next = carriers.find((c) => c.id !== draft.id);
+                      if (next) onSelect?.(next.id);
+                    },
+                    onError: (e) => toast.error(e.message),
+                  });
+                }}
+              />
+            )}
           </div>
           <div className="flex gap-2">
             <Button onClick={submit} disabled={save.isPending}>
