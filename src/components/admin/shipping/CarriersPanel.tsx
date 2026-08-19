@@ -164,8 +164,10 @@ export function CarriersPanel({
       )}
 
       {draft && (
-        <div className="rounded-md border border-border p-5 space-y-4">
-          <h3 className="font-display text-xl">{draft.id ? "Edit carrier" : "New carrier"}</h3>
+        <div className="order-2 rounded-md border border-border p-5 space-y-4">
+          <h3 className="font-display text-xl">
+            {draft.id ? `${draft.name || "Carrier"} — general settings` : "New carrier"}
+          </h3>
           <div className="grid gap-4 sm:grid-cols-3">
             <Field label="Name">
               <Input
