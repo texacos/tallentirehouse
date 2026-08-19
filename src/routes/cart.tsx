@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Minus, Plus, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
-import { useShippingDestinations, useShippingQuote } from "@/lib/shipping";
+import { useShippingDestinations, useShippingOptions } from "@/lib/shipping";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,20 +56,39 @@ function CartPage() {
     [detailed],
   );
 
-  const quoteQ = useShippingQuote({
+  const optionsQ = useShippingOptions({
     country: shipping.country,
     weightKg: Number(totalWeight.toFixed(3)),
     subtotal,
     enabled: count > 0,
   });
 
-  const quote = quoteQ.data?.quote ?? null;
-  const quoteMessage = quoteQ.data?.message ?? null;
-  const shippingUSD = quote?.status === "rated" ? quote.total : null;
+  const options = useMemo(() => optionsQ.data ?? [], [optionsQ.data]);
+  const rated = useMemo(
+    () => options.filter((o) => o.quote?.status === "rated"),
+    [options],
+  );
+  const [carrierCode, setCarrierCode] = useState<string>("");
+
+  useEffect(() => {
+    if (rated.length === 0) {
+      setCarrierCode("");
+      return;
+    }
+    if (!rated.some((o) => o.carrierCode === carrierCode)) {
+      setCarrierCode(rated[0]!.carrierCode);
+    }
+  }, [rated, carrierCode]);
+
+  const selected =
+    rated.find((o) => o.carrierCode === carrierCode) ?? rated[0] ?? null;
+  const quote = selected?.quote ?? options[0]?.quote ?? null;
+  const quoteMessage = selected ? null : (options.find((o) => o.message)?.message ?? null);
+  const shippingUSD =
+    selected?.quote?.status === "rated" ? selected.quote.total : null;
 
   const shippingKnown = shippingUSD != null;
   const total = subtotal + (shippingUSD ?? 0);
-
 
   const addressComplete =
     shipping.name.trim() &&
@@ -269,7 +288,7 @@ function CartPage() {
               <dd className="tabular-nums">
                 {!shipping.country
                   ? "Select country"
-                  : quoteQ.isLoading || destinationsQ.isLoading
+                  : optionsQ.isLoading || destinationsQ.isLoading
                     ? "…"
                     : quote?.status === "rated"
                       ? quote.free
@@ -289,6 +308,43 @@ function CartPage() {
               <p className="text-xs text-muted-foreground">
                 {quote.carrierName} · up to {quote.tierMaxWeightKg} kg tier.
               </p>
+            )}
+            {rated.length > 0 && (
+              <div className="pt-2">
+                <p className="text-xs uppercase tracking-[0.18em] text-foreground/70 mb-2">
+                  Delivery method
+                </p>
+                <div className="space-y-2">
+                  {rated.map((o) => (
+                    <label
+                      key={o.carrierCode}
+                      className={`flex cursor-pointer items-center justify-between gap-3 border px-3 py-2 text-sm transition ${
+                        o.carrierCode === selected?.carrierCode
+                          ? "border-foreground"
+                          : "border-border hover:border-foreground/40"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="carrier"
+                          className="accent-foreground"
+                          checked={o.carrierCode === selected?.carrierCode}
+                          onChange={() => setCarrierCode(o.carrierCode)}
+                        />
+                        <span>{o.carrierName}</span>
+                      </span>
+                      <span className="tabular-nums">
+                        {o.quote?.status === "rated" && o.quote.free
+                          ? "Free"
+                          : o.quote?.status === "rated"
+                            ? formatPrice(o.quote.total)
+                            : "—"}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
             )}
             {quote && quote.status !== "rated" && quoteMessage && (
               <div
