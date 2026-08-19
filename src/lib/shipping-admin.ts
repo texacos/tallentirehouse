@@ -236,11 +236,13 @@ export function useSaveCarrier() {
         if (error) throw new Error(error.message);
       }
       const payload = { ...c, updated_at: new Date().toISOString() };
-      const { error } = c.id
-        ? await supabase.from("shipping_carriers").update(payload).eq("id", c.id)
-        : await supabase.from("shipping_carriers").insert(payload as never);
+      const { data, error } = c.id
+        ? await supabase.from("shipping_carriers").update(payload).eq("id", c.id).select().single()
+        : await supabase.from("shipping_carriers").insert(payload as never).select().single();
       if (error) throw new Error(error.message);
+      return data as Carrier;
     },
+
     onSuccess: invalidate,
   });
 }
