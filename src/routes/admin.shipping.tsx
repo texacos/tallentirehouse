@@ -79,7 +79,7 @@ function ShippingAdmin() {
         </Link>
       </div>
 
-      {carriers.length > 1 && (
+      {carriers.length > 0 && (
         <div className="mt-6 flex flex-wrap items-center gap-2">
           <span className="text-xs uppercase tracking-[0.16em] text-foreground/70">Carrier</span>
           {carriers.map((c) => (
@@ -92,8 +92,13 @@ function ShippingAdmin() {
               {c.name}
             </Button>
           ))}
+          <span className="text-xs text-muted-foreground">
+            Country rules, rate groups, surcharges, messages and CSV import/export below apply
+            only to {activeCarrier?.name ?? "the selected carrier"}.
+          </span>
         </div>
       )}
+
 
       <div className="mt-8 max-w-2xl space-y-2 rounded-md border border-border bg-muted/30 px-4 py-3">
         <Label htmlFor="shipping-note" className="text-sm">
