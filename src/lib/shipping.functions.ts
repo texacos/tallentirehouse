@@ -71,22 +71,29 @@ async function loadCarriers(
 
 export type ShippingDestination = { country: string; status: ShippingStatus };
 
-/** Countries the active carrier knows about, with their service status. */
+/** Countries any active carrier knows about, with the best available status. */
 export const listShippingDestinations = createServerFn({ method: "GET" }).handler(
   async (): Promise<ShippingDestination[]> => {
     const supabase = publicClient();
-    const carrier = await loadCarrier(supabase);
-    if (!carrier) return [];
+    const carriers = await loadCarriers(supabase);
+    if (carriers.length === 0) return [];
     const { data, error } = await supabase
       .from("shipping_country_rules")
       .select("country,status")
-      .eq("carrier_id", carrier.id)
+      .in("carrier_id", carriers.map((c) => c.id))
       .order("country");
     if (error) throw new Error(error.message);
-    return (data ?? []).map((r: Row) => ({
-      country: r.country as string,
-      status: r.status as ShippingStatus,
-    }));
+
+    const statusRank: Record<ShippingStatus, number> = { rated: 3, no_rate: 2, no_service: 1 };
+    const best = new Map<string, ShippingStatus>();
+    for (const r of data ?? []) {
+      const status = (r.status as ShippingStatus) ?? "no_service";
+      const current = best.get(r.country as string);
+      if (!current || statusRank[status] > statusRank[current]) {
+        best.set(r.country as string, status);
+      }
+    }
+    return Array.from(best.entries()).map(([country, status]) => ({ country, status }));
   },
 );
 
