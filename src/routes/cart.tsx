@@ -237,16 +237,15 @@ function CartPage() {
           </ul>
 
           <AddressBlock
-            title="Delivery address"
-            address={shipping}
-            onChange={setShipping}
+            title="Billing address"
+            address={billing}
+            onChange={setBilling}
             countries={
               destinationsQ.data
                 ?.filter((d) => d.status !== "no_service")
                 .map((d) => d.country) ?? []
             }
             countriesLoading={destinationsQ.isLoading}
-
             requireContact
           />
 
@@ -254,23 +253,24 @@ function CartPage() {
             <label className="flex items-center gap-2 text-sm cursor-pointer">
               <input
                 type="checkbox"
-                checked={billingSame}
-                onChange={(e) => setBillingSame(e.target.checked)}
+                checked={deliverySame}
+                onChange={(e) => setDeliverySame(e.target.checked)}
                 className="accent-foreground"
               />
-              <span>Billing address is the same as delivery</span>
+              <span>Delivery address is the same as Billing</span>
             </label>
           </div>
 
-          {!billingSame && (
+          {!deliverySame && (
             <AddressBlock
-              title="Billing address"
-              address={billing}
-              onChange={setBilling}
+              title="Delivery address"
+              address={shipping}
+              onChange={setShipping}
               countries={destinationsQ.data?.map((d) => d.country) ?? []}
               countriesLoading={destinationsQ.isLoading}
             />
           )}
+
         </div>
 
         {/* Summary */}
