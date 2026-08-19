@@ -39,16 +39,20 @@ export function CarriersPanel({
   const save = useSaveCarrier();
   const del = useDeleteCarrier();
   const [draft, setDraft] = useState<Draft | null>(null);
+  const loadedFor = useRef<string | null>(null);
 
-  // Always show the selected carrier's general details, ready to edit.
+  // Show the selected carrier's general details, ready to edit.
   useEffect(() => {
+    if (!selectedId) return;
+    if (loadedFor.current === selectedId) return;
     const selected = carriers.find((c) => c.id === selectedId);
-    if (selected) setDraft({ ...selected });
-    else setDraft(null);
+    if (!selected) return;
+    loadedFor.current = selectedId;
+    setDraft({ ...selected });
   }, [selectedId, carriers]);
 
-
   function edit(c: Carrier) {
+    loadedFor.current = c.id;
     setDraft({ ...c });
   }
 
