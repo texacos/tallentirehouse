@@ -78,7 +78,13 @@ function CartPage() {
   const [carrierCode, setCarrierCode] = useState<string>("");
 
   const isPickup = (code: string) => code === "local-pickup";
-  const preferPickup = shipping.country.trim().toLowerCase() === "sri lanka";
+  const deliveryCountry = shipping.country.trim().toLowerCase();
+  const preferPickup = deliveryCountry === "sri lanka";
+
+  // Any change of destination invalidates a previously chosen carrier.
+  useEffect(() => {
+    setCarrierCode("");
+  }, [deliveryCountry]);
 
   const defaultOption = useMemo(() => {
     if (rated.length === 0) return null;
@@ -97,6 +103,7 @@ function CartPage() {
       setCarrierCode(defaultOption.carrierCode);
     }
   }, [rated, carrierCode, defaultOption]);
+
 
   const selected =
     rated.find((o) => o.carrierCode === carrierCode) ?? defaultOption;
