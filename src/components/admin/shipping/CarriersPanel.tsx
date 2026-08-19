@@ -81,10 +81,11 @@ export function CarriersPanel({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Every rate table, country rule and surcharge belongs to a carrier.
+          General settings for the selected carrier. Every rate table, country rule and
+          surcharge belongs to a carrier.
         </p>
         <Button size="sm" onClick={() => setDraft(emptyDraft())}>
           <Plus /> New carrier
@@ -92,9 +93,9 @@ export function CarriersPanel({
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="order-3 text-sm text-muted-foreground">Loading…</p>
       ) : (
-        <div className="overflow-x-auto rounded-md border border-border">
+        <div className="order-3 overflow-x-auto rounded-md border border-border">
           <table className="w-full text-sm">
             <thead className="bg-muted/40 text-left text-xs uppercase tracking-[0.14em] text-muted-foreground">
               <tr>
