@@ -352,6 +352,16 @@ function CartPage() {
                     </label>
                   ))}
                 </div>
+                {selected?.carrierCode === "local-pickup" && (
+                  <div className="mt-3 border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                    <p className="font-semibold">In-store collection only</p>
+                    <p className="mt-1">
+                      Local Pick-up means you must collect your order from our shop at{" "}
+                      <strong>10 Leyn Baan Street, Galle Fort, Sri Lanka</strong>. Please
+                      only choose this option if you can visit the store in person.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
             {quote && quote.status !== "rated" && quoteMessage && (
