@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Plus, Trash2, Star, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -39,8 +39,20 @@ export function CarriersPanel({
   const save = useSaveCarrier();
   const del = useDeleteCarrier();
   const [draft, setDraft] = useState<Draft | null>(null);
+  const loadedFor = useRef<string | null>(null);
+
+  // Show the selected carrier's general details, ready to edit.
+  useEffect(() => {
+    if (!selectedId) return;
+    if (loadedFor.current === selectedId) return;
+    const selected = carriers.find((c) => c.id === selectedId);
+    if (!selected) return;
+    loadedFor.current = selectedId;
+    setDraft({ ...selected });
+  }, [selectedId, carriers]);
 
   function edit(c: Carrier) {
+    loadedFor.current = c.id;
     setDraft({ ...c });
   }
 
@@ -55,8 +67,12 @@ export function CarriersPanel({
       {
         onSuccess: (saved) => {
           toast.success("Carrier saved.");
-          setDraft(null);
-          if (saved?.id) onSelect?.(saved.id);
+          if (saved?.id) {
+            loadedFor.current = null;
+            onSelect?.(saved.id);
+          } else {
+            setDraft(null);
+          }
         },
 
         onError: (e) => toast.error(e.message),
@@ -65,10 +81,11 @@ export function CarriersPanel({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Every rate table, country rule and surcharge belongs to a carrier.
+          General settings for the selected carrier. Every rate table, country rule and
+          surcharge belongs to a carrier.
         </p>
         <Button size="sm" onClick={() => setDraft(emptyDraft())}>
           <Plus /> New carrier
@@ -76,9 +93,9 @@ export function CarriersPanel({
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="order-3 text-sm text-muted-foreground">Loading…</p>
       ) : (
-        <div className="overflow-x-auto rounded-md border border-border">
+        <div className="order-3 overflow-x-auto rounded-md border border-border">
           <table className="w-full text-sm">
             <thead className="bg-muted/40 text-left text-xs uppercase tracking-[0.14em] text-muted-foreground">
               <tr>
@@ -147,8 +164,10 @@ export function CarriersPanel({
       )}
 
       {draft && (
-        <div className="rounded-md border border-border p-5 space-y-4">
-          <h3 className="font-display text-xl">{draft.id ? "Edit carrier" : "New carrier"}</h3>
+        <div className="order-2 rounded-md border border-border p-5 space-y-4">
+          <h3 className="font-display text-xl">
+            {draft.id ? `${draft.name || "Carrier"} — general settings` : "New carrier"}
+          </h3>
           <div className="grid gap-4 sm:grid-cols-3">
             <Field label="Name">
               <Input
