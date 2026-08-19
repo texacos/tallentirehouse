@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Trash2, Star, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -39,6 +39,14 @@ export function CarriersPanel({
   const save = useSaveCarrier();
   const del = useDeleteCarrier();
   const [draft, setDraft] = useState<Draft | null>(null);
+
+  // Always show the selected carrier's general details, ready to edit.
+  useEffect(() => {
+    const selected = carriers.find((c) => c.id === selectedId);
+    if (selected) setDraft({ ...selected });
+    else setDraft(null);
+  }, [selectedId, carriers]);
+
 
   function edit(c: Carrier) {
     setDraft({ ...c });
