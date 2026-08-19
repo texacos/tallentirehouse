@@ -379,7 +379,7 @@ function CartPage() {
                     </label>
                   ))}
                 </div>
-                {rated.some((o) => o.carrierCode === "local-pickup") && (
+                {selected?.carrierCode === "local-pickup" && (
                   <div className="mt-3 border border-accent bg-accent/10 p-3 text-sm text-foreground">
                     <p className="flex items-center gap-2 font-semibold">
                       <AlertTriangle size={16} className="shrink-0" />
