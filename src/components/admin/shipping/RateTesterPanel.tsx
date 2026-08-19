@@ -17,6 +17,7 @@ export function RateTesterPanel({ carrier }: { carrier: Carrier }) {
     country,
     weightKg: weight,
     subtotal,
+    carrierCode: carrier.code,
     enabled: !!country,
   });
   const quote = data?.quote ?? null;
