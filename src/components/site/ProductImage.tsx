@@ -37,7 +37,7 @@ export function ProductImage({
       className={className}
     />
   );
-  if (!sources) return img;
+  if (!sources || !sources.webp) return img;
   return (
     <picture>
       <source type="image/webp" srcSet={sources.webp} sizes={sizes} />

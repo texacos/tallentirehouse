@@ -47,8 +47,8 @@ function SlideImage({
         width={slide.width}
         height={slide.height}
         loading={priority ? "eager" : "lazy"}
-        // @ts-expect-error - fetchpriority is a valid DOM attribute
-        fetchpriority={priority ? "high" : "low"}
+        
+        fetchPriority={priority ? "high" : "low"}
         decoding={priority ? "sync" : "async"}
         draggable={false}
         className="h-full w-full object-cover"
@@ -116,8 +116,8 @@ export function HeroSlider({
           alt={fallbackAlt}
           width={1920}
           height={1080}
-          // @ts-expect-error - fetchpriority is a valid DOM attribute
-          fetchpriority="high"
+          
+          fetchPriority="high"
           className="h-full w-full object-cover"
         />
       </div>

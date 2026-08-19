@@ -1,3 +1,4 @@
+import { ProductImage } from "@/components/site/ProductImage";
 import { Link } from "@tanstack/react-router";
 import { X, Minus, Plus } from "lucide-react";
 import { useEffect } from "react";
@@ -61,12 +62,12 @@ export function CartDrawer() {
                 {detailed.map(({ product, qty, lineTotal, size, variant }) => (
                   <li key={product.slug + "::" + (size ?? "")} className="flex gap-4 py-5">
                     <Link to="/product/$slug" params={{ slug: product.slug }} onClick={closeDrawer} className="shrink-0">
-                      <img
+                      <ProductImage
                         src={product.images[0]}
                         alt={product.name}
+                        sizes="88px"
                         width={88}
                         height={88}
-                        loading="lazy"
                         className="h-22 w-22 object-cover bg-muted"
                       />
                     </Link>

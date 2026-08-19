@@ -4,6 +4,7 @@ import { productsQueryOptions, useProducts } from "@/lib/products-store";
 import { heroConfigQueryOptions, useHeroConfig } from "@/lib/hero-client";
 import { HeroSlider } from "@/components/site/HeroSlider";
 import { ProductCard } from "@/components/site/ProductCard";
+import { ProductImage } from "@/components/site/ProductImage";
 import heroInterior from "@/assets/hero-interior.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
@@ -149,10 +150,12 @@ function Index() {
           <div className="grid lg:grid-cols-2 gap-10">
             <Link to="/shop" search={{ category: "ceramics-tableware" }} className="group block">
               <div className="overflow-hidden bg-muted aspect-[4/5]">
-                <img
+                <ProductImage
                   src={ceramicsPick.images[0]}
                   alt="Ceramics"
-                  width={1200} height={1500} loading="lazy"
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  width={1200}
+                  height={1500}
                   className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
                 />
               </div>
@@ -163,10 +166,12 @@ function Index() {
             </Link>
             <Link to="/shop" search={{ category: "group-clothing" }} className="group block">
               <div className="overflow-hidden bg-muted aspect-[4/5]">
-                <img
+                <ProductImage
                   src={loungingPick.images[0]}
                   alt="Lounging"
-                  width={1200} height={1500} loading="lazy"
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  width={1200}
+                  height={1500}
                   className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
                 />
               </div>
