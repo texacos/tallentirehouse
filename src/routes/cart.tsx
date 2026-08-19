@@ -387,12 +387,15 @@ function CartPage() {
                 )}
               </div>
             )}
-            {quote && quote.status !== "rated" && quoteMessage && (
-              <div
-                className="text-xs text-muted-foreground [&_p]:mt-2"
-                dangerouslySetInnerHTML={{ __html: quoteMessage }}
-              />
-            )}
+            {unratedMessages.map((m) => (
+              <div key={m.carrierName} className="text-xs text-muted-foreground [&_p]:mt-2">
+                <p className="uppercase tracking-[0.18em] text-foreground/70">
+                  {m.carrierName}
+                </p>
+                <div dangerouslySetInnerHTML={{ __html: m.message }} />
+              </div>
+            ))}
+
           </dl>
 
           <div className="my-5 rule" />
