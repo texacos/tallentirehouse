@@ -54,6 +54,21 @@ async function loadCarrier(
   return row ? toCarrier(row) : null;
 }
 
+async function loadCarriers(
+  supabase: ReturnType<typeof publicClient>,
+): Promise<CarrierConfig[]> {
+  const { data, error } = await supabase
+    .from("shipping_carriers")
+    .select(
+      "id,code,name,currency,origin_country,max_weight_kg,weight_interval_kg,round_weight,free_shipping_threshold",
+    )
+    .eq("is_active", true)
+    .order("is_default", { ascending: false })
+    .order("sort_order");
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((r) => toCarrier(r as Row));
+}
+
 export type ShippingDestination = { country: string; status: ShippingStatus };
 
 /** Countries the active carrier knows about, with their service status. */
@@ -105,7 +120,14 @@ export const quoteShipping = createServerFn({ method: "POST" })
     const supabase = publicClient();
     const carrier = await loadCarrier(supabase, data.carrierCode);
     if (!carrier) return { quote: null, message: null };
+    return quoteForCarrier(supabase, carrier, data);
+  });
 
+async function quoteForCarrier(
+  supabase: ReturnType<typeof publicClient>,
+  carrier: CarrierConfig,
+  data: { country: string; weightKg: number; subtotal: number },
+): Promise<ShippingQuoteResult> {
     const { data: rules, error: ruleErr } = await supabase
       .from("shipping_country_rules")
       .select("status,rate_group_id")
@@ -173,4 +195,39 @@ export const quoteShipping = createServerFn({ method: "POST" })
     }
 
     return { quote: result, message };
+}
+
+export type ShippingOption = {
+  carrierCode: string;
+  carrierName: string;
+  quote: Quote | null;
+  message: string | null;
+};
+
+/** Quotes for every active carrier, so the buyer can choose a delivery method. */
+export const listShippingOptions = createServerFn({ method: "POST" })
+  .inputValidator((input: { country: string; weightKg: number; subtotal: number }) => {
+    const country = String(input?.country ?? "").trim();
+    const weightKg = Number(input?.weightKg ?? 0);
+    const subtotal = Number(input?.subtotal ?? 0);
+    if (!country) throw new Error("Country is required");
+    if (!Number.isFinite(weightKg) || weightKg < 0) throw new Error("Invalid weight");
+    if (!Number.isFinite(subtotal) || subtotal < 0) throw new Error("Invalid subtotal");
+    return { country: country.slice(0, 120), weightKg, subtotal };
+  })
+  .handler(async ({ data }): Promise<ShippingOption[]> => {
+    const supabase = publicClient();
+    const carriers = await loadCarriers(supabase);
+    const results = await Promise.all(
+      carriers.map(async (c) => {
+        const r = await quoteForCarrier(supabase, c, data);
+        return {
+          carrierCode: c.code,
+          carrierName: c.name,
+          quote: r.quote,
+          message: r.message,
+        };
+      }),
+    );
+    return results;
   });
