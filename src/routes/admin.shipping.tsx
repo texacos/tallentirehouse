@@ -145,7 +145,7 @@ function ShippingAdmin() {
         </TabsList>
 
         <TabsContent value="carriers" className="mt-6">
-          <CarriersPanel selectedId={activeCarrier?.id} />
+          <CarriersPanel selectedId={activeCarrier?.id} onSelect={setCarrierId} />
         </TabsContent>
 
         {!activeCarrier ? (
@@ -167,7 +167,7 @@ function ShippingAdmin() {
               <MessagesPanel carrierId={activeCarrier.id} />
             </TabsContent>
             <TabsContent value="import" className="mt-6">
-              <ImportExportPanel carrierId={activeCarrier.id} />
+              <ImportExportPanel carrierId={activeCarrier.id} carrierName={activeCarrier.name} carrierCode={activeCarrier.code} />
             </TabsContent>
             <TabsContent value="tester" className="mt-6">
               <RateTesterPanel carrier={activeCarrier} />
