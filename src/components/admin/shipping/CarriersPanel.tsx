@@ -27,7 +27,14 @@ const emptyDraft = (): Draft => ({
   sort_order: 0,
 });
 
-export function CarriersPanel({ selectedId }: { selectedId?: string }) {
+export function CarriersPanel({
+  selectedId,
+  onSelect,
+}: {
+  selectedId?: string;
+  onSelect?: (id: string) => void;
+}) {
+
   const { data: carriers = [], isLoading } = useCarriers();
   const save = useSaveCarrier();
   const del = useDeleteCarrier();
