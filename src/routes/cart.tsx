@@ -77,22 +77,42 @@ function CartPage() {
   );
   const [carrierCode, setCarrierCode] = useState<string>("");
 
+  const isPickup = (code: string) => code === "local-pickup";
+  const preferPickup = shipping.country.trim().toLowerCase() === "sri lanka";
+
+  const defaultOption = useMemo(() => {
+    if (rated.length === 0) return null;
+    if (preferPickup) {
+      return rated.find((o) => isPickup(o.carrierCode)) ?? rated[0]!;
+    }
+    return rated.find((o) => !isPickup(o.carrierCode)) ?? rated[0]!;
+  }, [rated, preferPickup]);
+
   useEffect(() => {
-    if (rated.length === 0) {
+    if (!defaultOption) {
       setCarrierCode("");
       return;
     }
     if (!rated.some((o) => o.carrierCode === carrierCode)) {
-      setCarrierCode(rated[0]!.carrierCode);
+      setCarrierCode(defaultOption.carrierCode);
     }
-  }, [rated, carrierCode]);
+  }, [rated, carrierCode, defaultOption]);
 
   const selected =
-    rated.find((o) => o.carrierCode === carrierCode) ?? rated[0] ?? null;
+    rated.find((o) => o.carrierCode === carrierCode) ?? defaultOption;
   const quote = selected?.quote ?? options[0]?.quote ?? null;
-  const quoteMessage = selected ? null : (options.find((o) => o.message)?.message ?? null);
+  // Messages from carriers that could not be rated (e.g. Aramex "no service"),
+  // shown even when another carrier (Local Pick-up) is available.
+  const unratedMessages = useMemo(
+    () =>
+      options
+        .filter((o) => o.quote?.status !== "rated" && o.message)
+        .map((o) => ({ carrierName: o.carrierName, message: o.message! })),
+    [options],
+  );
   const shippingUSD =
     selected?.quote?.status === "rated" ? selected.quote.total : null;
+
 
   const shippingKnown = shippingUSD != null;
   const total = subtotal + (shippingUSD ?? 0);
@@ -367,12 +387,15 @@ function CartPage() {
                 )}
               </div>
             )}
-            {quote && quote.status !== "rated" && quoteMessage && (
-              <div
-                className="text-xs text-muted-foreground [&_p]:mt-2"
-                dangerouslySetInnerHTML={{ __html: quoteMessage }}
-              />
-            )}
+            {unratedMessages.map((m) => (
+              <div key={m.carrierName} className="text-xs text-muted-foreground [&_p]:mt-2">
+                <p className="uppercase tracking-[0.18em] text-foreground/70">
+                  {m.carrierName}
+                </p>
+                <div dangerouslySetInnerHTML={{ __html: m.message }} />
+              </div>
+            ))}
+
           </dl>
 
           <div className="my-5 rule" />
