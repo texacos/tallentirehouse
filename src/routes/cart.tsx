@@ -45,9 +45,9 @@ const emptyAddress = (): Address => ({
 function CartPage() {
   const { detailed, subtotal, setQty, remove, count } = useCart();
   const [placed, setPlaced] = useState(false);
-  const [shipping, setShipping] = useState<Address>(emptyAddress());
-  const [billingSame, setBillingSame] = useState(true);
   const [billing, setBilling] = useState<Address>(emptyAddress());
+  const [deliverySame, setDeliverySame] = useState(true);
+  const [shipping, setShipping] = useState<Address>(emptyAddress());
 
   const destinationsQ = useShippingDestinations();
 
@@ -55,6 +55,13 @@ function CartPage() {
     () => detailed.reduce((s, i) => s + (i.product.weight_kg ?? 0) * i.qty, 0),
     [detailed],
   );
+
+  // Keep delivery address in sync with billing when they are the same.
+  useEffect(() => {
+    if (deliverySame) {
+      setShipping(billing);
+    }
+  }, [deliverySame, billing]);
 
   const optionsQ = useShippingOptions({
     country: shipping.country,
@@ -91,20 +98,21 @@ function CartPage() {
   const total = subtotal + (shippingUSD ?? 0);
 
   const addressComplete =
-    shipping.name.trim() &&
-    shipping.line1.trim() &&
-    shipping.city.trim() &&
-    shipping.postcode.trim() &&
-    shipping.country.trim() &&
-    shipping.email.trim() &&
-    (billingSame ||
-      (billing.name.trim() &&
-        billing.line1.trim() &&
-        billing.city.trim() &&
-        billing.postcode.trim() &&
-        billing.country.trim()));
+    billing.name.trim() &&
+    billing.line1.trim() &&
+    billing.city.trim() &&
+    billing.postcode.trim() &&
+    billing.country.trim() &&
+    billing.email.trim() &&
+    (deliverySame ||
+      (shipping.name.trim() &&
+        shipping.line1.trim() &&
+        shipping.city.trim() &&
+        shipping.postcode.trim() &&
+        shipping.country.trim()));
 
   const canPlace = count > 0 && shippingKnown && !!addressComplete;
+
 
   if (placed) {
     return (
