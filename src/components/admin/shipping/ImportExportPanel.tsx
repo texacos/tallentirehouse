@@ -19,7 +19,15 @@ import { Field } from "./CarriersPanel";
 
 type Kind = "rate_groups" | "country_rules";
 
-export function ImportExportPanel({ carrierId }: { carrierId: string }) {
+export function ImportExportPanel({
+  carrierId,
+  carrierName,
+  carrierCode,
+}: {
+  carrierId: string;
+  carrierName: string;
+  carrierCode: string;
+}) {
   const { data: groups = [] } = useRateGroups(carrierId);
   const { data: rules = [] } = useCountryRules(carrierId);
   const { data: batches = [] } = useImportBatches(carrierId);
@@ -54,6 +62,9 @@ export function ImportExportPanel({ carrierId }: { carrierId: string }) {
 
   return (
     <div className="space-y-6">
+      <p className="rounded-md border border-border bg-muted/30 px-4 py-2 text-xs text-muted-foreground">
+        Imports and exports on this tab affect <strong>{carrierName}</strong> only.
+      </p>
       <Field label="Import label (optional)" className="max-w-sm">
         <Input
           value={label}
@@ -87,7 +98,7 @@ export function ImportExportPanel({ carrierId }: { carrierId: string }) {
               size="sm"
               variant="outline"
               disabled={!groups.length}
-              onClick={() => downloadCsv("rate_groups.csv", rateGroupsToCsv(groups))}
+              onClick={() => downloadCsv(`${carrierCode}_rate_groups.csv`, rateGroupsToCsv(groups))}
             >
               <Download /> Export {groups.length} groups
             </Button>
@@ -119,7 +130,7 @@ export function ImportExportPanel({ carrierId }: { carrierId: string }) {
               variant="outline"
               disabled={!rules.length}
               onClick={() =>
-                downloadCsv("country_rate_groups.csv", countryRulesToCsv(rules, groups))
+                downloadCsv(`${carrierCode}_country_rate_groups.csv`, countryRulesToCsv(rules, groups))
               }
             >
               <Download /> Export {rules.length} countries
