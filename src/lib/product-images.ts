@@ -35,14 +35,27 @@ export type ResponsiveSources = {
   src: string;
 } | null;
 
-/** Builds <picture> srcsets for a managed image, or null for legacy URLs. */
+/** Static catalogue images shipped in /public/products/<slug>/<n>.jpg, which
+ *  have pre-generated -w400 / -w700 derivatives next to them. */
+const STATIC_RE = /^(\/products\/[A-Za-z0-9._-]+\/\d+)\.jpg$/i;
+
+/** Builds <picture> srcsets for a managed or static catalogue image. */
 export function responsiveSources(url: string): ResponsiveSources {
   const id = managedImageId(url);
-  if (!id) return null;
-  const set = (ext: "jpg" | "webp") =>
-    PRODUCT_IMAGE_WIDTHS.map((w) => `${managedImageUrl(id, w, ext)} ${w}w`).join(", ");
-  return { webp: set("webp"), jpeg: set("jpg"), src: primaryImageUrl(id) };
+  if (id) {
+    const set = (ext: "jpg" | "webp") =>
+      PRODUCT_IMAGE_WIDTHS.map((w) => `${managedImageUrl(id, w, ext)} ${w}w`).join(", ");
+    return { webp: set("webp"), jpeg: set("jpg"), src: primaryImageUrl(id) };
+  }
+  const s = STATIC_RE.exec(url ?? "");
+  if (s) {
+    const base = s[1]!;
+    const jpeg = `${base}-w400.jpg 400w, ${base}-w700.jpg 700w, ${base}.jpg 1200w`;
+    return { webp: "", jpeg, src: `${base}.jpg` };
+  }
+  return null;
 }
+
 
 /** "linen-cushion_01.JPG" → "Linen cushion 01" (used to prefill alt text). */
 export function altFromFilename(filename: string): string {
