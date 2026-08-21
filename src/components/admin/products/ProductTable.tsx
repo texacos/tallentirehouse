@@ -91,6 +91,8 @@ const Row = memo(function Row({
                 src={p.images[0]}
                 alt={p.image_alts[0] ?? ""}
                 sizes="40px"
+                width={40}
+                height={40}
                 className="h-full w-full object-cover"
               />
             )}

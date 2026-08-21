@@ -50,7 +50,7 @@ export function responsiveSources(url: string): ResponsiveSources {
   const s = STATIC_RE.exec(url ?? "");
   if (s) {
     const base = s[1]!;
-    const jpeg = `${base}-w400.jpg 400w, ${base}-w700.jpg 700w, ${base}.jpg 1200w`;
+    const jpeg = `${base}-w160.jpg 160w, ${base}-w400.jpg 400w, ${base}-w700.jpg 700w, ${base}.jpg 1200w`;
     return { webp: "", jpeg, src: `${base}.jpg` };
   }
   return null;

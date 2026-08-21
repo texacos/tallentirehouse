@@ -274,6 +274,8 @@ export function ImageUploader({
                 src={src}
                 alt={(alts ?? [])[i] ?? ""}
                 sizes="200px"
+                width={200}
+                height={200}
                 className="size-full object-cover"
               />
             </div>
