@@ -57,6 +57,14 @@ export const adminProductMeta = createServerFn({ method: "POST" })
     },
   );
 
+const DUPLICATE_SKU_MESSAGE = (sku: string) =>
+  `SKU "${sku}" is already used by another product. Choose a different SKU.`;
+
+const isUniqueViolation = (error: unknown): boolean => {
+  const e = (error ?? {}) as Record<string, unknown>;
+  return String(e["code"] ?? "") === "23505" || /duplicate key|unique/i.test(String(e["message"] ?? ""));
+};
+
 export const adminSaveProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => adminProductSchema.parse(input))
@@ -76,6 +84,21 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
     if (!existing && !String(row["sku"] ?? "").trim()) {
       row["sku"] = await generateSku(db, values);
     }
+
+    // Backend uniqueness check: no two products may share a SKU (case-insensitive).
+    const sku = String(row["sku"] ?? "").trim();
+    if (sku) {
+      const { data: clash } = await db
+        .from("products")
+        .select("id,slug,name")
+        .ilike("sku", sku)
+        .limit(2);
+      const conflict = (clash ?? []).find(
+        (r: { slug: string }) => String(r.slug) !== values.slug,
+      );
+      if (conflict) throw new Error(DUPLICATE_SKU_MESSAGE(sku));
+    }
+
     if (existing) {
       const { data: updated, error } = await db
         .from("products")
@@ -85,7 +108,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
         .single();
       if (error) {
         console.error("[admin-products] update failed", error);
-        throw new Error("Could not save the product");
+        throw new Error(isUniqueViolation(error) ? DUPLICATE_SKU_MESSAGE(sku) : "Could not save the product");
       }
       saved = updated as Record<string, unknown>;
     } else {
@@ -96,10 +119,11 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
         .single();
       if (error) {
         console.error("[admin-products] insert failed", error);
-        throw new Error("Could not create the product");
+        throw new Error(isUniqueViolation(error) ? DUPLICATE_SKU_MESSAGE(sku) : "Could not create the product");
       }
       saved = inserted as Record<string, unknown>;
     }
+
 
     const product = mapRow(saved);
     const changed = diffFields(existing ? (existing as Record<string, unknown>) : null, row);
