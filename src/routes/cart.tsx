@@ -44,7 +44,8 @@ const emptyAddress = (): Address => ({
 
 function CartPage() {
   const { detailed, subtotal, setQty, remove, count } = useCart();
-  const [placed, setPlaced] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [billing, setBilling] = useState<Address>(emptyAddress());
   const [deliverySame, setDeliverySame] = useState(true);
   const [shipping, setShipping] = useState<Address>(emptyAddress());
