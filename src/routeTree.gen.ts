@@ -24,6 +24,7 @@ import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as AdminShippingRouteImport } from './routes/admin.shipping'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
+import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminHeroRouteImport } from './routes/admin.hero'
 import { Route as ApiPublicZiinaWebhookRouteImport } from './routes/api/public/ziina-webhook'
 import { Route as ApiPublicProductImagesSplatRouteImport } from './routes/api/public/product-images.$'
@@ -104,6 +105,11 @@ const AdminProductsRoute = AdminProductsRouteImport.update({
   path: '/admin/products',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminOrdersRoute = AdminOrdersRouteImport.update({
+  id: '/admin/orders',
+  path: '/admin/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminHeroRoute = AdminHeroRouteImport.update({
   id: '/admin/hero',
   path: '/admin/hero',
@@ -140,6 +146,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/shop': typeof ShopRoute
   '/admin/hero': typeof AdminHeroRoute
+  '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/shipping': typeof AdminShippingRoute
   '/checkout/return': typeof CheckoutReturnRoute
@@ -161,6 +168,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/shop': typeof ShopRoute
   '/admin/hero': typeof AdminHeroRoute
+  '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/shipping': typeof AdminShippingRoute
   '/checkout/return': typeof CheckoutReturnRoute
@@ -183,6 +191,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/shop': typeof ShopRoute
   '/admin/hero': typeof AdminHeroRoute
+  '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/shipping': typeof AdminShippingRoute
   '/checkout/return': typeof CheckoutReturnRoute
@@ -206,6 +215,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/shop'
     | '/admin/hero'
+    | '/admin/orders'
     | '/admin/products'
     | '/admin/shipping'
     | '/checkout/return'
@@ -227,6 +237,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/shop'
     | '/admin/hero'
+    | '/admin/orders'
     | '/admin/products'
     | '/admin/shipping'
     | '/checkout/return'
@@ -248,6 +259,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/shop'
     | '/admin/hero'
+    | '/admin/orders'
     | '/admin/products'
     | '/admin/shipping'
     | '/checkout/return'
@@ -270,6 +282,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   ShopRoute: typeof ShopRoute
   AdminHeroRoute: typeof AdminHeroRoute
+  AdminOrdersRoute: typeof AdminOrdersRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminShippingRoute: typeof AdminShippingRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
@@ -386,6 +399,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/orders': {
+      id: '/admin/orders'
+      path: '/admin/orders'
+      fullPath: '/admin/orders'
+      preLoaderRoute: typeof AdminOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/hero': {
       id: '/admin/hero'
       path: '/admin/hero'
@@ -430,6 +450,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   ShopRoute: ShopRoute,
   AdminHeroRoute: AdminHeroRoute,
+  AdminOrdersRoute: AdminOrdersRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminShippingRoute: AdminShippingRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,

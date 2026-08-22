@@ -94,8 +94,12 @@ function OrdersAdmin() {
   });
 
   const update = useMutation({
-    mutationFn: (input: Parameters<typeof adminUpdateOrder>[0]["data"]) =>
-      adminUpdateOrder({ data: input }),
+    mutationFn: (input: {
+      id: string;
+      fulfilment_status?: (typeof FULFILMENT)[number];
+      internal_note?: string;
+      tracking_number?: string;
+    }) => adminUpdateOrder({ data: input }),
     onSuccess: () => {
       toast.success("Order updated");
       void qc.invalidateQueries({ queryKey: ["admin-orders"] });
