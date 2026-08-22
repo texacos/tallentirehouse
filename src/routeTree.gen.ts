@@ -21,6 +21,7 @@ import { Route as AccountRouteImport } from './routes/account'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
+import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as AdminShippingRouteImport } from './routes/admin.shipping'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminHeroRouteImport } from './routes/admin.hero'
@@ -88,6 +89,11 @@ const ProductSlugRoute = ProductSlugRouteImport.update({
   path: '/product/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
+  id: '/checkout/return',
+  path: '/checkout/return',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminShippingRoute = AdminShippingRouteImport.update({
   id: '/admin/shipping',
   path: '/admin/shipping',
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/admin/hero': typeof AdminHeroRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/shipping': typeof AdminShippingRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/product/$slug': typeof ProductSlugRoute
   '/api/public/ziina-webhook': typeof ApiPublicZiinaWebhookRoute
   '/api/public/hero-images/$': typeof ApiPublicHeroImagesSplatRoute
@@ -156,6 +163,7 @@ export interface FileRoutesByTo {
   '/admin/hero': typeof AdminHeroRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/shipping': typeof AdminShippingRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/product/$slug': typeof ProductSlugRoute
   '/api/public/ziina-webhook': typeof ApiPublicZiinaWebhookRoute
   '/api/public/hero-images/$': typeof ApiPublicHeroImagesSplatRoute
@@ -177,6 +185,7 @@ export interface FileRoutesById {
   '/admin/hero': typeof AdminHeroRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/shipping': typeof AdminShippingRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/product/$slug': typeof ProductSlugRoute
   '/api/public/ziina-webhook': typeof ApiPublicZiinaWebhookRoute
   '/api/public/hero-images/$': typeof ApiPublicHeroImagesSplatRoute
@@ -199,6 +208,7 @@ export interface FileRouteTypes {
     | '/admin/hero'
     | '/admin/products'
     | '/admin/shipping'
+    | '/checkout/return'
     | '/product/$slug'
     | '/api/public/ziina-webhook'
     | '/api/public/hero-images/$'
@@ -219,6 +229,7 @@ export interface FileRouteTypes {
     | '/admin/hero'
     | '/admin/products'
     | '/admin/shipping'
+    | '/checkout/return'
     | '/product/$slug'
     | '/api/public/ziina-webhook'
     | '/api/public/hero-images/$'
@@ -239,6 +250,7 @@ export interface FileRouteTypes {
     | '/admin/hero'
     | '/admin/products'
     | '/admin/shipping'
+    | '/checkout/return'
     | '/product/$slug'
     | '/api/public/ziina-webhook'
     | '/api/public/hero-images/$'
@@ -260,6 +272,7 @@ export interface RootRouteChildren {
   AdminHeroRoute: typeof AdminHeroRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminShippingRoute: typeof AdminShippingRoute
+  CheckoutReturnRoute: typeof CheckoutReturnRoute
   ProductSlugRoute: typeof ProductSlugRoute
   ApiPublicZiinaWebhookRoute: typeof ApiPublicZiinaWebhookRoute
   ApiPublicHeroImagesSplatRoute: typeof ApiPublicHeroImagesSplatRoute
@@ -352,6 +365,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout/return': {
+      id: '/checkout/return'
+      path: '/checkout/return'
+      fullPath: '/checkout/return'
+      preLoaderRoute: typeof CheckoutReturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/shipping': {
       id: '/admin/shipping'
       path: '/admin/shipping'
@@ -412,6 +432,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminHeroRoute: AdminHeroRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminShippingRoute: AdminShippingRoute,
+  CheckoutReturnRoute: CheckoutReturnRoute,
   ProductSlugRoute: ProductSlugRoute,
   ApiPublicZiinaWebhookRoute: ApiPublicZiinaWebhookRoute,
   ApiPublicHeroImagesSplatRoute: ApiPublicHeroImagesSplatRoute,
