@@ -1,5 +1,32 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import heroInterior from "@/assets/hero-interior.jpg.asset.json";
+import kutch1997Jpg480 from "@/assets/story/kutch-1997-w480.jpg.asset.json";
+import kutch1997Jpg960 from "@/assets/story/kutch-1997-w960.jpg.asset.json";
+import kutch1997Jpg1440 from "@/assets/story/kutch-1997-w1440.jpg.asset.json";
+import kutch1997Jpg1920 from "@/assets/story/kutch-1997-w1920.jpg.asset.json";
+import kutch1997Webp480 from "@/assets/story/kutch-1997-w480.webp.asset.json";
+import kutch1997Webp960 from "@/assets/story/kutch-1997-w960.webp.asset.json";
+import kutch1997Webp1440 from "@/assets/story/kutch-1997-w1440.webp.asset.json";
+import kutch1997Webp1920 from "@/assets/story/kutch-1997-w1920.webp.asset.json";
+
+const KUTCH_1997 = {
+  jpeg: [
+    [kutch1997Jpg480, 480],
+    [kutch1997Jpg960, 960],
+    [kutch1997Jpg1440, 1440],
+    [kutch1997Jpg1920, 1920],
+  ] as const,
+  webp: [
+    [kutch1997Webp480, 480],
+    [kutch1997Webp960, 960],
+    [kutch1997Webp1440, 1440],
+    [kutch1997Webp1920, 1920],
+  ] as const,
+};
+
+const srcSet = (list: ReadonlyArray<readonly [{ url: string }, number]>) =>
+  list.map(([a, w]) => `${a.url} ${w}w`).join(", ");
+
 
 const SITE = "https://tallentirehouse.lovable.app";
 
@@ -54,6 +81,44 @@ function StoryFigure({
     </figure>
   );
 }
+
+/** Real photo with responsive WebP + JPEG derivatives. */
+function StoryPhoto({
+  caption,
+  alt,
+  className = "",
+  sizes = "(min-width: 1024px) 768px, 100vw",
+}: {
+  caption?: string;
+  alt: string;
+  className?: string;
+  sizes?: string;
+}) {
+  return (
+    <figure className={className}>
+      <picture>
+        <source type="image/webp" srcSet={srcSet(KUTCH_1997.webp)} sizes={sizes} />
+        <img
+          src={KUTCH_1997.jpeg[2][0].url}
+          srcSet={srcSet(KUTCH_1997.jpeg)}
+          sizes={sizes}
+          alt={alt}
+          width={1920}
+          height={1080}
+          loading="lazy"
+          decoding="async"
+          className="w-full h-auto"
+        />
+      </picture>
+      {caption ? (
+        <figcaption className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+          {caption}
+        </figcaption>
+      ) : null}
+    </figure>
+  );
+}
+
 
 function PullQuote({ children }: { children: React.ReactNode }) {
   return (
@@ -113,7 +178,12 @@ function About() {
           embroidery, each rooted in different villages and family workshops, and an extraordinary
           depth of knowledge held by the people making them.
         </p>
-        <StoryFigure caption="My first visit to Kutch, 1997." className="py-4" />
+        <StoryPhoto
+          caption="My first visit to Kutch, 1997."
+          alt="Lindsay in a pink handwoven shawl with three women and girls in embroidered Kutchi dress outside a painted village house, Kutch, 1997."
+          className="py-4"
+        />
+
         <p>
           I went back in 1998, this time staying for several months. By 1999 I was beginning to
           develop my first collection of samples. One visit had become the beginning of a way of
