@@ -30,7 +30,7 @@ import {
   type AdminProductValues,
   type AdminVariant,
 } from "@/lib/admin-products.types";
-import { useRevisions, useSaveProduct } from "@/lib/admin-products-client";
+import { useBulkAction, useRevisions, useSaveProduct } from "@/lib/admin-products-client";
 import { ImageUploader } from "@/components/admin/products/ImageUploader";
 
 function toValues(p: AdminProduct | null): AdminProductValues {
