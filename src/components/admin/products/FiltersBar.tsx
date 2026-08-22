@@ -155,7 +155,7 @@ export function FiltersBar({
             id="admin-product-search"
             value={searchDraft}
             onChange={(e) => setSearchDraft(e.target.value)}
-            placeholder="Search name, SKU, barcode, brand, tags, description…"
+            placeholder="Search name, SKU, barcode, design, tags, description…"
             className="pl-9"
             aria-label="Search products"
           />
@@ -176,7 +176,7 @@ export function FiltersBar({
           renderLabel={getCategoryLabel}
         />
         <MultiSelect
-          label="Brand"
+          label="Design"
           options={facets.brands}
           selected={filters.brands}
           onChange={(next) => onChange({ brands: next, page: 1 })}
