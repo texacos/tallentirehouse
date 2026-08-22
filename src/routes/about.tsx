@@ -140,7 +140,12 @@ function About() {
           embroidery, each rooted in different villages and family workshops, and an extraordinary
           depth of knowledge held by the people making them.
         </p>
-        <StoryFigure caption="My first visit to Kutch, 1997." className="py-4" />
+        <StoryPhoto
+          caption="My first visit to Kutch, 1997."
+          alt="Lindsay in a pink handwoven shawl with three women and girls in embroidered Kutchi dress outside a painted village house, Kutch, 1997."
+          className="py-4"
+        />
+
         <p>
           I went back in 1998, this time staying for several months. By 1999 I was beginning to
           develop my first collection of samples. One visit had become the beginning of a way of
