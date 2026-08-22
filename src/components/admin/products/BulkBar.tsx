@@ -118,7 +118,7 @@ export function BulkBar({
               Adjust inventory…
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setPending({ kind: "brand" })}>
-              Change brand…
+              Change design…
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => setPending({ kind: "tags", mode: "add" })}>
@@ -361,12 +361,12 @@ export function BulkBar({
       <AlertDialog open={pending?.kind === "brand"} onOpenChange={(o) => !o && close()}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Change brand on {count} products</AlertDialogTitle>
+            <AlertDialogTitle>Change design on {count} products</AlertDialogTitle>
           </AlertDialogHeader>
           <Input
             value={brandInput}
             onChange={(e) => setBrandInput(e.target.value)}
-            placeholder="Tallentire House"
+            placeholder="e.g. Indigo Block Print"
           />
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>

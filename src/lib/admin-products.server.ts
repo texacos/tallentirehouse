@@ -440,7 +440,7 @@ export function describeBulk(action: BulkAction, count: number): string {
     case "categories":
       return `Changed category on ${n}`;
     case "brand":
-      return `Changed brand on ${n}`;
+      return `Changed design on ${n}`;
     case "addTags":
       return `Added tags to ${n}`;
     case "removeTags":

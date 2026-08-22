@@ -275,11 +275,12 @@ export function ProductEditor({
               }
             />
           </Field>
-          <Field label="Brand" htmlFor="p-brand">
+          <Field label="Design" htmlFor="p-brand">
             <Input
               id="p-brand"
               value={values.brand ?? ""}
               maxLength={80}
+              placeholder="e.g. Indigo Block Print"
               onChange={(e) => patch({ brand: e.target.value })}
             />
           </Field>
