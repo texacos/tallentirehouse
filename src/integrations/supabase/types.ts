@@ -188,6 +188,164 @@ export type Database = {
         }
         Relationships: []
       }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          line_total: number
+          order_id: string
+          product_id: string | null
+          product_name: string
+          product_slug: string
+          qty: number
+          size: string
+          sku: string
+          unit_price: number
+          weight_kg: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          line_total?: number
+          order_id: string
+          product_id?: string | null
+          product_name?: string
+          product_slug?: string
+          qty?: number
+          size?: string
+          sku?: string
+          unit_price?: number
+          weight_kg?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          line_total?: number
+          order_id?: string
+          product_id?: string | null
+          product_name?: string
+          product_slug?: string
+          qty?: number
+          size?: string
+          sku?: string
+          unit_price?: number
+          weight_kg?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          billing_address: Json
+          created_at: string
+          currency: string
+          customer_name: string
+          delivery_address: Json
+          email: string
+          email_attempts: number
+          email_error: string | null
+          email_sent_at: string | null
+          email_status: string
+          fulfilment_status: string
+          id: string
+          internal_note: string
+          is_test: boolean
+          items: Json
+          items_count: number
+          order_number: string
+          paid_at: string | null
+          payment_intent_id: string | null
+          payment_provider: string
+          payment_redirect_url: string | null
+          phone: string
+          shipping_amount: number
+          shipping_carrier_code: string
+          shipping_carrier_name: string
+          status: string
+          stock_applied: boolean
+          subtotal: number
+          total: number
+          total_weight_kg: number
+          tracking_number: string
+          updated_at: string
+        }
+        Insert: {
+          billing_address?: Json
+          created_at?: string
+          currency?: string
+          customer_name?: string
+          delivery_address?: Json
+          email?: string
+          email_attempts?: number
+          email_error?: string | null
+          email_sent_at?: string | null
+          email_status?: string
+          fulfilment_status?: string
+          id?: string
+          internal_note?: string
+          is_test?: boolean
+          items?: Json
+          items_count?: number
+          order_number: string
+          paid_at?: string | null
+          payment_intent_id?: string | null
+          payment_provider?: string
+          payment_redirect_url?: string | null
+          phone?: string
+          shipping_amount?: number
+          shipping_carrier_code?: string
+          shipping_carrier_name?: string
+          status?: string
+          stock_applied?: boolean
+          subtotal?: number
+          total?: number
+          total_weight_kg?: number
+          tracking_number?: string
+          updated_at?: string
+        }
+        Update: {
+          billing_address?: Json
+          created_at?: string
+          currency?: string
+          customer_name?: string
+          delivery_address?: Json
+          email?: string
+          email_attempts?: number
+          email_error?: string | null
+          email_sent_at?: string | null
+          email_status?: string
+          fulfilment_status?: string
+          id?: string
+          internal_note?: string
+          is_test?: boolean
+          items?: Json
+          items_count?: number
+          order_number?: string
+          paid_at?: string | null
+          payment_intent_id?: string | null
+          payment_provider?: string
+          payment_redirect_url?: string | null
+          phone?: string
+          shipping_amount?: number
+          shipping_carrier_code?: string
+          shipping_carrier_name?: string
+          status?: string
+          stock_applied?: boolean
+          subtotal?: number
+          total?: number
+          total_weight_kg?: number
+          tracking_number?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_revisions: {
         Row: {
           action: string
