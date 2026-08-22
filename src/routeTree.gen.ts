@@ -26,6 +26,7 @@ import { Route as AdminShippingRouteImport } from './routes/admin.shipping'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminHeroRouteImport } from './routes/admin.hero'
+import { Route as AdminCurrenciesRouteImport } from './routes/admin.currencies'
 import { Route as ApiPublicZiinaWebhookRouteImport } from './routes/api/public/ziina-webhook'
 import { Route as ApiPublicProductImagesSplatRouteImport } from './routes/api/public/product-images.$'
 import { Route as ApiPublicHooksFetchUsdLkrRouteImport } from './routes/api/public/hooks/fetch-usd-lkr'
@@ -116,6 +117,11 @@ const AdminHeroRoute = AdminHeroRouteImport.update({
   path: '/admin/hero',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminCurrenciesRoute = AdminCurrenciesRouteImport.update({
+  id: '/admin/currencies',
+  path: '/admin/currencies',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicZiinaWebhookRoute = ApiPublicZiinaWebhookRouteImport.update({
   id: '/api/public/ziina-webhook',
   path: '/api/public/ziina-webhook',
@@ -152,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/shop': typeof ShopRoute
+  '/admin/currencies': typeof AdminCurrenciesRoute
   '/admin/hero': typeof AdminHeroRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
@@ -175,6 +182,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/shop': typeof ShopRoute
+  '/admin/currencies': typeof AdminCurrenciesRoute
   '/admin/hero': typeof AdminHeroRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
@@ -199,6 +207,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/shop': typeof ShopRoute
+  '/admin/currencies': typeof AdminCurrenciesRoute
   '/admin/hero': typeof AdminHeroRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
@@ -224,6 +233,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/search'
     | '/shop'
+    | '/admin/currencies'
     | '/admin/hero'
     | '/admin/orders'
     | '/admin/products'
@@ -247,6 +257,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/search'
     | '/shop'
+    | '/admin/currencies'
     | '/admin/hero'
     | '/admin/orders'
     | '/admin/products'
@@ -270,6 +281,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/search'
     | '/shop'
+    | '/admin/currencies'
     | '/admin/hero'
     | '/admin/orders'
     | '/admin/products'
@@ -294,6 +306,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SearchRoute: typeof SearchRoute
   ShopRoute: typeof ShopRoute
+  AdminCurrenciesRoute: typeof AdminCurrenciesRoute
   AdminHeroRoute: typeof AdminHeroRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   AdminProductsRoute: typeof AdminProductsRoute
@@ -427,6 +440,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminHeroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/currencies': {
+      id: '/admin/currencies'
+      path: '/admin/currencies'
+      fullPath: '/admin/currencies'
+      preLoaderRoute: typeof AdminCurrenciesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/ziina-webhook': {
       id: '/api/public/ziina-webhook'
       path: '/api/public/ziina-webhook'
@@ -470,6 +490,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SearchRoute: SearchRoute,
   ShopRoute: ShopRoute,
+  AdminCurrenciesRoute: AdminCurrenciesRoute,
   AdminHeroRoute: AdminHeroRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   AdminProductsRoute: AdminProductsRoute,

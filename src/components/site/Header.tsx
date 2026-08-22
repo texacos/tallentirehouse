@@ -42,6 +42,7 @@ export function Header() {
                 <Link to="/admin/products" className="hover:text-foreground transition-colors text-foreground/50">Admin</Link>
                 <Link to="/admin/orders" className="hover:text-foreground transition-colors text-foreground/50">Orders</Link>
                 <Link to="/admin/hero" className="hover:text-foreground transition-colors text-foreground/50">Hero</Link>
+                <Link to="/admin/currencies" className="hover:text-foreground transition-colors text-foreground/50">Currencies</Link>
               </>
             )}
           </nav>
