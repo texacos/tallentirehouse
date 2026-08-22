@@ -493,18 +493,42 @@ export function skuAbbreviation(value: string): string {
 export async function generateSku(
   supabase: Db,
   values: { categories: string[]; colour: string; brand?: string },
+  opts: { currentSku?: string | null; excludeSlug?: string } = {},
 ): Promise<string> {
   const prefix = skuAbbreviation(values.categories[0] ?? "");
   const design = skuAbbreviation(values.brand ?? "");
   const colour = skuAbbreviation(values.colour ?? "");
-  const { data } = await supabase.from("products").select("sku").ilike("sku", `${prefix}-%`);
-  let max = 0;
   const re = new RegExp(`^${prefix}-[A-Z0-9]+-[A-Z0-9]+-(\\d+)$`, "i");
-  for (const row of (data ?? []) as Array<{ sku: string | null }>) {
+
+  // Keep the running number when the category prefix hasn't changed.
+  const current = String(opts.currentSku ?? "").trim();
+  const keep = re.exec(current);
+  if (keep) return `${prefix}-${design}-${colour}-${keep[1]}`;
+
+  const { data } = await supabase
+    .from("products")
+    .select("sku,slug")
+    .ilike("sku", `${prefix}-%`);
+  let max = 0;
+  for (const row of (data ?? []) as Array<{ sku: string | null; slug?: string }>) {
+    if (opts.excludeSlug && row.slug === opts.excludeSlug) continue;
     const m = re.exec(String(row.sku ?? ""));
     if (m) max = Math.max(max, Number(m[1]));
   }
   return `${prefix}-${design}-${colour}-${max + 1}`;
+}
+
+/** True when SKU-relevant fields differ between the stored row and the new values. */
+export function skuFieldsChanged(
+  existing: Record<string, unknown>,
+  values: { categories: string[]; colour: string; brand?: string },
+): boolean {
+  const cat = (existing["categories"] as string[] | null)?.[0] ?? "";
+  return (
+    skuAbbreviation(cat) !== skuAbbreviation(values.categories[0] ?? "") ||
+    skuAbbreviation(String(existing["colour"] ?? "")) !== skuAbbreviation(values.colour ?? "") ||
+    skuAbbreviation(String(existing["brand"] ?? "")) !== skuAbbreviation(values.brand ?? "")
+  );
 }
 
 

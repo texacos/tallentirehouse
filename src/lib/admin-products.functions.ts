@@ -23,6 +23,7 @@ import {
   duplicateSkuMessage,
   isUniqueViolation,
   generateSku,
+  skuFieldsChanged,
   loose,
   mapRow,
   parseProductValues,
@@ -75,8 +76,16 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       .maybeSingle();
 
     let saved: Record<string, unknown>;
-    if (!existing && !String(row["sku"] ?? "").trim()) {
-      row["sku"] = await generateSku(db, values);
+    if (!existing) {
+      if (!String(row["sku"] ?? "").trim()) {
+        row["sku"] = await generateSku(db, values);
+      }
+    } else if (skuFieldsChanged(existing as Record<string, unknown>, values)) {
+      // Category, design or colour changed -> keep the SKU in sync.
+      row["sku"] = await generateSku(db, values, {
+        currentSku: String((existing as Record<string, unknown>)["sku"] ?? ""),
+        excludeSlug: values.slug,
+      });
     }
 
     // Backend uniqueness check: no two products may share a SKU (case-insensitive).
