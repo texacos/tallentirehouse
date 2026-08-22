@@ -468,3 +468,35 @@ export function copySlug(slug: string, taken: Set<string>): string {
 export function parseProductValues(input: unknown): AdminProductValues {
   return adminProductSchema.parse(input);
 }
+
+/** Category prefix: one-word category → first two letters, multi-word → initials. */
+export function skuPrefixForCategory(category: string): string {
+  const words = category
+    .replace(/[_/]+/g, "-")
+    .split(/[\s-]+/)
+    .map((w) => w.replace(/[^A-Za-z0-9]/g, ""))
+    .filter(Boolean);
+  if (words.length === 0) return "XX";
+  if (words.length === 1) return words[0]!.slice(0, 2).toUpperCase().padEnd(2, "X");
+  return words.map((w) => w[0]!.toUpperCase()).join("");
+}
+
+/**
+ * Builds the next SKU for a new product: <CATEGORY><-COLOUR LETTER><running number>.
+ * The running number is scoped to the category prefix.
+ */
+export async function generateSku(
+  supabase: Db,
+  values: { categories: string[]; colour: string },
+): Promise<string> {
+  const prefix = skuPrefixForCategory(values.categories[0] ?? "");
+  const colourLetter = (values.colour.trim()[0] ?? "X").toUpperCase().replace(/[^A-Z0-9]/, "X");
+  const { data } = await supabase.from("products").select("sku").ilike("sku", `${prefix}-%`);
+  let max = 0;
+  const re = new RegExp(`^${prefix}-[A-Z0-9](\\d+)$`, "i");
+  for (const row of (data ?? []) as Array<{ sku: string | null }>) {
+    const m = re.exec(String(row.sku ?? ""));
+    if (m) max = Math.max(max, Number(m[1]));
+  }
+  return `${prefix}-${colourLetter}${max + 1}`;
+}
