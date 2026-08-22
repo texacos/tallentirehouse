@@ -500,22 +500,34 @@ export async function generateSku(
   const colour = skuAbbreviation(values.colour ?? "");
   const re = new RegExp(`^${prefix}-[A-Z0-9]+-[A-Z0-9]+-(\\d+)$`, "i");
 
-  // Keep the running number when the category prefix hasn't changed.
-  const current = String(opts.currentSku ?? "").trim();
-  const keep = re.exec(current);
-  if (keep) return `${prefix}-${design}-${colour}-${keep[1]}`;
-
   const { data } = await supabase
     .from("products")
     .select("sku,slug")
     .ilike("sku", `${prefix}-%`);
+  const taken = new Set<string>();
   let max = 0;
   for (const row of (data ?? []) as Array<{ sku: string | null; slug?: string }>) {
     if (opts.excludeSlug && row.slug === opts.excludeSlug) continue;
-    const m = re.exec(String(row.sku ?? ""));
+    const sku = String(row.sku ?? "").trim();
+    if (sku) taken.add(sku.toUpperCase());
+    const m = re.exec(sku);
     if (m) max = Math.max(max, Number(m[1]));
   }
-  return `${prefix}-${design}-${colour}-${max + 1}`;
+
+  // Reuse the current running number when it's still free.
+  const keep = re.exec(String(opts.currentSku ?? "").trim());
+  if (keep) {
+    const reused = `${prefix}-${design}-${colour}-${keep[1]}`;
+    if (!taken.has(reused.toUpperCase())) return reused;
+  }
+
+  let n = max + 1;
+  let candidate = `${prefix}-${design}-${colour}-${n}`;
+  while (taken.has(candidate.toUpperCase())) {
+    n += 1;
+    candidate = `${prefix}-${design}-${colour}-${n}`;
+  }
+  return candidate;
 }
 
 /** True when SKU-relevant fields differ between the stored row and the new values. */
