@@ -24,6 +24,7 @@ import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as AdminShippingRouteImport } from './routes/admin.shipping'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminHeroRouteImport } from './routes/admin.hero'
+import { Route as ApiPublicZiinaWebhookRouteImport } from './routes/api/public/ziina-webhook'
 import { Route as ApiPublicProductImagesSplatRouteImport } from './routes/api/public/product-images.$'
 import { Route as ApiPublicHeroImagesSplatRouteImport } from './routes/api/public/hero-images.$'
 
@@ -102,6 +103,11 @@ const AdminHeroRoute = AdminHeroRouteImport.update({
   path: '/admin/hero',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicZiinaWebhookRoute = ApiPublicZiinaWebhookRouteImport.update({
+  id: '/api/public/ziina-webhook',
+  path: '/api/public/ziina-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicProductImagesSplatRoute =
   ApiPublicProductImagesSplatRouteImport.update({
     id: '/api/public/product-images/$',
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/admin/products': typeof AdminProductsRoute
   '/admin/shipping': typeof AdminShippingRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/api/public/ziina-webhook': typeof ApiPublicZiinaWebhookRoute
   '/api/public/hero-images/$': typeof ApiPublicHeroImagesSplatRoute
   '/api/public/product-images/$': typeof ApiPublicProductImagesSplatRoute
 }
@@ -150,6 +157,7 @@ export interface FileRoutesByTo {
   '/admin/products': typeof AdminProductsRoute
   '/admin/shipping': typeof AdminShippingRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/api/public/ziina-webhook': typeof ApiPublicZiinaWebhookRoute
   '/api/public/hero-images/$': typeof ApiPublicHeroImagesSplatRoute
   '/api/public/product-images/$': typeof ApiPublicProductImagesSplatRoute
 }
@@ -170,6 +178,7 @@ export interface FileRoutesById {
   '/admin/products': typeof AdminProductsRoute
   '/admin/shipping': typeof AdminShippingRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/api/public/ziina-webhook': typeof ApiPublicZiinaWebhookRoute
   '/api/public/hero-images/$': typeof ApiPublicHeroImagesSplatRoute
   '/api/public/product-images/$': typeof ApiPublicProductImagesSplatRoute
 }
@@ -191,6 +200,7 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/shipping'
     | '/product/$slug'
+    | '/api/public/ziina-webhook'
     | '/api/public/hero-images/$'
     | '/api/public/product-images/$'
   fileRoutesByTo: FileRoutesByTo
@@ -210,6 +220,7 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/shipping'
     | '/product/$slug'
+    | '/api/public/ziina-webhook'
     | '/api/public/hero-images/$'
     | '/api/public/product-images/$'
   id:
@@ -229,6 +240,7 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/shipping'
     | '/product/$slug'
+    | '/api/public/ziina-webhook'
     | '/api/public/hero-images/$'
     | '/api/public/product-images/$'
   fileRoutesById: FileRoutesById
@@ -249,6 +261,7 @@ export interface RootRouteChildren {
   AdminProductsRoute: typeof AdminProductsRoute
   AdminShippingRoute: typeof AdminShippingRoute
   ProductSlugRoute: typeof ProductSlugRoute
+  ApiPublicZiinaWebhookRoute: typeof ApiPublicZiinaWebhookRoute
   ApiPublicHeroImagesSplatRoute: typeof ApiPublicHeroImagesSplatRoute
   ApiPublicProductImagesSplatRoute: typeof ApiPublicProductImagesSplatRoute
 }
@@ -360,6 +373,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminHeroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/ziina-webhook': {
+      id: '/api/public/ziina-webhook'
+      path: '/api/public/ziina-webhook'
+      fullPath: '/api/public/ziina-webhook'
+      preLoaderRoute: typeof ApiPublicZiinaWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/product-images/$': {
       id: '/api/public/product-images/$'
       path: '/api/public/product-images/$'
@@ -393,6 +413,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminProductsRoute: AdminProductsRoute,
   AdminShippingRoute: AdminShippingRoute,
   ProductSlugRoute: ProductSlugRoute,
+  ApiPublicZiinaWebhookRoute: ApiPublicZiinaWebhookRoute,
   ApiPublicHeroImagesSplatRoute: ApiPublicHeroImagesSplatRoute,
   ApiPublicProductImagesSplatRoute: ApiPublicProductImagesSplatRoute,
 }
