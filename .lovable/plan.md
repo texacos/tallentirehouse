@@ -33,7 +33,7 @@ Naming: use the caption, lower-case with hyphens, e.g. `kutch-early-visit.jpg`, 
 
 ## What else to plan
 
-- Whether images should be editable later from an admin panel, or fixed in code (fixed in code is faster and cheaper; admin-managed is a follow-up if you want to swap photos yourself).
+- Images are fixed in code for now (uploaded as CDN assets and referenced directly in the page); admin-managed swapping can be added later as a follow-up.
 - Head/SEO for the page: new title, description and an og:image — I'll point og:image at the opening photo once uploaded.
 - Whether the page keeps the URL `/about` (footer link "Our story" stays pointing there).
 
