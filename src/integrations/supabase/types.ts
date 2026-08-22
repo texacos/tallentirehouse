@@ -128,6 +128,45 @@ export type Database = {
         }
         Relationships: []
       }
+      currency_rates: {
+        Row: {
+          base: string
+          created_at: string
+          fetched_at: string
+          id: string
+          inverse_rate: number | null
+          quote: string
+          rate: number
+          rate_date: string
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          base?: string
+          created_at?: string
+          fetched_at?: string
+          id?: string
+          inverse_rate?: number | null
+          quote?: string
+          rate: number
+          rate_date: string
+          source?: string
+          updated_at?: string
+        }
+        Update: {
+          base?: string
+          created_at?: string
+          fetched_at?: string
+          id?: string
+          inverse_rate?: number | null
+          quote?: string
+          rate?: number
+          rate_date?: string
+          source?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       hero_slides: {
         Row: {
           alt_text: string
