@@ -34,8 +34,8 @@ Naming: use the caption, lower-case with hyphens, e.g. `kutch-early-visit.jpg`, 
 ## What else to plan
 
 - Images are fixed in code for now (uploaded as CDN assets and referenced directly in the page); admin-managed swapping can be added later as a follow-up.
-- Head/SEO for the page: new title, description and an og:image — I'll point og:image at the opening photo once uploaded.
-- Whether the page keeps the URL `/about` (footer link "Our story" stays pointing there).
+- Head/SEO: new page title, description, og:title/og:description, og:type "article", self-referencing canonical and og:url, plus og:image and twitter:image pointing at the opening photo once uploaded.
+- The page keeps the URL `/about` (footer link "Our story" stays pointing there).
 
 ## Technical notes
 
