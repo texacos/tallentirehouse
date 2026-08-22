@@ -429,7 +429,10 @@ export function ProductEditor({
                           patch({
                             categories: checked
                               ? values.categories.filter((x) => x !== c.slug)
-                              : [...values.categories, c.slug],
+                              // The first category is the primary category used by
+                              // the SKU generator. A newly selected category becomes
+                              // primary so changing it immediately changes the SKU.
+                              : [c.slug, ...values.categories],
                           })
                         }
                       />
@@ -447,20 +450,15 @@ export function ProductEditor({
           <Field
             label="SKU"
             htmlFor="p-sku"
-            hint={
-              initial
-                ? undefined
-                : "Generated automatically from category, colour and a running number when you save."
-            }
+              hint="Generated automatically from the primary category, design, colour and running number when you save."
           >
             <Input
               id="p-sku"
               value={values.sku ?? ""}
               maxLength={60}
-              readOnly={!initial}
+                readOnly
               placeholder={initial ? "" : "Generated on save"}
-              className={initial ? undefined : "bg-muted/50 text-muted-foreground"}
-              onChange={(e) => patch({ sku: e.target.value })}
+                className="bg-muted/50 text-muted-foreground"
             />
           </Field>
 
