@@ -106,10 +106,17 @@ export function ProductEditor({
       }
       setErrors({});
       try {
-        await save.mutateAsync(parsed.data);
+        const saved = await save.mutateAsync(parsed.data);
         setDirty(false);
         setLastSaved(new Date().toLocaleTimeString());
-        onSaved(parsed.data);
+        // The server may regenerate the SKU (category/design/colour changes).
+        const nextValues =
+          saved && saved.sku && saved.sku !== parsed.data.sku
+            ? { ...parsed.data, sku: saved.sku }
+            : parsed.data;
+        if (nextValues !== parsed.data) setValues((v) => ({ ...v, sku: saved.sku }));
+        onSaved(nextValues);
+
         if (!silent) toast.success("Product saved");
         return true;
       } catch (e) {
