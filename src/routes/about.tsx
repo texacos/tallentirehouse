@@ -82,6 +82,44 @@ function StoryFigure({
   );
 }
 
+/** Real photo with responsive WebP + JPEG derivatives. */
+function StoryPhoto({
+  caption,
+  alt,
+  className = "",
+  sizes = "(min-width: 1024px) 768px, 100vw",
+}: {
+  caption?: string;
+  alt: string;
+  className?: string;
+  sizes?: string;
+}) {
+  return (
+    <figure className={className}>
+      <picture>
+        <source type="image/webp" srcSet={srcSet(KUTCH_1997.webp)} sizes={sizes} />
+        <img
+          src={KUTCH_1997.jpeg[2][0].url}
+          srcSet={srcSet(KUTCH_1997.jpeg)}
+          sizes={sizes}
+          alt={alt}
+          width={1920}
+          height={1080}
+          loading="lazy"
+          decoding="async"
+          className="w-full h-auto"
+        />
+      </picture>
+      {caption ? (
+        <figcaption className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+          {caption}
+        </figcaption>
+      ) : null}
+    </figure>
+  );
+}
+
+
 function PullQuote({ children }: { children: React.ReactNode }) {
   return (
     <blockquote className="my-12 border-l-2 border-clay pl-6 font-display text-2xl md:text-3xl leading-snug text-clay">
