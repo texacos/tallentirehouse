@@ -220,7 +220,8 @@ export const adminBulkAction = createServerFn({ method: "POST" })
         const taken = new Set(
           (allSlugs ?? []).map((r: { slug: string }) => String(r.slug)),
         );
-        const copies = products.map((p) => {
+        let made = 0;
+        for (const p of products) {
           const slug = copySlug(p.slug, taken);
           taken.add(slug);
           const values = parseProductValues({
@@ -231,10 +232,22 @@ export const adminBulkAction = createServerFn({ method: "POST" })
             status: "draft",
             published_at: null,
           });
-          return toRow(values);
-        });
-        const { error: insErr } = await db.from("products").insert(copies);
-        if (insErr) throw new Error("Could not duplicate the selected products");
+          const copy = toRow(values);
+          // Each copy needs its own SKU — SKUs are unique across products.
+          copy["sku"] = await generateSku(db, values);
+          const { error: insErr } = await db.from("products").insert(copy);
+          if (insErr) {
+            console.error("[admin-products] duplicate failed", insErr);
+            throw new Error(
+              isUniqueViolation(insErr)
+                ? "Could not duplicate: the generated SKU already exists. Try again."
+                : "Could not duplicate the selected products",
+            );
+          }
+          made += 1;
+        }
+        const copies = { length: made };
+
         await writeAudit(db, {
           actorId: context.userId,
           actorLabel: label,
