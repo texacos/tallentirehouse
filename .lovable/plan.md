@@ -35,7 +35,7 @@ A new admin dashboard at `/admin/orders` called **Web Orders**, admin-only and s
 
 ## Test mode
 
-A `payments` entry in `site_settings` with a "Ziina test mode" switch, shown in the admin dashboard alongside the other global settings. When on, every intent is created with `test=true` and the checkout page shows a small "Test mode — no real money will be charged" notice. Orders record which mode they were made in so test orders are distinguishable.
+A `payments` entry in `site_settings` with a "Ziina test mode" switch, placed on the Web Orders dashboard (not the general settings). When on, every intent is created with `test=true` and the checkout page shows a small "Test mode — no real money will be charged" notice. Each order stores the mode it was made in, shown as a Test / Live badge in the Web Orders list and detail panel, with a filter to separate test orders from live ones.
 
 ## Emails
 
