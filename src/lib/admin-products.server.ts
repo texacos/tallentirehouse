@@ -471,7 +471,12 @@ export function parseProductValues(input: unknown): AdminProductValues {
 
 /** Category prefix: one-word category → first two letters, multi-word → initials. */
 export function skuPrefixForCategory(category: string): string {
-  const words = category
+  return skuAbbreviation(category);
+}
+
+/** One word → first two letters; multiple words → initials. Always uppercase. */
+export function skuAbbreviation(value: string): string {
+  const words = value
     .replace(/[_/]+/g, "-")
     .split(/[\s-]+/)
     .map((w) => w.replace(/[^A-Za-z0-9]/g, ""))
@@ -482,21 +487,24 @@ export function skuPrefixForCategory(category: string): string {
 }
 
 /**
- * Builds the next SKU for a new product: <CATEGORY><-COLOUR LETTER><running number>.
+ * Builds the next SKU for a new product:
+ * <CATEGORY>-<DESIGN>-<COLOUR LETTER><running number>.
  * The running number is scoped to the category prefix.
  */
 export async function generateSku(
   supabase: Db,
-  values: { categories: string[]; colour: string },
+  values: { categories: string[]; colour: string; brand?: string },
 ): Promise<string> {
-  const prefix = skuPrefixForCategory(values.categories[0] ?? "");
+  const prefix = skuAbbreviation(values.categories[0] ?? "");
+  const design = skuAbbreviation(values.brand ?? "");
   const colourLetter = (values.colour.trim()[0] ?? "X").toUpperCase().replace(/[^A-Z0-9]/, "X");
   const { data } = await supabase.from("products").select("sku").ilike("sku", `${prefix}-%`);
   let max = 0;
-  const re = new RegExp(`^${prefix}-[A-Z0-9](\\d+)$`, "i");
+  const re = new RegExp(`^${prefix}-[A-Z0-9]+-[A-Z0-9](\\d+)$`, "i");
   for (const row of (data ?? []) as Array<{ sku: string | null }>) {
     const m = re.exec(String(row.sku ?? ""));
     if (m) max = Math.max(max, Number(m[1]));
   }
-  return `${prefix}-${colourLetter}${max + 1}`;
+  return `${prefix}-${design}-${colourLetter}${max + 1}`;
 }
+
