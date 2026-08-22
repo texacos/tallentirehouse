@@ -426,13 +426,16 @@ function CartPage() {
           </div>
 
           <button
-            onClick={() => setPlaced(true)}
+            onClick={() => void startCheckout()}
             disabled={!canPlace}
             className="mt-6 w-full bg-foreground text-background py-4 text-xs uppercase tracking-[0.22em] hover:bg-foreground/85 transition disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Proceed to checkout
+            {submitting ? "Redirecting to payment…" : "Proceed to payment"}
           </button>
-          {!canPlace && (
+          {checkoutError && (
+            <p className="mt-3 text-xs text-destructive text-center">{checkoutError}</p>
+          )}
+          {!canPlace && !submitting && (
             <p className="mt-3 text-xs text-muted-foreground text-center">
               Complete delivery address to calculate shipping.
             </p>
