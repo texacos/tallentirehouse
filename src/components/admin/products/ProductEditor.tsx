@@ -165,6 +165,28 @@ export function ProductEditor({
     else window.open(url, "_blank");
   };
 
+  const remove = async () => {
+    if (!initial) return;
+    if (
+      !window.confirm(
+        `Delete "${initial.name}" permanently? Its uploaded images and all generated sizes will be removed too.`,
+      )
+    )
+      return;
+    try {
+      await bulk.mutateAsync({ ids: [initial.id], action: { type: "delete" } });
+      setDirty(false);
+      toast.success("Product deleted", {
+        description: "Its images and derivatives were permanently removed.",
+      });
+      onClose();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not delete the product");
+    }
+  };
+
+
+
 
 
   const sortedCategories = useMemo(
