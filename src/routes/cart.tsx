@@ -138,26 +138,37 @@ function CartPage() {
         shipping.postcode.trim() &&
         shipping.country.trim()));
 
-  const canPlace = count > 0 && shippingKnown && !!addressComplete;
+  const canPlace = count > 0 && shippingKnown && !!addressComplete && !submitting;
 
-
-  if (placed) {
-    return (
-      <div className="mx-auto max-w-2xl px-6 py-32 text-center">
-        <p className="eyebrow text-foreground/60">Thank you</p>
-        <h1 className="mt-4 font-display text-5xl">Your order is on its way</h1>
-        <p className="mt-5 text-sm text-muted-foreground leading-relaxed">
-          This is a preview checkout — connect Stripe to take live payments.
-        </p>
-        <Link
-          to="/shop"
-          className="mt-8 inline-block bg-foreground text-background px-8 py-4 text-xs uppercase tracking-[0.22em]"
-        >
-          Continue shopping
-        </Link>
-      </div>
-    );
+  async function startCheckout() {
+    if (submitting) return;
+    setSubmitting(true);
+    setCheckoutError(null);
+    try {
+      const res = await createCheckout({
+        data: {
+          items: detailed.map((d) => ({
+            slug: d.product.slug,
+            size: d.size ?? undefined,
+            qty: d.qty,
+          })),
+          billing,
+          delivery: deliverySame ? billing : { ...shipping, email: billing.email, phone: billing.phone },
+          carrierCode: selected?.carrierCode ?? "",
+        },
+      });
+      if (res.ok) {
+        window.location.href = res.redirectUrl;
+        return;
+      }
+      setCheckoutError(res.error);
+    } catch {
+      setCheckoutError("We couldn't reach the payment provider. Please try again.");
+    }
+    setSubmitting(false);
   }
+
+
 
   if (count === 0) {
     return (
