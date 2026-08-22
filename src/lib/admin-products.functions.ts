@@ -20,6 +20,7 @@ import {
   copySlug,
   describeBulk,
   diffFields,
+  generateSku,
   loose,
   mapRow,
   parseProductValues,
@@ -72,6 +73,9 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       .maybeSingle();
 
     let saved: Record<string, unknown>;
+    if (!existing && !String(row["sku"] ?? "").trim()) {
+      row["sku"] = await generateSku(db, values);
+    }
     if (existing) {
       const { data: updated, error } = await db
         .from("products")

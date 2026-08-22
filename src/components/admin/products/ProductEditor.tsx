@@ -437,14 +437,26 @@ export function ProductEditor({
 
         {/* INVENTORY */}
         <TabsContent value="inventory" className="grid gap-5 pt-4 md:grid-cols-2">
-          <Field label="SKU" htmlFor="p-sku">
+          <Field
+            label="SKU"
+            htmlFor="p-sku"
+            hint={
+              initial
+                ? undefined
+                : "Generated automatically from category, colour and a running number when you save."
+            }
+          >
             <Input
               id="p-sku"
               value={values.sku ?? ""}
               maxLength={60}
+              readOnly={!initial}
+              placeholder={initial ? "" : "Generated on save"}
+              className={initial ? undefined : "bg-muted/50 text-muted-foreground"}
               onChange={(e) => patch({ sku: e.target.value })}
             />
           </Field>
+
           <Field label="Barcode (GTIN/EAN)" htmlFor="p-barcode">
             <div className="flex gap-2">
               <Input
