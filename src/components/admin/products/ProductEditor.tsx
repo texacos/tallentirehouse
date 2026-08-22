@@ -30,7 +30,7 @@ import {
   type AdminProductValues,
   type AdminVariant,
 } from "@/lib/admin-products.types";
-import { useRevisions, useSaveProduct } from "@/lib/admin-products-client";
+import { useBulkAction, useRevisions, useSaveProduct } from "@/lib/admin-products-client";
 import { ImageUploader } from "@/components/admin/products/ImageUploader";
 
 function toValues(p: AdminProduct | null): AdminProductValues {
@@ -84,6 +84,7 @@ export function ProductEditor({
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [slugTouched, setSlugTouched] = useState(!!initial);
   const save = useSaveProduct();
+  const bulk = useBulkAction();
   const revisions = useRevisions(initial?.id ?? null);
 
   const patch = useCallback((p: Partial<AdminProductValues>) => {
@@ -164,6 +165,28 @@ export function ProductEditor({
     else window.open(url, "_blank");
   };
 
+  const remove = async () => {
+    if (!initial) return;
+    if (
+      !window.confirm(
+        `Delete "${initial.name}" permanently? Its uploaded images and all generated sizes will be removed too.`,
+      )
+    )
+      return;
+    try {
+      await bulk.mutateAsync({ ids: [initial.id], action: { type: "delete" } });
+      setDirty(false);
+      toast.success("Product deleted", {
+        description: "Its images and derivatives were permanently removed.",
+      });
+      onClose();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not delete the product");
+    }
+  };
+
+
+
 
 
   const sortedCategories = useMemo(
@@ -207,6 +230,18 @@ export function ProductEditor({
           <Button variant="outline" onClick={() => void preview()} disabled={save.isPending}>
             <ExternalLink /> Preview
           </Button>
+          {initial && (
+            <Button
+              variant="destructive"
+              size="icon"
+              aria-label={`Delete ${initial.name}`}
+              title="Delete product"
+              onClick={() => void remove()}
+              disabled={bulk.isPending || save.isPending}
+            >
+              {bulk.isPending ? <Loader2 className="animate-spin" /> : <Trash2 />}
+            </Button>
+          )}
 
           <Button variant="ghost" size="icon" aria-label="Close editor" onClick={attemptClose}>
             <X />
