@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX IF NOT EXISTS products_sku_unique_ci ON public.products (lower(btrim(sku))) WHERE btrim(sku) <> '';

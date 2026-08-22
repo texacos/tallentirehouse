@@ -508,3 +508,16 @@ export async function generateSku(
 }
 
 
+
+/** Friendly message shown when a product SKU collides with another product. */
+export const duplicateSkuMessage = (sku: string): string =>
+  `SKU "${sku}" is already used by another product. Choose a different SKU.`;
+
+/** True when a Postgres/PostgREST error is a unique-constraint violation. */
+export function isUniqueViolation(error: unknown): boolean {
+  const e = (error ?? {}) as Record<string, unknown>;
+  return (
+    String(e["code"] ?? "") === "23505" ||
+    /duplicate key|unique/i.test(String(e["message"] ?? ""))
+  );
+}
