@@ -1,5 +1,32 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import heroInterior from "@/assets/hero-interior.jpg.asset.json";
+import kutch1997Jpg480 from "@/assets/story/kutch-1997-w480.jpg.asset.json";
+import kutch1997Jpg960 from "@/assets/story/kutch-1997-w960.jpg.asset.json";
+import kutch1997Jpg1440 from "@/assets/story/kutch-1997-w1440.jpg.asset.json";
+import kutch1997Jpg1920 from "@/assets/story/kutch-1997-w1920.jpg.asset.json";
+import kutch1997Webp480 from "@/assets/story/kutch-1997-w480.webp.asset.json";
+import kutch1997Webp960 from "@/assets/story/kutch-1997-w960.webp.asset.json";
+import kutch1997Webp1440 from "@/assets/story/kutch-1997-w1440.webp.asset.json";
+import kutch1997Webp1920 from "@/assets/story/kutch-1997-w1920.webp.asset.json";
+
+const KUTCH_1997 = {
+  jpeg: [
+    [kutch1997Jpg480, 480],
+    [kutch1997Jpg960, 960],
+    [kutch1997Jpg1440, 1440],
+    [kutch1997Jpg1920, 1920],
+  ] as const,
+  webp: [
+    [kutch1997Webp480, 480],
+    [kutch1997Webp960, 960],
+    [kutch1997Webp1440, 1440],
+    [kutch1997Webp1920, 1920],
+  ] as const,
+};
+
+const srcSet = (list: ReadonlyArray<readonly [{ url: string }, number]>) =>
+  list.map(([a, w]) => `${a.url} ${w}w`).join(", ");
+
 
 const SITE = "https://tallentirehouse.lovable.app";
 
