@@ -20,6 +20,8 @@ import {
   copySlug,
   describeBulk,
   diffFields,
+  duplicateSkuMessage,
+  isUniqueViolation,
   generateSku,
   loose,
   mapRow,
@@ -57,14 +59,6 @@ export const adminProductMeta = createServerFn({ method: "POST" })
     },
   );
 
-const DUPLICATE_SKU_MESSAGE = (sku: string) =>
-  `SKU "${sku}" is already used by another product. Choose a different SKU.`;
-
-const isUniqueViolation = (error: unknown): boolean => {
-  const e = (error ?? {}) as Record<string, unknown>;
-  return String(e["code"] ?? "") === "23505" || /duplicate key|unique/i.test(String(e["message"] ?? ""));
-};
-
 export const adminSaveProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => adminProductSchema.parse(input))
@@ -96,7 +90,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       const conflict = (clash ?? []).find(
         (r: { slug: string }) => String(r.slug) !== values.slug,
       );
-      if (conflict) throw new Error(DUPLICATE_SKU_MESSAGE(sku));
+      if (conflict) throw new Error(duplicateSkuMessage(sku));
     }
 
     if (existing) {
@@ -108,7 +102,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
         .single();
       if (error) {
         console.error("[admin-products] update failed", error);
-        throw new Error(isUniqueViolation(error) ? DUPLICATE_SKU_MESSAGE(sku) : "Could not save the product");
+        throw new Error(isUniqueViolation(error) ? duplicateSkuMessage(sku) : "Could not save the product");
       }
       saved = updated as Record<string, unknown>;
     } else {
@@ -119,7 +113,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
         .single();
       if (error) {
         console.error("[admin-products] insert failed", error);
-        throw new Error(isUniqueViolation(error) ? DUPLICATE_SKU_MESSAGE(sku) : "Could not create the product");
+        throw new Error(isUniqueViolation(error) ? duplicateSkuMessage(sku) : "Could not create the product");
       }
       saved = inserted as Record<string, unknown>;
     }
