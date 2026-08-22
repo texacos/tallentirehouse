@@ -447,11 +447,42 @@ export const adminImportProducts = createServerFn({ method: "POST" })
     const { data: existing } = await db.from("products").select("slug").in("slug", slugs);
     const known = new Set((existing ?? []).map((r: { slug: string }) => String(r.slug)));
     const rows = data.products.map((p) => toRow(parseProductValues(p)));
+
+    // Reject the whole import when SKUs collide inside the file or with other products.
+    const seen = new Map<string, string>();
+    for (const r of rows) {
+      const s = String(r["sku"] ?? "").trim().toLowerCase();
+      if (!s) continue;
+      const prev = seen.get(s);
+      if (prev && prev !== String(r["slug"] ?? "")) {
+        throw new Error(`Import failed — SKU "${r["sku"]}" appears more than once in the file`);
+      }
+      seen.set(s, String(r["slug"] ?? ""));
+    }
+    if (seen.size) {
+      const { data: clashes } = await db.from("products").select("slug,sku");
+      for (const c of (clashes ?? []) as Array<{ slug: string; sku: string | null }>) {
+        const s = String(c.sku ?? "").trim().toLowerCase();
+        if (!s) continue;
+        const incomingSlug = seen.get(s);
+        if (incomingSlug && incomingSlug !== String(c.slug)) {
+          throw new Error(
+            `Import failed — SKU "${c.sku}" is already used by another product. No changes were applied.`,
+          );
+        }
+      }
+    }
+
     const { error } = await db.from("products").upsert(rows, { onConflict: "slug" });
     if (error) {
       console.error("[admin-products] import failed", error);
-      throw new Error("Import failed — no changes were applied");
+      throw new Error(
+        isUniqueViolation(error)
+          ? "Import failed — duplicate SKU detected. No changes were applied."
+          : "Import failed — no changes were applied",
+      );
     }
+
     const updated = slugs.filter((s) => known.has(s)).length;
     const created = slugs.length - updated;
     await writeAudit(db, {
