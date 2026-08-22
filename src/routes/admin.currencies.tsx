@@ -14,8 +14,9 @@ export const Route = createFileRoute("/admin/currencies")({
       {
         name: "description",
         content:
-          "Today's USD/LKR indicative exchange rate from the Central Bank of Sri Lanka, refreshed weekly.",
+          "This week's USD/LKR indicative exchange rate from the Central Bank of Sri Lanka, refreshed weekly.",
       },
+
       { name: "robots", content: "noindex" },
     ],
   }),
