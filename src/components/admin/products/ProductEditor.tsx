@@ -84,6 +84,7 @@ export function ProductEditor({
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [slugTouched, setSlugTouched] = useState(!!initial);
   const save = useSaveProduct();
+  const bulk = useBulkAction();
   const revisions = useRevisions(initial?.id ?? null);
 
   const patch = useCallback((p: Partial<AdminProductValues>) => {
