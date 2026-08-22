@@ -21,6 +21,18 @@ New `public.orders` table holding: order number, status, payment provider/intent
 
 Access rules: no public read or write. Rows are created and updated only by server functions and the webhook handler; admins can read them.
 
+## Web Orders dashboard
+
+A new admin dashboard at `/admin/orders` called **Web Orders**, admin-only and styled like the Products dashboard:
+
+- Table of orders: order number, date, customer name/email, items count, total, delivery method, payment status badge (pending / paid / failed / cancelled / refunded) and a Test badge for test-mode orders.
+- Search by order number, name, email or SKU; filters by status, test/live and date range; sortable columns and pagination.
+- Order detail panel (slide-in) with the full line items, billing and delivery addresses, shipping quote and carrier, Ziina intent id, payment timeline, and email-delivery status with a "resend confirmation" action.
+- Admin can update a fulfilment status (new / processing / shipped / completed) and add an internal note plus tracking number.
+- CSV export of the filtered order list.
+- Small stat cards at the top: orders today, paid revenue this month, pending payments.
+
+
 ## Test mode
 
 A `payments` entry in `site_settings` with a "Ziina test mode" switch, shown in the admin dashboard alongside the other global settings. When on, every intent is created with `test=true` and the checkout page shows a small "Test mode — no real money will be charged" notice. Orders record which mode they were made in so test orders are distinguishable.
