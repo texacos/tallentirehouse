@@ -1,6 +1,6 @@
 # Our Story page — rebuild from the Word document
 
-Replace everything on `/about` below the existing eyebrow ("Our story") and heading with the content of `Tallentire_House_Our_Story_revised.docx`, presented as one continuous scrolling page in the current site style.
+Replace everything on `/about` below the existing eyebrow ("Our story"), heading, and the intro line "A small studio, in love with slow things." with the content of `Tallentire_House_Our_Story_revised.docx`, presented as one continuous scrolling page in the current site style. The intro line remains immediately under the heading, before the new Word-document content begins.
 
 ## Page structure (continuous, no page breaks)
 
