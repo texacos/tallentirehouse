@@ -69,7 +69,7 @@ export async function fetchPaymentIntent(id: string): Promise<ZiinaIntent> {
 export function mapStatus(status: string): "pending" | "paid" | "failed" | "cancelled" {
   switch (status) {
     case "completed":
-ȧ      return "paid";
+      return "paid";
     case "failed":
       return "failed";
     case "canceled":
