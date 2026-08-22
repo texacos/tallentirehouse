@@ -118,7 +118,7 @@ const Row = memo(function Row({
         return <span className="truncate text-xs tabular-nums">{p.sku || "—"}</span>;
       case "category":
         return (
-          <span className="truncate text-xs text-muted-foreground">
+          <span className="line-clamp-2 break-words px-2 py-1 text-xs text-muted-foreground">
             {p.categories.map(getCategoryLabel).join(", ") || "—"}
           </span>
         );
