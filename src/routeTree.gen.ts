@@ -28,6 +28,7 @@ import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminHeroRouteImport } from './routes/admin.hero'
 import { Route as ApiPublicZiinaWebhookRouteImport } from './routes/api/public/ziina-webhook'
 import { Route as ApiPublicProductImagesSplatRouteImport } from './routes/api/public/product-images.$'
+import { Route as ApiPublicHooksFetchUsdLkrRouteImport } from './routes/api/public/hooks/fetch-usd-lkr'
 import { Route as ApiPublicHeroImagesSplatRouteImport } from './routes/api/public/hero-images.$'
 
 const ShopRoute = ShopRouteImport.update({
@@ -126,6 +127,12 @@ const ApiPublicProductImagesSplatRoute =
     path: '/api/public/product-images/$',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksFetchUsdLkrRoute =
+  ApiPublicHooksFetchUsdLkrRouteImport.update({
+    id: '/api/public/hooks/fetch-usd-lkr',
+    path: '/api/public/hooks/fetch-usd-lkr',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHeroImagesSplatRoute =
   ApiPublicHeroImagesSplatRouteImport.update({
     id: '/api/public/hero-images/$',
@@ -153,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/product/$slug': typeof ProductSlugRoute
   '/api/public/ziina-webhook': typeof ApiPublicZiinaWebhookRoute
   '/api/public/hero-images/$': typeof ApiPublicHeroImagesSplatRoute
+  '/api/public/hooks/fetch-usd-lkr': typeof ApiPublicHooksFetchUsdLkrRoute
   '/api/public/product-images/$': typeof ApiPublicProductImagesSplatRoute
 }
 export interface FileRoutesByTo {
@@ -175,6 +183,7 @@ export interface FileRoutesByTo {
   '/product/$slug': typeof ProductSlugRoute
   '/api/public/ziina-webhook': typeof ApiPublicZiinaWebhookRoute
   '/api/public/hero-images/$': typeof ApiPublicHeroImagesSplatRoute
+  '/api/public/hooks/fetch-usd-lkr': typeof ApiPublicHooksFetchUsdLkrRoute
   '/api/public/product-images/$': typeof ApiPublicProductImagesSplatRoute
 }
 export interface FileRoutesById {
@@ -198,6 +207,7 @@ export interface FileRoutesById {
   '/product/$slug': typeof ProductSlugRoute
   '/api/public/ziina-webhook': typeof ApiPublicZiinaWebhookRoute
   '/api/public/hero-images/$': typeof ApiPublicHeroImagesSplatRoute
+  '/api/public/hooks/fetch-usd-lkr': typeof ApiPublicHooksFetchUsdLkrRoute
   '/api/public/product-images/$': typeof ApiPublicProductImagesSplatRoute
 }
 export interface FileRouteTypes {
@@ -222,6 +232,7 @@ export interface FileRouteTypes {
     | '/product/$slug'
     | '/api/public/ziina-webhook'
     | '/api/public/hero-images/$'
+    | '/api/public/hooks/fetch-usd-lkr'
     | '/api/public/product-images/$'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -244,6 +255,7 @@ export interface FileRouteTypes {
     | '/product/$slug'
     | '/api/public/ziina-webhook'
     | '/api/public/hero-images/$'
+    | '/api/public/hooks/fetch-usd-lkr'
     | '/api/public/product-images/$'
   id:
     | '__root__'
@@ -266,6 +278,7 @@ export interface FileRouteTypes {
     | '/product/$slug'
     | '/api/public/ziina-webhook'
     | '/api/public/hero-images/$'
+    | '/api/public/hooks/fetch-usd-lkr'
     | '/api/public/product-images/$'
   fileRoutesById: FileRoutesById
 }
@@ -289,6 +302,7 @@ export interface RootRouteChildren {
   ProductSlugRoute: typeof ProductSlugRoute
   ApiPublicZiinaWebhookRoute: typeof ApiPublicZiinaWebhookRoute
   ApiPublicHeroImagesSplatRoute: typeof ApiPublicHeroImagesSplatRoute
+  ApiPublicHooksFetchUsdLkrRoute: typeof ApiPublicHooksFetchUsdLkrRoute
   ApiPublicProductImagesSplatRoute: typeof ApiPublicProductImagesSplatRoute
 }
 
@@ -427,6 +441,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicProductImagesSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/fetch-usd-lkr': {
+      id: '/api/public/hooks/fetch-usd-lkr'
+      path: '/api/public/hooks/fetch-usd-lkr'
+      fullPath: '/api/public/hooks/fetch-usd-lkr'
+      preLoaderRoute: typeof ApiPublicHooksFetchUsdLkrRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hero-images/$': {
       id: '/api/public/hero-images/$'
       path: '/api/public/hero-images/$'
@@ -457,6 +478,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProductSlugRoute: ProductSlugRoute,
   ApiPublicZiinaWebhookRoute: ApiPublicZiinaWebhookRoute,
   ApiPublicHeroImagesSplatRoute: ApiPublicHeroImagesSplatRoute,
+  ApiPublicHooksFetchUsdLkrRoute: ApiPublicHooksFetchUsdLkrRoute,
   ApiPublicProductImagesSplatRoute: ApiPublicProductImagesSplatRoute,
 }
 export const routeTree = rootRouteImport
