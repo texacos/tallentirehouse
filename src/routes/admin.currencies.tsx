@@ -14,8 +14,9 @@ export const Route = createFileRoute("/admin/currencies")({
       {
         name: "description",
         content:
-          "Today's USD/LKR indicative exchange rate from the Central Bank of Sri Lanka, refreshed weekly.",
+          "This week's USD/LKR indicative exchange rate from the Central Bank of Sri Lanka, refreshed weekly.",
       },
+
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -101,8 +102,9 @@ function CurrenciesAdmin() {
         <div className="flex flex-wrap items-start justify-between gap-6">
           <div>
             <p className="eyebrow text-foreground/60">
-              Today&rsquo;s Exchange Rate USD/LKR
+              This Week&rsquo;s Exchange Rate USD/LKR
             </p>
+
             <p className="mt-3 font-display text-5xl">
               {latest ? latest.rate.toFixed(4) : "—"}
               {latest && (
