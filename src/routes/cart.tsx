@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
 import { useShippingDestinations, useShippingOptions } from "@/lib/shipping";
+import { createCheckout } from "@/lib/checkout.functions";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
