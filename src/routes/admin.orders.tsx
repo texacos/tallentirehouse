@@ -226,7 +226,11 @@ function OrdersAdmin() {
           label="Paid this month"
           value={stats ? formatPrice(stats.paidRevenueMonth) : "—"}
         />
-        <Stat label="Awaiting payment" value={String(stats?.pendingCount ?? "—")} />
+        <Stat
+          label="Awaiting payment"
+          value={String(stats?.pendingCount ?? "—")}
+          suffix={stats ? formatPrice(stats.pendingAmount) : undefined}
+        />
       </div>
 
       {/* Filters */}
@@ -364,11 +368,24 @@ function OrdersAdmin() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({
+  label,
+  value,
+  suffix,
+}: {
+  label: string;
+  value: string;
+  suffix?: string;
+}) {
   return (
     <div className="border border-border px-4 py-3">
       <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
-      <p className="mt-1 font-display text-2xl">{value}</p>
+      <p className="mt-1 flex items-baseline gap-3 font-display text-2xl">
+        {value}
+        {suffix ? (
+          <span className="text-sm font-sans text-muted-foreground">{suffix}</span>
+        ) : null}
+      </p>
     </div>
   );
 }
