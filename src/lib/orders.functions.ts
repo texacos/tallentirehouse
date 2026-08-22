@@ -43,6 +43,7 @@ export type OrderStats = {
   ordersToday: number;
   paidRevenueMonth: number;
   pendingCount: number;
+  pendingAmount: number;
 };
 
 const filtersSchema = z.object({
@@ -118,10 +119,18 @@ export const adminListOrders = createServerFn({ method: "POST" })
           .gte("created_at", startOfMonth.toISOString()),
         db
           .from("orders")
-          .select("id", { count: "exact", head: true })
+          .select("total")
           .eq("status", "pending"),
         db.from("site_settings").select("value").eq("key", "ziina_test_mode").maybeSingle(),
       ]);
+
+      const pendingTotal =
+        Math.round(
+          ((pendingRes.data ?? []) as { total: number }[]).reduce(
+            (s, r) => s + Number(r.total ?? 0),
+            0,
+          ) * 100,
+        ) / 100;
 
       return {
         rows: (rows ?? []) as AdminOrder[],
