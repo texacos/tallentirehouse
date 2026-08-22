@@ -145,6 +145,7 @@ export const adminListOrders = createServerFn({ method: "POST" })
               ) * 100,
             ) / 100,
           pendingCount: pendingRes.count ?? 0,
+          pendingAmount: pendingTotal,
         },
         testMode: settingRes.data ? Boolean(settingRes.data.value) : true,
       };
