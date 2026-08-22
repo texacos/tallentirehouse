@@ -230,6 +230,18 @@ export function ProductEditor({
           <Button variant="outline" onClick={() => void preview()} disabled={save.isPending}>
             <ExternalLink /> Preview
           </Button>
+          {initial && (
+            <Button
+              variant="destructive"
+              size="icon"
+              aria-label={`Delete ${initial.name}`}
+              title="Delete product"
+              onClick={() => void remove()}
+              disabled={bulk.isPending || save.isPending}
+            >
+              {bulk.isPending ? <Loader2 className="animate-spin" /> : <Trash2 />}
+            </Button>
+          )}
 
           <Button variant="ghost" size="icon" aria-label="Close editor" onClick={attemptClose}>
             <X />
