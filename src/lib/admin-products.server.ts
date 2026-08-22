@@ -469,26 +469,25 @@ export function parseProductValues(input: unknown): AdminProductValues {
   return adminProductSchema.parse(input);
 }
 
-/** Category prefix: one-word category → first two letters, multi-word → initials. */
+/** Category prefix: initials of each word. */
 export function skuPrefixForCategory(category: string): string {
   return skuAbbreviation(category);
 }
 
-/** One word → first two letters; multiple words → initials. Always uppercase. */
+/** Initials of each word, uppercase. */
 export function skuAbbreviation(value: string): string {
   const words = value
     .replace(/[_/]+/g, "-")
     .split(/[\s-]+/)
     .map((w) => w.replace(/[^A-Za-z0-9]/g, ""))
     .filter(Boolean);
-  if (words.length === 0) return "XX";
-  if (words.length === 1) return words[0]!.slice(0, 2).toUpperCase().padEnd(2, "X");
+  if (words.length === 0) return "X";
   return words.map((w) => w[0]!.toUpperCase()).join("");
 }
 
 /**
  * Builds the next SKU for a new product:
- * <CATEGORY>-<DESIGN>-<COLOUR LETTER><running number>.
+ * <CATEGORY>-<DESIGN>-<COLOUR>-<running number>.
  * The running number is scoped to the category prefix.
  */
 export async function generateSku(
@@ -497,14 +496,15 @@ export async function generateSku(
 ): Promise<string> {
   const prefix = skuAbbreviation(values.categories[0] ?? "");
   const design = skuAbbreviation(values.brand ?? "");
-  const colourLetter = (values.colour.trim()[0] ?? "X").toUpperCase().replace(/[^A-Z0-9]/, "X");
+  const colour = skuAbbreviation(values.colour ?? "");
   const { data } = await supabase.from("products").select("sku").ilike("sku", `${prefix}-%`);
   let max = 0;
-  const re = new RegExp(`^${prefix}-[A-Z0-9]+-[A-Z0-9](\\d+)$`, "i");
+  const re = new RegExp(`^${prefix}-[A-Z0-9]+-[A-Z0-9]+-(\\d+)$`, "i");
   for (const row of (data ?? []) as Array<{ sku: string | null }>) {
     const m = re.exec(String(row.sku ?? ""));
     if (m) max = Math.max(max, Number(m[1]));
   }
-  return `${prefix}-${design}-${colourLetter}${max + 1}`;
+  return `${prefix}-${design}-${colour}-${max + 1}`;
 }
+
 
