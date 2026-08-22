@@ -21,9 +21,12 @@ import { Route as AccountRouteImport } from './routes/account'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
+import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as AdminShippingRouteImport } from './routes/admin.shipping'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
+import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminHeroRouteImport } from './routes/admin.hero'
+import { Route as ApiPublicZiinaWebhookRouteImport } from './routes/api/public/ziina-webhook'
 import { Route as ApiPublicProductImagesSplatRouteImport } from './routes/api/public/product-images.$'
 import { Route as ApiPublicHeroImagesSplatRouteImport } from './routes/api/public/hero-images.$'
 
@@ -87,6 +90,11 @@ const ProductSlugRoute = ProductSlugRouteImport.update({
   path: '/product/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
+  id: '/checkout/return',
+  path: '/checkout/return',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminShippingRoute = AdminShippingRouteImport.update({
   id: '/admin/shipping',
   path: '/admin/shipping',
@@ -97,9 +105,19 @@ const AdminProductsRoute = AdminProductsRouteImport.update({
   path: '/admin/products',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminOrdersRoute = AdminOrdersRouteImport.update({
+  id: '/admin/orders',
+  path: '/admin/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminHeroRoute = AdminHeroRouteImport.update({
   id: '/admin/hero',
   path: '/admin/hero',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicZiinaWebhookRoute = ApiPublicZiinaWebhookRouteImport.update({
+  id: '/api/public/ziina-webhook',
+  path: '/api/public/ziina-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicProductImagesSplatRoute =
@@ -128,9 +146,12 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/shop': typeof ShopRoute
   '/admin/hero': typeof AdminHeroRoute
+  '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/shipping': typeof AdminShippingRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/api/public/ziina-webhook': typeof ApiPublicZiinaWebhookRoute
   '/api/public/hero-images/$': typeof ApiPublicHeroImagesSplatRoute
   '/api/public/product-images/$': typeof ApiPublicProductImagesSplatRoute
 }
@@ -147,9 +168,12 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/shop': typeof ShopRoute
   '/admin/hero': typeof AdminHeroRoute
+  '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/shipping': typeof AdminShippingRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/api/public/ziina-webhook': typeof ApiPublicZiinaWebhookRoute
   '/api/public/hero-images/$': typeof ApiPublicHeroImagesSplatRoute
   '/api/public/product-images/$': typeof ApiPublicProductImagesSplatRoute
 }
@@ -167,9 +191,12 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/shop': typeof ShopRoute
   '/admin/hero': typeof AdminHeroRoute
+  '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/shipping': typeof AdminShippingRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/api/public/ziina-webhook': typeof ApiPublicZiinaWebhookRoute
   '/api/public/hero-images/$': typeof ApiPublicHeroImagesSplatRoute
   '/api/public/product-images/$': typeof ApiPublicProductImagesSplatRoute
 }
@@ -188,9 +215,12 @@ export interface FileRouteTypes {
     | '/search'
     | '/shop'
     | '/admin/hero'
+    | '/admin/orders'
     | '/admin/products'
     | '/admin/shipping'
+    | '/checkout/return'
     | '/product/$slug'
+    | '/api/public/ziina-webhook'
     | '/api/public/hero-images/$'
     | '/api/public/product-images/$'
   fileRoutesByTo: FileRoutesByTo
@@ -207,9 +237,12 @@ export interface FileRouteTypes {
     | '/search'
     | '/shop'
     | '/admin/hero'
+    | '/admin/orders'
     | '/admin/products'
     | '/admin/shipping'
+    | '/checkout/return'
     | '/product/$slug'
+    | '/api/public/ziina-webhook'
     | '/api/public/hero-images/$'
     | '/api/public/product-images/$'
   id:
@@ -226,9 +259,12 @@ export interface FileRouteTypes {
     | '/search'
     | '/shop'
     | '/admin/hero'
+    | '/admin/orders'
     | '/admin/products'
     | '/admin/shipping'
+    | '/checkout/return'
     | '/product/$slug'
+    | '/api/public/ziina-webhook'
     | '/api/public/hero-images/$'
     | '/api/public/product-images/$'
   fileRoutesById: FileRoutesById
@@ -246,9 +282,12 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   ShopRoute: typeof ShopRoute
   AdminHeroRoute: typeof AdminHeroRoute
+  AdminOrdersRoute: typeof AdminOrdersRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminShippingRoute: typeof AdminShippingRoute
+  CheckoutReturnRoute: typeof CheckoutReturnRoute
   ProductSlugRoute: typeof ProductSlugRoute
+  ApiPublicZiinaWebhookRoute: typeof ApiPublicZiinaWebhookRoute
   ApiPublicHeroImagesSplatRoute: typeof ApiPublicHeroImagesSplatRoute
   ApiPublicProductImagesSplatRoute: typeof ApiPublicProductImagesSplatRoute
 }
@@ -339,6 +378,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout/return': {
+      id: '/checkout/return'
+      path: '/checkout/return'
+      fullPath: '/checkout/return'
+      preLoaderRoute: typeof CheckoutReturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/shipping': {
       id: '/admin/shipping'
       path: '/admin/shipping'
@@ -353,11 +399,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/orders': {
+      id: '/admin/orders'
+      path: '/admin/orders'
+      fullPath: '/admin/orders'
+      preLoaderRoute: typeof AdminOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/hero': {
       id: '/admin/hero'
       path: '/admin/hero'
       fullPath: '/admin/hero'
       preLoaderRoute: typeof AdminHeroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/ziina-webhook': {
+      id: '/api/public/ziina-webhook'
+      path: '/api/public/ziina-webhook'
+      fullPath: '/api/public/ziina-webhook'
+      preLoaderRoute: typeof ApiPublicZiinaWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/product-images/$': {
@@ -390,9 +450,12 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   ShopRoute: ShopRoute,
   AdminHeroRoute: AdminHeroRoute,
+  AdminOrdersRoute: AdminOrdersRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminShippingRoute: AdminShippingRoute,
+  CheckoutReturnRoute: CheckoutReturnRoute,
   ProductSlugRoute: ProductSlugRoute,
+  ApiPublicZiinaWebhookRoute: ApiPublicZiinaWebhookRoute,
   ApiPublicHeroImagesSplatRoute: ApiPublicHeroImagesSplatRoute,
   ApiPublicProductImagesSplatRoute: ApiPublicProductImagesSplatRoute,
 }

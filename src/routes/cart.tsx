@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
 import { useShippingDestinations, useShippingOptions } from "@/lib/shipping";
+import { createCheckout } from "@/lib/checkout.functions";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,7 +45,8 @@ const emptyAddress = (): Address => ({
 
 function CartPage() {
   const { detailed, subtotal, setQty, remove, count } = useCart();
-  const [placed, setPlaced] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [billing, setBilling] = useState<Address>(emptyAddress());
   const [deliverySame, setDeliverySame] = useState(true);
   const [shipping, setShipping] = useState<Address>(emptyAddress());
@@ -138,26 +140,37 @@ function CartPage() {
         shipping.postcode.trim() &&
         shipping.country.trim()));
 
-  const canPlace = count > 0 && shippingKnown && !!addressComplete;
+  const canPlace = count > 0 && shippingKnown && !!addressComplete && !submitting;
 
-
-  if (placed) {
-    return (
-      <div className="mx-auto max-w-2xl px-6 py-32 text-center">
-        <p className="eyebrow text-foreground/60">Thank you</p>
-        <h1 className="mt-4 font-display text-5xl">Your order is on its way</h1>
-        <p className="mt-5 text-sm text-muted-foreground leading-relaxed">
-          This is a preview checkout — connect Stripe to take live payments.
-        </p>
-        <Link
-          to="/shop"
-          className="mt-8 inline-block bg-foreground text-background px-8 py-4 text-xs uppercase tracking-[0.22em]"
-        >
-          Continue shopping
-        </Link>
-      </div>
-    );
+  async function startCheckout() {
+    if (submitting) return;
+    setSubmitting(true);
+    setCheckoutError(null);
+    try {
+      const res = await createCheckout({
+        data: {
+          items: detailed.map((d) => ({
+            slug: d.product.slug,
+            size: d.size ?? undefined,
+            qty: d.qty,
+          })),
+          billing,
+          delivery: deliverySame ? billing : { ...shipping, email: billing.email, phone: billing.phone },
+          carrierCode: selected?.carrierCode ?? "",
+        },
+      });
+      if (res.ok) {
+        window.location.href = res.redirectUrl;
+        return;
+      }
+      setCheckoutError(res.error);
+    } catch {
+      setCheckoutError("We couldn't reach the payment provider. Please try again.");
+    }
+    setSubmitting(false);
   }
+
+
 
   if (count === 0) {
     return (
@@ -414,13 +427,16 @@ function CartPage() {
           </div>
 
           <button
-            onClick={() => setPlaced(true)}
+            onClick={() => void startCheckout()}
             disabled={!canPlace}
             className="mt-6 w-full bg-foreground text-background py-4 text-xs uppercase tracking-[0.22em] hover:bg-foreground/85 transition disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Proceed to checkout
+            {submitting ? "Redirecting to payment…" : "Proceed to payment"}
           </button>
-          {!canPlace && (
+          {checkoutError && (
+            <p className="mt-3 text-xs text-destructive text-center">{checkoutError}</p>
+          )}
+          {!canPlace && !submitting && (
             <p className="mt-3 text-xs text-muted-foreground text-center">
               Complete delivery address to calculate shipping.
             </p>
