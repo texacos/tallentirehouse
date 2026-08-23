@@ -462,7 +462,11 @@ function About() {
       <Section label="A language of many crafts">
         <figure>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <StoryFigure ratio="aspect-square" />
+            <StoryPhoto
+              imageSet={HAND_EMBROIDERY}
+              alt="An embroiderer's hands stitching a colourful butterfly motif in teal, purple and gold onto dark cloth."
+              sizes="(min-width: 1024px) 384px, 50vw"
+            />
             <StoryPhoto
               imageSet={FINISHED_DESIGN}
               alt="A finished Tallentire House design: a teal silk cushion embroidered with colourful butterflies."
