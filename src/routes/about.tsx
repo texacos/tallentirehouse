@@ -8,6 +8,22 @@ import kutch1997Webp480 from "@/assets/story/kutch-1997-w480.webp.asset.json";
 import kutch1997Webp960 from "@/assets/story/kutch-1997-w960.webp.asset.json";
 import kutch1997Webp1440 from "@/assets/story/kutch-1997-w1440.webp.asset.json";
 import kutch1997Webp1920 from "@/assets/story/kutch-1997-w1920.webp.asset.json";
+import bedspreadJpg480 from "@/assets/story/finished-bedspread-w480.jpg.asset.json";
+import bedspreadJpg960 from "@/assets/story/finished-bedspread-w960.jpg.asset.json";
+import bedspreadJpg1440 from "@/assets/story/finished-bedspread-w1440.jpg.asset.json";
+import bedspreadJpg1920 from "@/assets/story/finished-bedspread-w1920.jpg.asset.json";
+import bedspreadWebp480 from "@/assets/story/finished-bedspread-w480.webp.asset.json";
+import bedspreadWebp960 from "@/assets/story/finished-bedspread-w960.webp.asset.json";
+import bedspreadWebp1440 from "@/assets/story/finished-bedspread-w1440.webp.asset.json";
+import bedspreadWebp1920 from "@/assets/story/finished-bedspread-w1920.webp.asset.json";
+import designJpg480 from "@/assets/story/finished-design-w480.jpg.asset.json";
+import designJpg960 from "@/assets/story/finished-design-w960.jpg.asset.json";
+import designJpg1440 from "@/assets/story/finished-design-w1440.jpg.asset.json";
+import designJpg1800 from "@/assets/story/finished-design-w1800.jpg.asset.json";
+import designWebp480 from "@/assets/story/finished-design-w480.webp.asset.json";
+import designWebp960 from "@/assets/story/finished-design-w960.webp.asset.json";
+import designWebp1440 from "@/assets/story/finished-design-w1440.webp.asset.json";
+import designWebp1800 from "@/assets/story/finished-design-w1800.webp.asset.json";
 
 const KUTCH_1997 = {
   jpeg: [
@@ -22,11 +38,53 @@ const KUTCH_1997 = {
     [kutch1997Webp1440, 1440],
     [kutch1997Webp1920, 1920],
   ] as const,
+  width: 1920,
+  height: 1080,
+};
+
+const FINISHED_BEDSPREAD = {
+  jpeg: [
+    [bedspreadJpg480, 480],
+    [bedspreadJpg960, 960],
+    [bedspreadJpg1440, 1440],
+    [bedspreadJpg1920, 1920],
+  ] as const,
+  webp: [
+    [bedspreadWebp480, 480],
+    [bedspreadWebp960, 960],
+    [bedspreadWebp1440, 1440],
+    [bedspreadWebp1920, 1920],
+  ] as const,
+  width: 1920,
+  height: 1080,
+};
+
+const FINISHED_DESIGN = {
+  jpeg: [
+    [designJpg480, 480],
+    [designJpg960, 960],
+    [designJpg1440, 1440],
+    [designJpg1800, 1800],
+  ] as const,
+  webp: [
+    [designWebp480, 480],
+    [designWebp960, 960],
+    [designWebp1440, 1440],
+    [designWebp1800, 1800],
+  ] as const,
+  width: 1800,
+  height: 1800,
+};
+
+type ImageSet = {
+  jpeg: ReadonlyArray<readonly [{ url: string }, number]>;
+  webp: ReadonlyArray<readonly [{ url: string }, number]>;
+  width: number;
+  height: number;
 };
 
 const srcSet = (list: ReadonlyArray<readonly [{ url: string }, number]>) =>
   list.map(([a, w]) => `${a.url} ${w}w`).join(", ");
-
 
 const SITE = "https://tallentirehouse.lovable.app";
 
@@ -84,11 +142,13 @@ function StoryFigure({
 
 /** Real photo with responsive WebP + JPEG derivatives. */
 function StoryPhoto({
+  imageSet,
   caption,
   alt,
   className = "",
   sizes = "(min-width: 1024px) 768px, 100vw",
 }: {
+  imageSet: ImageSet;
   caption?: string;
   alt: string;
   className?: string;
@@ -97,14 +157,14 @@ function StoryPhoto({
   return (
     <figure className={className}>
       <picture>
-        <source type="image/webp" srcSet={srcSet(KUTCH_1997.webp)} sizes={sizes} />
+        <source type="image/webp" srcSet={srcSet(imageSet.webp)} sizes={sizes} />
         <img
-          src={KUTCH_1997.jpeg[2][0].url}
-          srcSet={srcSet(KUTCH_1997.jpeg)}
+          src={imageSet.jpeg[imageSet.jpeg.length - 2]?.[0].url ?? imageSet.jpeg[0][0].url}
+          srcSet={srcSet(imageSet.jpeg)}
           sizes={sizes}
           alt={alt}
-          width={1920}
-          height={1080}
+          width={imageSet.width}
+          height={imageSet.height}
           loading="lazy"
           decoding="async"
           className="w-full h-auto"
@@ -118,7 +178,6 @@ function StoryPhoto({
     </figure>
   );
 }
-
 
 function PullQuote({ children }: { children: React.ReactNode }) {
   return (
@@ -179,6 +238,7 @@ function About() {
           depth of knowledge held by the people making them.
         </p>
         <StoryPhoto
+          imageSet={KUTCH_1997}
           caption="My first visit to Kutch, 1997."
           alt="Lindsay in a pink handwoven shawl with three women and girls in embroidered Kutchi dress outside a painted village house, Kutch, 1997."
           className="py-4"
@@ -259,7 +319,12 @@ function About() {
 
       {/* 5. From loom to finished piece */}
       <Section label="From loom to finished piece">
-        <StoryFigure caption="The finished handwoven bedspread in Sri Lanka." />
+        <StoryPhoto
+          imageSet={FINISHED_BEDSPREAD}
+          caption="The finished handwoven bedspread in Sri Lanka."
+          alt="A beautifully made bed dressed with a handwoven white bedspread and patterned blue cushions in a light-filled Sri Lankan bedroom."
+          sizes="(min-width: 1024px) 768px, 100vw"
+        />
         <PullQuote>Traditional skill does not have to mean traditional design.</PullQuote>
         <p>
           The relationships matter as much as the techniques. I have worked with some families
@@ -276,7 +341,12 @@ function About() {
         <figure>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <StoryFigure ratio="aspect-square" />
-            <StoryFigure ratio="aspect-square" />
+            <StoryPhoto
+              imageSet={FINISHED_DESIGN}
+              alt="A finished Tallentire House design: a teal silk cushion embroidered with colourful butterflies."
+              sizes="(min-width: 1024px) 384px, 50vw"
+              className=""
+            />
           </div>
           <figcaption className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
             Hand embroidery in progress, and a finished Tallentire House design.
