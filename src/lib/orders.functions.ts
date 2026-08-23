@@ -111,15 +111,18 @@ export const adminListOrders = createServerFn({ method: "POST" })
         db
           .from("orders")
           .select("id", { count: "exact", head: true })
+          .eq("is_test", false)
           .gte("created_at", startOfDay.toISOString()),
         db
           .from("orders")
           .select("total")
+          .eq("is_test", false)
           .eq("status", "paid")
           .gte("created_at", startOfMonth.toISOString()),
         db
           .from("orders")
           .select("id,total", { count: "exact" })
+          .eq("is_test", false)
           .eq("status", "pending"),
         db.from("site_settings").select("value").eq("key", "ziina_test_mode").maybeSingle(),
       ]);
