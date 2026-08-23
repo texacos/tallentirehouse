@@ -420,8 +420,16 @@ function About() {
         </p>
         <figure>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <StoryFigure ratio="aspect-square" />
-            <StoryFigure ratio="aspect-square" />
+            <StoryPhoto
+              imageSet={SHAMJI_WEAVING}
+              alt="Shamji Vankar's hands at the handloom, tying in a thread across a warp with a partly woven motif."
+              sizes="(min-width: 1024px) 384px, 50vw"
+            />
+            <StoryPhoto
+              imageSet={CHECKING_DESIGN}
+              alt="Shamji Vankar holding up a cream cloth with grey triangle motifs to check one of Lindsay's bedspread designs."
+              sizes="(min-width: 1024px) 384px, 50vw"
+            />
           </div>
           <figcaption className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
             Shamji Vankar weaving and checking one of Lindsay's bedspread designs in Bhujodi, Kutch.
