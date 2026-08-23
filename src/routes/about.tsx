@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import heroInterior from "@/assets/hero-interior.jpg.asset.json";
+import shareImage from "@/assets/story/kutch-early-visit-w1440.jpg.asset.json";
 import kutch1997Jpg480 from "@/assets/story/kutch-1997-w480.jpg.asset.json";
 import kutch1997Jpg960 from "@/assets/story/kutch-1997-w960.jpg.asset.json";
 import kutch1997Jpg1440 from "@/assets/story/kutch-1997-w1440.jpg.asset.json";
@@ -211,9 +211,11 @@ export const Route = createFileRoute("/about")({
       },
       { property: "og:type", content: "article" },
       { property: "og:url", content: `${SITE}/about` },
-      { property: "og:image", content: `${SITE}${heroInterior.url}` },
+      { property: "og:image", content: `${SITE}${shareImage.url}` },
+      { property: "og:image:width", content: "1440" },
+      { property: "og:image:height", content: "810" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: `${SITE}${heroInterior.url}` },
+      { name: "twitter:image", content: `${SITE}${shareImage.url}` },
     ],
     links: [{ rel: "canonical", href: `${SITE}/about` }],
   }),
