@@ -385,8 +385,16 @@ function About() {
         <PullQuote>For me, designing has always happened in the making.</PullQuote>
         <figure>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <StoryFigure ratio="aspect-square" />
-            <StoryFigure ratio="aspect-square" />
+            <StoryPhoto
+              imageSet={INDIGO}
+              alt="A traditional indigo dye vat set into the ground, ringed with clay tiles, the surface crusted with deep blue pigment."
+              sizes="(min-width: 1024px) 384px, 50vw"
+            />
+            <StoryPhoto
+              imageSet={CHECKING_DESIGN}
+              alt="A printer lifting a freshly dyed block-printed cloth with triangle motifs out of a washing barrel."
+              sizes="(min-width: 1024px) 384px, 50vw"
+            />
           </div>
           <figcaption className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
             Indigo, washing and dyeing: the process is part of the design.
