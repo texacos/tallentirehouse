@@ -24,6 +24,112 @@ import designWebp480 from "@/assets/story/finished-design-w480.webp.asset.json";
 import designWebp960 from "@/assets/story/finished-design-w960.webp.asset.json";
 import designWebp1440 from "@/assets/story/finished-design-w1440.webp.asset.json";
 import designWebp1800 from "@/assets/story/finished-design-w1800.webp.asset.json";
+import kutchEarlyJpg480 from "@/assets/story/kutch-early-visit-w480.jpg.asset.json";
+import kutchEarlyJpg960 from "@/assets/story/kutch-early-visit-w960.jpg.asset.json";
+import kutchEarlyJpg1440 from "@/assets/story/kutch-early-visit-w1440.jpg.asset.json";
+import kutchEarlyJpg1920 from "@/assets/story/kutch-early-visit-w1920.jpg.asset.json";
+import kutchEarlyWebp480 from "@/assets/story/kutch-early-visit-w480.webp.asset.json";
+import kutchEarlyWebp960 from "@/assets/story/kutch-early-visit-w960.webp.asset.json";
+import kutchEarlyWebp1440 from "@/assets/story/kutch-early-visit-w1440.webp.asset.json";
+import kutchEarlyWebp1920 from "@/assets/story/kutch-early-visit-w1920.webp.asset.json";
+import indigoJpg480 from "@/assets/story/indigo-dyeing-w480.jpg.asset.json";
+import indigoJpg960 from "@/assets/story/indigo-dyeing-w960.jpg.asset.json";
+import indigoJpg1440 from "@/assets/story/indigo-dyeing-w1440.jpg.asset.json";
+import indigoWebp480 from "@/assets/story/indigo-dyeing-w480.webp.asset.json";
+import indigoWebp960 from "@/assets/story/indigo-dyeing-w960.webp.asset.json";
+import indigoWebp1440 from "@/assets/story/indigo-dyeing-w1440.webp.asset.json";
+import shamjiJpg480 from "@/assets/story/shamji-weaving-w480.jpg.asset.json";
+import shamjiJpg960 from "@/assets/story/shamji-weaving-w960.jpg.asset.json";
+import shamjiJpg1440 from "@/assets/story/shamji-weaving-w1440.jpg.asset.json";
+import shamjiWebp480 from "@/assets/story/shamji-weaving-w480.webp.asset.json";
+import shamjiWebp960 from "@/assets/story/shamji-weaving-w960.webp.asset.json";
+import shamjiWebp1440 from "@/assets/story/shamji-weaving-w1440.webp.asset.json";
+import checkingJpg480 from "@/assets/story/checking-bedspread-design-w480.jpg.asset.json";
+import checkingJpg960 from "@/assets/story/checking-bedspread-design-w960.jpg.asset.json";
+import checkingJpg1440 from "@/assets/story/checking-bedspread-design-w1440.jpg.asset.json";
+import checkingWebp480 from "@/assets/story/checking-bedspread-design-w480.webp.asset.json";
+import checkingWebp960 from "@/assets/story/checking-bedspread-design-w960.webp.asset.json";
+import checkingWebp1440 from "@/assets/story/checking-bedspread-design-w1440.webp.asset.json";
+import embroideryJpg480 from "@/assets/story/hand-embroidery-w480.jpg.asset.json";
+import embroideryJpg960 from "@/assets/story/hand-embroidery-w960.jpg.asset.json";
+import embroideryJpg1440 from "@/assets/story/hand-embroidery-w1440.jpg.asset.json";
+import embroideryWebp480 from "@/assets/story/hand-embroidery-w480.webp.asset.json";
+import embroideryWebp960 from "@/assets/story/hand-embroidery-w960.webp.asset.json";
+import embroideryWebp1440 from "@/assets/story/hand-embroidery-w1440.webp.asset.json";
+
+const KUTCH_EARLY = {
+  jpeg: [
+    [kutchEarlyJpg480, 480],
+    [kutchEarlyJpg960, 960],
+    [kutchEarlyJpg1440, 1440],
+    [kutchEarlyJpg1920, 1920],
+  ] as const,
+  webp: [
+    [kutchEarlyWebp480, 480],
+    [kutchEarlyWebp960, 960],
+    [kutchEarlyWebp1440, 1440],
+    [kutchEarlyWebp1920, 1920],
+  ] as const,
+  width: 1920,
+  height: 1080,
+};
+
+const square = (
+  jpeg: ReadonlyArray<readonly [{ url: string }, number]>,
+  webp: ReadonlyArray<readonly [{ url: string }, number]>,
+) => ({ jpeg, webp, width: 1800, height: 1800 });
+
+const INDIGO = square(
+  [
+    [indigoJpg480, 480],
+    [indigoJpg960, 960],
+    [indigoJpg1440, 1440],
+  ] as const,
+  [
+    [indigoWebp480, 480],
+    [indigoWebp960, 960],
+    [indigoWebp1440, 1440],
+  ] as const,
+);
+
+const SHAMJI_WEAVING = square(
+  [
+    [shamjiJpg480, 480],
+    [shamjiJpg960, 960],
+    [shamjiJpg1440, 1440],
+  ] as const,
+  [
+    [shamjiWebp480, 480],
+    [shamjiWebp960, 960],
+    [shamjiWebp1440, 1440],
+  ] as const,
+);
+
+const CHECKING_DESIGN = square(
+  [
+    [checkingJpg480, 480],
+    [checkingJpg960, 960],
+    [checkingJpg1440, 1440],
+  ] as const,
+  [
+    [checkingWebp480, 480],
+    [checkingWebp960, 960],
+    [checkingWebp1440, 1440],
+  ] as const,
+);
+
+const HAND_EMBROIDERY = square(
+  [
+    [embroideryJpg480, 480],
+    [embroideryJpg960, 960],
+    [embroideryJpg1440, 1440],
+  ] as const,
+  [
+    [embroideryWebp480, 480],
+    [embroideryWebp960, 960],
+    [embroideryWebp1440, 1440],
+  ] as const,
+);
 
 const KUTCH_1997 = {
   jpeg: [
