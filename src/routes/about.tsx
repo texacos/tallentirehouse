@@ -322,7 +322,12 @@ function About() {
 
       {/* 1. Opening image */}
       <section className="mx-auto max-w-5xl px-6 pb-4">
-        <StoryFigure caption="Kutch, one of the early visits." ratio="aspect-[3/2]" />
+        <StoryPhoto
+          imageSet={KUTCH_EARLY}
+          caption="Kutch, one of the early visits."
+          alt="Lindsay sitting among freshly block-printed cloths drying in the sun while a printer works nearby, Kutch."
+          sizes="(min-width: 1024px) 1024px, 100vw"
+        />
         <div className="mx-auto max-w-3xl">
           <PullQuote>
             Colour, cloth, craftsmanship — and the people you meet along the way.
