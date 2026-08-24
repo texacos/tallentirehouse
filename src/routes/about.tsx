@@ -424,11 +424,16 @@ function About() {
         </p>
         <PullQuote>For me, designing has always happened in the making.</PullQuote>
         <figure>
-          <div className="mx-auto max-w-md">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <StoryPhoto
               imageSet={INDIGO}
               alt="A traditional indigo dye vat set into the ground, ringed with clay tiles, the surface crusted with deep blue pigment."
-              sizes="(min-width: 1024px) 448px, 100vw"
+              sizes="(min-width: 1024px) 384px, 50vw"
+            />
+            <StoryPhoto
+              imageSet={WASHING_DYEING}
+              alt="A dyer standing waist-deep in a washing tank, rinsing a red and indigo printed cloth in the sun."
+              sizes="(min-width: 1024px) 384px, 50vw"
             />
           </div>
           <figcaption className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
