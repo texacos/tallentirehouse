@@ -260,31 +260,6 @@ export const Route = createFileRoute("/about")({
   component: About,
 });
 
-/** Placeholder image slot — replaced with real CDN assets once photos are uploaded. */
-function StoryFigure({
-  caption,
-  ratio = "aspect-[3/2]",
-  className = "",
-}: {
-  caption?: string;
-  ratio?: string;
-  className?: string;
-}) {
-  return (
-    <figure className={className}>
-      <div
-        className={`${ratio} w-full bg-muted/60 border border-border flex items-center justify-center`}
-      >
-        <span className="eyebrow text-foreground/30">Image</span>
-      </div>
-      {caption ? (
-        <figcaption className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
-          {caption}
-        </figcaption>
-      ) : null}
-    </figure>
-  );
-}
 
 /** Real photo with responsive WebP + JPEG derivatives. */
 function StoryPhoto({
