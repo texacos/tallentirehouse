@@ -7,6 +7,8 @@ import { ProductCard } from "@/components/site/ProductCard";
 import { ProductImage } from "@/components/site/ProductImage";
 import heroInterior from "@/assets/hero-interior.jpg.asset.json";
 
+const SITE = "https://tallentirehouse.lovable.app";
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -14,9 +16,13 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Hand-blocked, hand-embroidered, hand-loomed, hand-woven slow-craft textiles from our Sri Lankan workshop. Made to last." },
       { property: "og:title", content: "Tallentire House — Sustainable luxury homewares" },
       { property: "og:description", content: "Slow-craft homewares from our Sri Lankan workshop." },
-      { property: "og:image", content: heroInterior.url },
-      { name: "twitter:image", content: heroInterior.url },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: `${SITE}/` },
+      { property: "og:image", content: `${SITE}${heroInterior.url}` },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: `${SITE}${heroInterior.url}` },
     ],
+    links: [{ rel: "canonical", href: `${SITE}/` }],
   }),
   loader: async ({ context }) => {
     await Promise.all([
