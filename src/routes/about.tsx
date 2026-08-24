@@ -56,6 +56,18 @@ import embroideryJpg1440 from "@/assets/story/hand-embroidery-w1440.jpg.asset.js
 import embroideryWebp480 from "@/assets/story/hand-embroidery-w480.webp.asset.json";
 import embroideryWebp960 from "@/assets/story/hand-embroidery-w960.webp.asset.json";
 import embroideryWebp1440 from "@/assets/story/hand-embroidery-w1440.webp.asset.json";
+import washingJpg480 from "@/assets/story/washing-dyeing-w480.jpg.asset.json";
+import washingJpg960 from "@/assets/story/washing-dyeing-w960.jpg.asset.json";
+import washingJpg1440 from "@/assets/story/washing-dyeing-w1440.jpg.asset.json";
+import washingWebp480 from "@/assets/story/washing-dyeing-w480.webp.asset.json";
+import washingWebp960 from "@/assets/story/washing-dyeing-w960.webp.asset.json";
+import washingWebp1440 from "@/assets/story/washing-dyeing-w1440.webp.asset.json";
+import clothingJpg480 from "@/assets/story/lindsay-fiona-clothing-w480.jpg.asset.json";
+import clothingJpg960 from "@/assets/story/lindsay-fiona-clothing-w960.jpg.asset.json";
+import clothingJpg1440 from "@/assets/story/lindsay-fiona-clothing-w1440.jpg.asset.json";
+import clothingWebp480 from "@/assets/story/lindsay-fiona-clothing-w480.webp.asset.json";
+import clothingWebp960 from "@/assets/story/lindsay-fiona-clothing-w960.webp.asset.json";
+import clothingWebp1440 from "@/assets/story/lindsay-fiona-clothing-w1440.webp.asset.json";
 
 const KUTCH_EARLY = {
   jpeg: [
@@ -128,6 +140,32 @@ const HAND_EMBROIDERY = square(
     [embroideryWebp480, 480],
     [embroideryWebp960, 960],
     [embroideryWebp1440, 1440],
+  ] as const,
+);
+
+const WASHING_DYEING = square(
+  [
+    [washingJpg480, 480],
+    [washingJpg960, 960],
+    [washingJpg1440, 1440],
+  ] as const,
+  [
+    [washingWebp480, 480],
+    [washingWebp960, 960],
+    [washingWebp1440, 1440],
+  ] as const,
+);
+
+const LINDSAY_FIONA = square(
+  [
+    [clothingJpg480, 480],
+    [clothingJpg960, 960],
+    [clothingJpg1440, 1440],
+  ] as const,
+  [
+    [clothingWebp480, 480],
+    [clothingWebp960, 960],
+    [clothingWebp1440, 1440],
   ] as const,
 );
 
@@ -222,31 +260,6 @@ export const Route = createFileRoute("/about")({
   component: About,
 });
 
-/** Placeholder image slot — replaced with real CDN assets once photos are uploaded. */
-function StoryFigure({
-  caption,
-  ratio = "aspect-[3/2]",
-  className = "",
-}: {
-  caption?: string;
-  ratio?: string;
-  className?: string;
-}) {
-  return (
-    <figure className={className}>
-      <div
-        className={`${ratio} w-full bg-muted/60 border border-border flex items-center justify-center`}
-      >
-        <span className="eyebrow text-foreground/30">Image</span>
-      </div>
-      {caption ? (
-        <figcaption className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
-          {caption}
-        </figcaption>
-      ) : null}
-    </figure>
-  );
-}
 
 /** Real photo with responsive WebP + JPEG derivatives. */
 function StoryPhoto({
@@ -386,11 +399,16 @@ function About() {
         </p>
         <PullQuote>For me, designing has always happened in the making.</PullQuote>
         <figure>
-          <div className="mx-auto max-w-md">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <StoryPhoto
               imageSet={INDIGO}
               alt="A traditional indigo dye vat set into the ground, ringed with clay tiles, the surface crusted with deep blue pigment."
-              sizes="(min-width: 1024px) 448px, 100vw"
+              sizes="(min-width: 1024px) 384px, 50vw"
+            />
+            <StoryPhoto
+              imageSet={WASHING_DYEING}
+              alt="A dyer standing waist-deep in a washing tank, rinsing a red and indigo printed cloth in the sun."
+              sizes="(min-width: 1024px) 384px, 50vw"
             />
           </div>
           <figcaption className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
@@ -496,7 +514,12 @@ function About() {
 
       {/* 7. The clothing */}
       <Section label="The clothing">
-        <StoryFigure caption="Lindsay and Fiona Taylor wearing handwoven cloth developed with the weavers of Kutch." />
+        <StoryPhoto
+          imageSet={LINDSAY_FIONA}
+          caption="Lindsay and Fiona Taylor wearing handwoven cloth developed with the weavers of Kutch."
+          alt="Lindsay and Fiona Taylor standing in front of a flowering wisteria, both wearing cream handwoven striped tops."
+          sizes="(min-width: 1024px) 768px, 100vw"
+        />
         <p>
           Fiona and I have worked creatively together for most of our adult lives, so collaborating
           on the clothing feels very natural. We have different but complementary instincts: my
