@@ -539,7 +539,12 @@ function About() {
 
       {/* 7. The clothing */}
       <Section label="The clothing">
-        <StoryFigure caption="Lindsay and Fiona Taylor wearing handwoven cloth developed with the weavers of Kutch." />
+        <StoryPhoto
+          imageSet={LINDSAY_FIONA}
+          caption="Lindsay and Fiona Taylor wearing handwoven cloth developed with the weavers of Kutch."
+          alt="Lindsay and Fiona Taylor standing in front of a flowering wisteria, both wearing cream handwoven striped tops."
+          sizes="(min-width: 1024px) 768px, 100vw"
+        />
         <p>
           Fiona and I have worked creatively together for most of our adult lives, so collaborating
           on the clothing feels very natural. We have different but complementary instincts: my
