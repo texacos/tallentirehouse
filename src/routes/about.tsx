@@ -56,6 +56,18 @@ import embroideryJpg1440 from "@/assets/story/hand-embroidery-w1440.jpg.asset.js
 import embroideryWebp480 from "@/assets/story/hand-embroidery-w480.webp.asset.json";
 import embroideryWebp960 from "@/assets/story/hand-embroidery-w960.webp.asset.json";
 import embroideryWebp1440 from "@/assets/story/hand-embroidery-w1440.webp.asset.json";
+import washingJpg480 from "@/assets/story/washing-dyeing-w480.jpg.asset.json";
+import washingJpg960 from "@/assets/story/washing-dyeing-w960.jpg.asset.json";
+import washingJpg1440 from "@/assets/story/washing-dyeing-w1440.jpg.asset.json";
+import washingWebp480 from "@/assets/story/washing-dyeing-w480.webp.asset.json";
+import washingWebp960 from "@/assets/story/washing-dyeing-w960.webp.asset.json";
+import washingWebp1440 from "@/assets/story/washing-dyeing-w1440.webp.asset.json";
+import clothingJpg480 from "@/assets/story/lindsay-fiona-clothing-w480.jpg.asset.json";
+import clothingJpg960 from "@/assets/story/lindsay-fiona-clothing-w960.jpg.asset.json";
+import clothingJpg1440 from "@/assets/story/lindsay-fiona-clothing-w1440.jpg.asset.json";
+import clothingWebp480 from "@/assets/story/lindsay-fiona-clothing-w480.webp.asset.json";
+import clothingWebp960 from "@/assets/story/lindsay-fiona-clothing-w960.webp.asset.json";
+import clothingWebp1440 from "@/assets/story/lindsay-fiona-clothing-w1440.webp.asset.json";
 
 const KUTCH_EARLY = {
   jpeg: [
