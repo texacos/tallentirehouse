@@ -158,18 +158,23 @@ const WASHING_DYEING = square(
   ] as const,
 );
 
-const LINDSAY_FIONA = square(
-  [
+const LINDSAY_FIONA = {
+  jpeg: [
     [clothingJpg480, 480],
     [clothingJpg960, 960],
     [clothingJpg1440, 1440],
+    [clothingJpg1920, 1920],
   ] as const,
-  [
+  webp: [
     [clothingWebp480, 480],
     [clothingWebp960, 960],
     [clothingWebp1440, 1440],
+    [clothingWebp1920, 1920],
   ] as const,
-);
+  width: 1920,
+  height: 1080,
+};
+
 
 const KUTCH_1997 = {
   jpeg: [
