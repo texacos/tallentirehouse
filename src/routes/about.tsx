@@ -143,6 +143,32 @@ const HAND_EMBROIDERY = square(
   ] as const,
 );
 
+const WASHING_DYEING = square(
+  [
+    [washingJpg480, 480],
+    [washingJpg960, 960],
+    [washingJpg1440, 1440],
+  ] as const,
+  [
+    [washingWebp480, 480],
+    [washingWebp960, 960],
+    [washingWebp1440, 1440],
+  ] as const,
+);
+
+const LINDSAY_FIONA = square(
+  [
+    [clothingJpg480, 480],
+    [clothingJpg960, 960],
+    [clothingJpg1440, 1440],
+  ] as const,
+  [
+    [clothingWebp480, 480],
+    [clothingWebp960, 960],
+    [clothingWebp1440, 1440],
+  ] as const,
+);
+
 const KUTCH_1997 = {
   jpeg: [
     [kutch1997Jpg480, 480],
