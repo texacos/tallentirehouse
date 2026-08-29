@@ -115,6 +115,8 @@ export const createCheckout = createServerFn({ method: "POST" })
           phone: data.billing.phone,
           items: lines,
           items_count: lines.reduce((s, l) => s + l.qty, 0),
+          shipping_snapshot: snapshot ?? {},
+
         } as never)
         .select("id, order_number")
         .single();
