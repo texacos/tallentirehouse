@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
+import { ARAMEX_DOMESTIC_CODE } from "./aramex-domestic";
+
 import {
   quote,
   type CarrierConfig,
@@ -226,14 +228,19 @@ export type ShippingOption = {
 
 /** Quotes for every active carrier, so the buyer can choose a delivery method. */
 export const listShippingOptions = createServerFn({ method: "POST" })
-  .inputValidator((input: { country: string; weightKg: number; subtotal: number }) => {
+  .inputValidator((input: { country: string; city?: string; weightKg: number; subtotal: number }) => {
     const country = String(input?.country ?? "").trim();
     const weightKg = Number(input?.weightKg ?? 0);
     const subtotal = Number(input?.subtotal ?? 0);
     if (!country) throw new Error("Country is required");
     if (!Number.isFinite(weightKg) || weightKg < 0) throw new Error("Invalid weight");
     if (!Number.isFinite(subtotal) || subtotal < 0) throw new Error("Invalid subtotal");
-    return { country: country.slice(0, 120), weightKg, subtotal };
+    return {
+      country: country.slice(0, 120),
+      city: String(input?.city ?? "").trim().slice(0, 160),
+      weightKg,
+      subtotal,
+    };
   })
   .handler(async ({ data }): Promise<ShippingOption[]> => {
     const supabase = publicClient();
@@ -251,3 +258,4 @@ export const listShippingOptions = createServerFn({ method: "POST" })
     );
     return results;
   });
+
