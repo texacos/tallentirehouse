@@ -1,5 +1,6 @@
 // Server-only shipping quote, reusable from checkout with any Supabase client.
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { ARAMEX_DOMESTIC_CODE } from "./aramex-domestic";
 import {
   quote,
   type CarrierConfig,
@@ -12,10 +13,24 @@ import {
 type Db = SupabaseClient<any, any, any>;
 type Row = Record<string, unknown>;
 
+export type QuoteForResult = {
+  quote: Quote | null;
+  carrierName: string;
+  /** Non-null only for carriers that record how the price was derived. */
+  snapshot: Record<string, unknown> | null;
+  message: string | null;
+};
+
 export async function quoteShippingFor(
   db: Db,
-  args: { country: string; weightKg: number; subtotal: number; carrierCode: string },
-): Promise<{ quote: Quote | null; carrierName: string }> {
+  args: {
+    country: string;
+    city?: string;
+    weightKg: number;
+    subtotal: number;
+    carrierCode: string;
+  },
+): Promise<QuoteForResult> {
   const { data: carriers, error } = await db
     .from("shipping_carriers")
     .select(
@@ -26,7 +41,8 @@ export async function quoteShippingFor(
     .limit(1);
   if (error) throw new Error(error.message);
   const row = (carriers ?? [])[0] as Row | undefined;
-  if (!row) return { quote: null, carrierName: "" };
+  if (!row) return { quote: null, carrierName: "", snapshot: null, message: null };
+
 
   const carrier: CarrierConfig = {
     id: row["id"] as string,
