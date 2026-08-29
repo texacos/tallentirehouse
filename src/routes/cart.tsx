@@ -495,8 +495,13 @@ function AddressBlock({
           <Input value={address.line2} onChange={(e) => update("line2", e.target.value)} />
         </Cell>
         <Cell label="City">
-          <Input value={address.city} onChange={(e) => update("city", e.target.value)} />
+          {address.country.trim().toLowerCase() === "sri lanka" ? (
+            <CityAutocomplete value={address.city} onChange={(c) => update("city", c)} />
+          ) : (
+            <Input value={address.city} onChange={(e) => update("city", e.target.value)} />
+          )}
         </Cell>
+
         <Cell label="State / Region">
           <Input value={address.region} onChange={(e) => update("region", e.target.value)} />
         </Cell>
