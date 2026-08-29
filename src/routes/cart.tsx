@@ -5,6 +5,8 @@ import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
 import { useShippingDestinations, useShippingOptions } from "@/lib/shipping";
 import { createCheckout } from "@/lib/checkout.functions";
+import { CityAutocomplete } from "@/components/site/CityAutocomplete";
+
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -67,10 +69,12 @@ function CartPage() {
 
   const optionsQ = useShippingOptions({
     country: shipping.country,
+    city: shipping.city,
     weightKg: Number(totalWeight.toFixed(3)),
     subtotal,
     enabled: count > 0,
   });
+
 
   const options = useMemo(() => optionsQ.data ?? [], [optionsQ.data]);
   const rated = useMemo(
