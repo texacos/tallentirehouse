@@ -9,6 +9,9 @@ import { SurchargesPanel } from "@/components/admin/shipping/SurchargesPanel";
 import { MessagesPanel } from "@/components/admin/shipping/MessagesPanel";
 import { ImportExportPanel } from "@/components/admin/shipping/ImportExportPanel";
 import { RateTesterPanel } from "@/components/admin/shipping/RateTesterPanel";
+import { AramexDomesticPanel } from "@/components/admin/shipping/AramexDomesticPanel";
+import { ARAMEX_DOMESTIC_CODE } from "@/lib/aramex-domestic";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -137,6 +140,9 @@ function ShippingAdmin() {
       <Tabs defaultValue="carriers" className="mt-10">
         <TabsList className="flex h-auto flex-wrap justify-start">
           <TabsTrigger value="carriers">{activeCarrier?.name ?? "Carriers"}</TabsTrigger>
+          {activeCarrier?.code === ARAMEX_DOMESTIC_CODE && (
+            <TabsTrigger value="aramex-domestic">Cities &amp; LKR rates</TabsTrigger>
+          )}
           <TabsTrigger value="countries">Country rules</TabsTrigger>
           <TabsTrigger value="rates">Rate groups</TabsTrigger>
           <TabsTrigger value="surcharges">Surcharges</TabsTrigger>
@@ -144,6 +150,13 @@ function ShippingAdmin() {
           <TabsTrigger value="import">Import / Export</TabsTrigger>
           <TabsTrigger value="tester">Rate tester</TabsTrigger>
         </TabsList>
+
+        {activeCarrier?.code === ARAMEX_DOMESTIC_CODE && (
+          <TabsContent value="aramex-domestic" className="mt-6">
+            <AramexDomesticPanel />
+          </TabsContent>
+        )}
+
 
         <TabsContent value="carriers" className="mt-6">
           <CarriersPanel selectedId={activeCarrier?.id} onSelect={setCarrierId} />
