@@ -57,6 +57,24 @@ export async function quoteShippingFor(
       row["free_shipping_threshold"] == null ? null : Number(row["free_shipping_threshold"]),
   };
 
+  if (carrier.code === ARAMEX_DOMESTIC_CODE) {
+    const { quoteAramexDomestic } = await import("./aramex-domestic.server");
+    const res = await quoteAramexDomestic(db, carrier, {
+      country: args.country,
+      city: args.city ?? "",
+      weightKg: args.weightKg,
+      subtotal: args.subtotal,
+    });
+    return {
+      quote: res.quote,
+      carrierName: carrier.name,
+      snapshot: res.snapshot,
+      message: res.message,
+    };
+  }
+
+
+
   const { data: rules } = await db
     .from("shipping_country_rules")
     .select("status,rate_group_id")
@@ -106,5 +124,5 @@ export async function quoteShippingFor(
     subtotal: args.subtotal,
   });
 
-  return { quote: result, carrierName: carrier.name };
+  return { quote: result, carrierName: carrier.name, snapshot: null, message: null };
 }
