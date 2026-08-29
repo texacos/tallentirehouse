@@ -30,19 +30,26 @@ export function useShippingDestinations() {
 /** Live shipping quote for a destination + basket weight. Optionally scoped to one carrier. */
 export function useShippingQuote(params: {
   country: string;
+  city?: string;
   weightKg: number;
   subtotal: number;
   carrierCode?: string;
   enabled?: boolean;
 }) {
-  const { country, weightKg, subtotal, carrierCode, enabled = true } = params;
+  const { country, city = "", weightKg, subtotal, carrierCode, enabled = true } = params;
   return useQuery({
-    queryKey: ["shipping_quote", carrierCode ?? "default", country, weightKg, subtotal],
+    queryKey: ["shipping_quote", carrierCode ?? "default", country, city, weightKg, subtotal],
     enabled: enabled && !!country.trim() && weightKg >= 0,
     staleTime: 60_000,
     queryFn: (): Promise<ShippingQuoteResult> =>
       quoteShipping({
-        data: { country: country.trim(), weightKg, subtotal, carrierCode: carrierCode?.trim() },
+        data: {
+          country: country.trim(),
+          city: city.trim(),
+          weightKg,
+          subtotal,
+          carrierCode: carrierCode?.trim(),
+        },
       }),
   });
 }
@@ -50,16 +57,20 @@ export function useShippingQuote(params: {
 /** All active carriers quoted for the current destination + basket. */
 export function useShippingOptions(params: {
   country: string;
+  city?: string;
   weightKg: number;
   subtotal: number;
   enabled?: boolean;
 }) {
-  const { country, weightKg, subtotal, enabled = true } = params;
+  const { country, city = "", weightKg, subtotal, enabled = true } = params;
   return useQuery({
-    queryKey: ["shipping_options", country, weightKg, subtotal],
+    queryKey: ["shipping_options", country, city, weightKg, subtotal],
     enabled: enabled && !!country.trim() && weightKg >= 0,
     staleTime: 60_000,
     queryFn: (): Promise<ShippingOption[]> =>
-      listShippingOptions({ data: { country: country.trim(), weightKg, subtotal } }),
+      listShippingOptions({
+        data: { country: country.trim(), city: city.trim(), weightKg, subtotal },
+      }),
   });
 }
+
