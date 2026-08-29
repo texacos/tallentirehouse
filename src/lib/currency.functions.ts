@@ -43,14 +43,24 @@ export const adminListRates = createServerFn({ method: "POST" })
 
 export const adminRefreshRate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ ok: boolean; error?: string }> => {
+  .handler(async ({ context }): Promise<{ ok: boolean; error?: string; aramexError?: string }> => {
     const db = context.supabase as any;
     await assertAdmin(db, context.userId);
     try {
       const { refreshUsdLkrRate } = await import("./currency.server");
       await refreshUsdLkrRate();
-      return { ok: true };
+
+      // Aramex Domestic prices are quoted in LKR, so they follow the rate.
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { recalculateRates } = await import("./aramex-domestic.server");
+      const recalc = await recalculateRates(supabaseAdmin as never, {
+        kind: "manual",
+        actorId: context.userId,
+        actorLabel: (context.claims as any)?.email ?? context.userId,
+      });
+      return { ok: true, aramexError: recalc.ok ? undefined : recalc.error };
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : "Fetch failed" };
     }
   });
+
