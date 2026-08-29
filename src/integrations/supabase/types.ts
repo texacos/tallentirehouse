@@ -83,6 +83,193 @@ export type Database = {
         }
         Relationships: []
       }
+      aramex_domestic_cities: {
+        Row: {
+          city: string
+          city_key: string
+          created_at: string
+          district: string
+          id: string
+          locality: string
+          rate_group: string
+          updated_at: string
+        }
+        Insert: {
+          city: string
+          city_key: string
+          created_at?: string
+          district: string
+          id?: string
+          locality: string
+          rate_group: string
+          updated_at?: string
+        }
+        Update: {
+          city?: string
+          city_key?: string
+          created_at?: string
+          district?: string
+          id?: string
+          locality?: string
+          rate_group?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      aramex_domestic_rate_versions: {
+        Row: {
+          actor_id: string | null
+          actor_label: string
+          calculated_at: string | null
+          created_at: string
+          exchange_rate: number | null
+          exchange_rate_date: string | null
+          exchange_rate_fetched_at: string | null
+          exchange_rate_id: string | null
+          id: string
+          initiated_by: string
+          rounding_mode: string | null
+          rounding_setting: number | null
+          source_filename: string
+          status: string
+          updated_at: string
+          weight_limits: number[]
+        }
+        Insert: {
+          actor_id?: string | null
+          actor_label?: string
+          calculated_at?: string | null
+          created_at?: string
+          exchange_rate?: number | null
+          exchange_rate_date?: string | null
+          exchange_rate_fetched_at?: string | null
+          exchange_rate_id?: string | null
+          id?: string
+          initiated_by?: string
+          rounding_mode?: string | null
+          rounding_setting?: number | null
+          source_filename?: string
+          status?: string
+          updated_at?: string
+          weight_limits: number[]
+        }
+        Update: {
+          actor_id?: string | null
+          actor_label?: string
+          calculated_at?: string | null
+          created_at?: string
+          exchange_rate?: number | null
+          exchange_rate_date?: string | null
+          exchange_rate_fetched_at?: string | null
+          exchange_rate_id?: string | null
+          id?: string
+          initiated_by?: string
+          rounding_mode?: string | null
+          rounding_setting?: number | null
+          source_filename?: string
+          status?: string
+          updated_at?: string
+          weight_limits?: number[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aramex_domestic_rate_versions_exchange_rate_id_fkey"
+            columns: ["exchange_rate_id"]
+            isOneToOne: false
+            referencedRelation: "currency_rates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aramex_domestic_rates: {
+        Row: {
+          created_at: string
+          id: string
+          lkr_rate: number
+          rate_group: string
+          unrounded_usd: number | null
+          usd_rate: number | null
+          version_id: string
+          weight_limit_kg: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lkr_rate: number
+          rate_group: string
+          unrounded_usd?: number | null
+          usd_rate?: number | null
+          version_id: string
+          weight_limit_kg: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lkr_rate?: number
+          rate_group?: string
+          unrounded_usd?: number | null
+          usd_rate?: number | null
+          version_id?: string
+          weight_limit_kg?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aramex_domestic_rates_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "aramex_domestic_rate_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aramex_domestic_settings: {
+        Row: {
+          cities_imported_at: string | null
+          cities_source_filename: string
+          created_at: string
+          id: boolean
+          last_error: string | null
+          last_run_at: string | null
+          last_run_kind: string
+          last_status: string
+          rounding_changed_at: string | null
+          rounding_decimals: number
+          rounding_increment: number
+          rounding_mode: string
+          updated_at: string
+        }
+        Insert: {
+          cities_imported_at?: string | null
+          cities_source_filename?: string
+          created_at?: string
+          id?: boolean
+          last_error?: string | null
+          last_run_at?: string | null
+          last_run_kind?: string
+          last_status?: string
+          rounding_changed_at?: string | null
+          rounding_decimals?: number
+          rounding_increment?: number
+          rounding_mode?: string
+          updated_at?: string
+        }
+        Update: {
+          cities_imported_at?: string | null
+          cities_source_filename?: string
+          created_at?: string
+          id?: boolean
+          last_error?: string | null
+          last_run_at?: string | null
+          last_run_kind?: string
+          last_status?: string
+          rounding_changed_at?: string | null
+          rounding_decimals?: number
+          rounding_increment?: number
+          rounding_mode?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           attempts: number
@@ -307,6 +494,7 @@ export type Database = {
           shipping_amount: number
           shipping_carrier_code: string
           shipping_carrier_name: string
+          shipping_snapshot: Json
           status: string
           stock_applied: boolean
           subtotal: number
@@ -341,6 +529,7 @@ export type Database = {
           shipping_amount?: number
           shipping_carrier_code?: string
           shipping_carrier_name?: string
+          shipping_snapshot?: Json
           status?: string
           stock_applied?: boolean
           subtotal?: number
@@ -375,6 +564,7 @@ export type Database = {
           shipping_amount?: number
           shipping_carrier_code?: string
           shipping_carrier_name?: string
+          shipping_snapshot?: Json
           status?: string
           stock_applied?: boolean
           subtotal?: number
@@ -949,7 +1139,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      aramex_activate_rate_version: {
+        Args: { _version_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
