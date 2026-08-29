@@ -111,10 +111,17 @@ export async function isTestMode(db: Db): Promise<boolean> {
 
 export async function shippingQuote(
   db: Db,
-  args: { country: string; weightKg: number; subtotal: number; carrierCode: string },
+  args: {
+    country: string;
+    city?: string;
+    weightKg: number;
+    subtotal: number;
+    carrierCode: string;
+  },
 ) {
   return quoteShippingFor(db, args);
 }
+
 
 /** Applies stock once, when a payment is confirmed. */
 export async function applyStock(db: Db, order: any): Promise<void> {

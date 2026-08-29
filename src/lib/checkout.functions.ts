@@ -72,15 +72,21 @@ export const createCheckout = createServerFn({ method: "POST" })
         return { ok: false, error: "Please complete your address details." };
       }
 
-      const { quote, carrierName } = await shippingQuote(db, {
+      const { quote, carrierName, snapshot, message } = await shippingQuote(db, {
         country: delivery.country,
+        city: delivery.city,
         weightKg,
         subtotal,
         carrierCode: data.carrierCode,
       });
       if (!quote || quote.status !== "rated") {
-        return { ok: false, error: "That delivery method is not available for your address." };
+        return {
+          ok: false,
+          error:
+            message ?? "That delivery method is not available for your address.",
+        };
       }
+
 
       const shippingAmount = Math.round(quote.total * 100) / 100;
       const total = Math.round((subtotal + shippingAmount) * 100) / 100;
@@ -109,6 +115,8 @@ export const createCheckout = createServerFn({ method: "POST" })
           phone: data.billing.phone,
           items: lines,
           items_count: lines.reduce((s, l) => s + l.qty, 0),
+          shipping_snapshot: snapshot ?? {},
+
         } as never)
         .select("id, order_number")
         .single();

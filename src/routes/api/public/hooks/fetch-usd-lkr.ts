@@ -25,8 +25,21 @@ export const Route = createFileRoute("/api/public/hooks/fetch-usd-lkr")({
         try {
           const { refreshUsdLkrRate } = await import("@/lib/currency.server");
           const result = await refreshUsdLkrRate();
-          return Response.json(result);
+
+          // Aramex Domestic prices are held in LKR, so a new rate must be
+          // applied straight away. A failure here never disturbs the live
+          // prices — it is recorded and reported in the Shipping dashboard.
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          const { recalculateRates } = await import("@/lib/aramex-domestic.server");
+          const recalc = await recalculateRates(supabaseAdmin as never, {
+            kind: "scheduled",
+            actorId: null,
+            actorLabel: "scheduled task",
+          });
+
+          return Response.json({ ...result, aramexDomestic: recalc });
         } catch (e) {
+
           console.error("USD/LKR rate fetch failed", e);
           return new Response(
             JSON.stringify({
