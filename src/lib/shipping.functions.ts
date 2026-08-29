@@ -106,6 +106,7 @@ export type ShippingQuoteResult = {
 export const quoteShipping = createServerFn({ method: "POST" })
   .inputValidator((input: {
     country: string;
+    city?: string;
     weightKg: number;
     subtotal: number;
     carrierCode?: string;
@@ -118,6 +119,7 @@ export const quoteShipping = createServerFn({ method: "POST" })
     if (!Number.isFinite(subtotal) || subtotal < 0) throw new Error("Invalid subtotal");
     return {
       country: country.slice(0, 120),
+      city: String(input?.city ?? "").trim().slice(0, 160),
       weightKg,
       subtotal,
       carrierCode: input?.carrierCode ? String(input.carrierCode).slice(0, 60) : undefined,
@@ -133,8 +135,19 @@ export const quoteShipping = createServerFn({ method: "POST" })
 async function quoteForCarrier(
   supabase: ReturnType<typeof publicClient>,
   carrier: CarrierConfig,
-  data: { country: string; weightKg: number; subtotal: number },
+  data: { country: string; city?: string; weightKg: number; subtotal: number },
 ): Promise<ShippingQuoteResult> {
+    if (carrier.code === ARAMEX_DOMESTIC_CODE) {
+      const { quoteAramexDomestic } = await import("./aramex-domestic.server");
+      const res = await quoteAramexDomestic(supabase as never, carrier, {
+        country: data.country,
+        city: data.city ?? "",
+        weightKg: data.weightKg,
+        subtotal: data.subtotal,
+      });
+      return { quote: res.quote, message: res.message };
+    }
+
     const { data: rules, error: ruleErr } = await supabase
       .from("shipping_country_rules")
       .select("status,rate_group_id")
