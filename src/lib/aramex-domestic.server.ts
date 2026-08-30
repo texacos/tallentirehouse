@@ -286,17 +286,30 @@ export async function findCity(db: Db, city: string): Promise<CityRecord | null>
   };
 }
 
-/** Server-side autocomplete: narrows in SQL, then ranks with the pure scorer. */
+/**
+ * Server-side autocomplete: narrows in SQL, then ranks with the pure scorer.
+ * Prefix matches are fetched separately so a common district name (e.g. every
+ * "…, Galle" row) cannot crowd the exact town out of the shortlist.
+ */
 export async function suggestCities(db: Db, term: string, limit = 8): Promise<CityRecord[]> {
   const q = cityKey(term);
   if (q.length < 2) return [];
-  const escaped = q.replace(/[%_]/g, (m) => `\\${m}`);
-  const { data, error } = await db
-    .from("aramex_domestic_cities")
-    .select("city,city_key,locality,district,rate_group")
-    .ilike("city_key", `%${escaped}%`)
-    .limit(60);
-  if (error) throw new Error(error.message);
+  const escaped = q.replace(/[%_\\]/g, (m) => `\\${m}`);
+  const select = "city,city_key,locality,district,rate_group";
+
+  const [prefix, contains] = await Promise.all([
+    db.from("aramex_domestic_cities").select(select).ilike("city_key", `${escaped}%`).limit(30),
+    db.from("aramex_domestic_cities").select(select).ilike("city_key", `%${escaped}%`).limit(60),
+  ]);
+  if (prefix.error) throw new Error(prefix.error.message);
+  if (contains.error) throw new Error(contains.error.message);
+
+  const merged = new Map<string, Record<string, any>>();
+  for (const r of [...(prefix.data ?? []), ...(contains.data ?? [])]) {
+    merged.set((r as Record<string, any>)["city_key"], r as Record<string, any>);
+  }
+  const data = [...merged.values()];
+
   const records = (data ?? []).map((r: Record<string, any>) => ({
     city: r["city"],
     cityKey: r["city_key"],
