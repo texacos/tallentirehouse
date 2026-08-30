@@ -114,15 +114,22 @@ function CartPage() {
   const selected =
     rated.find((o) => o.carrierCode === carrierCode) ?? defaultOption;
   const quote = selected?.quote ?? options[0]?.quote ?? null;
-  // Messages from carriers that could not be rated (e.g. Aramex "no service"),
-  // shown even when another carrier (Local Pick-up) is available.
-  const unratedMessages = useMemo(
-    () =>
-      options
-        .filter((o) => o.quote?.status !== "rated" && o.message)
-        .map((o) => ({ carrierName: o.carrierName, message: o.message! })),
-    [options],
-  );
+  // Notices from carriers that could not be rated. When nothing is rated the
+  // shopper needs every explanation; once a usable option exists we only keep
+  // the actionable "we serve you but cannot price this online" notes and drop
+  // "we don't ship there" ones, which would otherwise contradict the price.
+  const unratedMessages = useMemo(() => {
+    const hasRated = options.some((o) => o.quote?.status === "rated");
+    return options
+      .filter(
+        (o) =>
+          o.message &&
+          o.quote?.status !== "rated" &&
+          (!hasRated || o.quote?.status === "no_rate"),
+      )
+      .map((o) => ({ carrierName: o.carrierName, message: o.message! }));
+  }, [options]);
+
   const shippingUSD =
     selected?.quote?.status === "rated" ? selected.quote.total : null;
 
