@@ -36,6 +36,14 @@ export function Footer() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 hover:opacity-70"
                 aria-label="Tallentire House on Instagram"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.open(
+                    "https://www.instagram.com/tallentirehouse/",
+                    "_blank",
+                    "noopener,noreferrer"
+                  );
+                }}
               >
                 <Instagram size={18} />
                 <span>Instagram</span>
