@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Instagram } from "lucide-react";
 
 export function Footer() {
   return (
@@ -28,6 +29,18 @@ export function Footer() {
             <li><Link to="/about" className="hover:opacity-70">Our story</Link></li>
             <li><Link to="/contact" className="hover:opacity-70">Contact</Link></li>
             <li><Link to="/locations" className="hover:opacity-70">Locations</Link></li>
+            <li>
+              <a
+                href="https://www.instagram.com/tallentirehouse/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 hover:opacity-70"
+                aria-label="Tallentire House on Instagram"
+              >
+                <Instagram size={18} />
+                <span>Instagram</span>
+              </a>
+            </li>
           </ul>
         </div>
       </div>
