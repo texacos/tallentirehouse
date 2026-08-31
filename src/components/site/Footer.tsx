@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Instagram } from "lucide-react";
 
 export function Footer() {
   return (
